@@ -1,0 +1,384 @@
+/*
+ * Copyright (c) 2013 Goran Ehrsson.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package grails.plugins.crm.task
+
+import grails.plugins.crm.core.DateUtils
+import grails.plugins.crm.core.TenantUtils
+import org.springframework.dao.DataIntegrityViolationException
+import grails.converters.JSON
+import grails.plugins.crm.core.WebUtils
+import grails.plugins.crm.core.SearchUtils
+
+class CrmTaskController {
+
+    static allowedMethods = [list: ['GET', 'POST'], create: ['GET', 'POST'], edit: ['GET', 'POST'], delete: 'POST']
+
+    def grailsApplication
+    def crmCoreService
+    def crmSecurityService
+    def shiroCrmSecurityService // TODO reference to Shiro!!!
+    def crmTaskService
+    def selectionService
+    def userTagService
+
+    def index() {
+        // If any query parameters are specified in the URL, let them override the last query stored in session.
+        def cmd = new CrmTaskQueryCommand()
+        def query = params.getSelectionQuery()
+        bindData(cmd, query ?: WebUtils.getTenantData(request, 'crmTaskQuery'))
+        [cmd: cmd]
+    }
+
+    def list() {
+        def baseURI = new URI('bean://crmTaskService/list')
+        def query = params.getSelectionQuery()
+        def uri
+
+        switch (request.method) {
+            case 'GET':
+                uri = params.getSelectionURI() ?: selectionService.addQuery(baseURI, query)
+                break
+            case 'POST':
+                uri = selectionService.addQuery(baseURI, query)
+                WebUtils.setTenantData(request, 'crmTaskQuery', query)
+                break
+        }
+
+        params.max = Math.min(params.max ? params.int('max') : 10, 100)
+
+        def result
+        try {
+            result = selectionService.select(uri, params)
+            if (result.size() == 1) {
+                redirect action: "show", id: result.head().ident()
+            } else {
+                [crmTaskList: result, crmTaskTotal: result.totalCount, selection: uri]
+            }
+        } catch (Exception e) {
+            log.error("Selection failed: $uri", e)
+            flash.error = e.message
+            [crmTaskList: [], crmTaskTotal: 0, selection: uri]
+        }
+    }
+
+    def clearQuery() {
+        WebUtils.setTenantData(request, 'crmTaskQuery', null)
+        redirect(action: "index")
+    }
+
+    def print() {
+        def user = crmSecurityService.currentUser
+        def tempFile = event(for: "crmTask", topic: "print", data: params + [report: 'list', user: user, tenant: TenantUtils.tenant]).waitFor(20000)?.value
+        if (tempFile instanceof File) {
+            try {
+                def filename = message(code: 'crmTask.label', default: 'Task') + '.pdf'
+                WebUtils.inlineHeaders(response, "application/pdf", filename)
+                WebUtils.renderFile(response, tempFile)
+            } finally {
+                tempFile.delete()
+            }
+            return null // Success
+        } else if (tempFile) {
+            log.error("Print event returned an unexpected value: $tempFile (${tempFile.class.name})")
+            flash.error = message(code: 'crmTask.print.error.message', default: 'Printing failed due to an error', args: [tempFile.class.name])
+        } else {
+            flash.warning = message(code: 'crmTask.print.nothing.message', default: 'Nothing was printed')
+        }
+        redirect(action: "index") // error condition, return to search form.
+    }
+
+    def export() {
+        def user = crmSecurityService.getUserInfo(crmSecurityService.currentUser?.username)
+        def filename = message(code: 'crmTask.label', default: 'Task')
+        def result = event(for: "crmTask", topic: "export",
+                data: params + [user: user, tenant: TenantUtils.tenant, locale: request.locale, filename: filename]).waitFor(30000)?.value
+        if (result?.file) {
+            try {
+                WebUtils.inlineHeaders(response, result.contentType ?: "application/vnd.ms-excel", result.filename ?: filename)
+                WebUtils.renderFile(response, result.file)
+            } finally {
+                result.file.delete()
+            }
+            return null // Success
+        } else {
+            flash.warning = message(code: 'crmTask.export.nothing.message', default: 'Nothing was exported')
+        }
+        redirect(action: "list")
+    }
+
+    private boolean checkPrerequisites() {
+        if (crmTaskService.listTaskTypes().isEmpty()) {
+            flash.warning = message(code: 'crmTaskType.lookup.empty.message', args: [message(code: 'crmTaskType.label', default: 'Task Type')])
+            return false
+        }
+        return true
+    }
+
+    def create() {
+        def startDate = params.remove('startDate') ?: (new Date() + 1).format("yyyy-MM-dd")
+        def endDate = params.remove('endDate') ?: startDate
+        def startTime = params.remove('startTime') ?: '09:00'
+        def endTime = params.remove('endTime') ?: '10:00'
+        def user = params.username ? crmSecurityService.getUserInfo(params.username) : crmSecurityService.currentUser
+        if (!params.username) {
+            params.username = user?.username
+        }
+        if (params.priority == null) {
+            params.priority = CrmTask.PRIORITY_NORMAL
+        }
+        if (params.complete == null) {
+            params.complete = CrmTask.STATUS_PLANNED
+        }
+        if (params.busy == null) {
+            params.busy = 'true'
+        }
+        def crmTask = crmTaskService.createTask(params)
+        def typeList = crmTaskService.listTaskTypes()
+        def userList = crmSecurityService.getTenantUsers()
+        def timeList = (0..23).inject([]) { list, h -> 4.times { list << String.format("%02d:%02d", h, it * 15) }; list }
+        switch (request.method) {
+            case 'GET':
+                if (!checkPrerequisites()) {
+                    redirect(mapping: 'crmTask.welcome')
+                    return
+                }
+                setReference(crmTask, params.ref)
+                bindDate(crmTask, 'startTime', startDate + ' ' + startTime, user?.timezone)
+                bindDate(crmTask, 'endTime', endDate + ' ' + endTime, user?.timezone)
+                crmTask.clearErrors()
+                return [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList]
+            case 'POST':
+                try {
+                    setReference(crmTask, params.ref)
+                    bindDate(crmTask, 'startTime', startDate + ' ' + startTime, user?.timezone)
+                    bindDate(crmTask, 'endTime', endDate + ' ' + endTime, user?.timezone)
+
+                    if (crmTask.hasErrors() || !crmTask.save()) {
+                        render view: 'create', model: [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList]
+                        return
+                    }
+                    flash.success = message(code: 'crmTask.created.message', args: [message(code: 'crmTask.label', default: 'Task'), crmTask.toString()])
+                    redirect action: 'show', id: crmTask.id
+                } catch (Exception e) {
+                    log.error("error", e)
+                    flash.error = e.message
+                    render view: 'create', model: [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList]
+                }
+                break
+        }
+    }
+
+    private void setReference(object, ref) {
+        if (ref) {
+            def reference = crmCoreService.getReference(ref)
+            if (reference) {
+                if (reference.hasProperty('tenantId') && (reference.tenantId == TenantUtils.tenant)) {
+                    object.reference = reference
+                }
+            } else {
+                log.warn("User [${crmSecurityService.currentUser?.username}] in tenant [${TenantUtils.tenant}] tried to set invalid reference [${ref}] on [${object.class.name}]")
+            }
+        } else {
+            object.reference = null
+        }
+    }
+
+    def guessReference(String text) {
+        def future = event(for: "crm", topic: "guessReference", data: [text: text, user: crmSecurityService.currentUser,
+                tenant: TenantUtils.tenant, locale: request.locale]).waitFor(5000)
+        def list = future.values.flatten()
+        def result = [q: text, timestamp: System.currentTimeMillis(), length: list.size(), more: false, results: list]
+        WebUtils.shortCache(response)
+        render result as JSON
+    }
+
+    private void bindDate(CrmTask crmTask, String property, String value, TimeZone timezone = null) {
+        println "Binding $value to $property"
+        if (value) {
+            try {
+                crmTask[property] = DateUtils.parseDateTime(value, timezone ?: TimeZone.default)
+            } catch (Exception e) {
+                log.error("error", e)
+                def entityName = message(code: 'crmTask.label', default: 'Task')
+                def propertyName = message(code: 'crmTask.' + property + '.label', default: property)
+                crmTask.errors.rejectValue(property, 'default.invalid.date.message', [propertyName, entityName, value.toString(), e.message].toArray(), "Invalid date: {2}")
+            }
+        } else {
+            crmTask[property] = null
+        }
+    }
+
+    def show() {
+        def crmTask = CrmTask.findByIdAndTenantId(params.id, TenantUtils.tenant)
+        if (!crmTask) {
+            flash.error = message(code: 'crmTask.not.found.message', args: [message(code: 'crmTask.label', default: 'Agreement'), params.id])
+            redirect action: 'index'
+            return
+        }
+
+        [crmTask: crmTask]
+    }
+
+    def edit() {
+        def tenant = TenantUtils.tenant
+        def crmTask = CrmTask.findByIdAndTenantId(params.id, tenant)
+        if (!crmTask) {
+            flash.error = message(code: 'crmTask.not.found.message', args: [message(code: 'crmTask.label', default: 'Task'), params.id])
+            redirect action: 'index'
+            return
+        }
+        def user = crmSecurityService.getUserInfo(params.username ?: crmTask.username)
+        def typeList = crmTaskService.listTaskTypes()
+        def userList = crmSecurityService.getTenantUsers()
+        def timeList = (0..23).inject([]) { list, h -> 4.times { list << String.format("%02d:%02d", h, it * 15) }; list }
+        switch (request.method) {
+            case 'GET':
+                return [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList]
+            case 'POST':
+                try {
+                    def startDate = params.remove('startDate') ?: (new Date() + 1).format("yyyy-MM-dd")
+                    def endDate = params.remove('endDate') ?: startDate
+                    def startTime = params.remove('startTime') ?: '09:00'
+                    def endTime = params.remove('endTime') ?: '10:00'
+
+                    bindData(crmTask, params)
+                    //setReference(crmTask, params.ref)
+                    bindDate(crmTask, 'startTime', startDate + ' ' + startTime, user?.timezone)
+                    bindDate(crmTask, 'endTime', endDate + ' ' + endTime, user?.timezone)
+
+                    if (crmTask.hasErrors() || !crmTask.save()) {
+                        render view: 'edit', model: [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList]
+                        return
+                    }
+
+                    flash.success = message(code: 'crmTask.updated.message', args: [message(code: 'crmTask.label', default: 'Task'), crmTask.toString()])
+                    redirect action: 'show', id: crmTask.id
+                } catch (Exception e) {
+                    log.error(e)
+                    flash.error = e.message
+                    render view: 'edit', model: [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList]
+                }
+                break
+        }
+    }
+
+    def delete() {
+        def crmTask = CrmTask.findByIdAndTenantId(params.id, TenantUtils.tenant)
+        if (!crmTask) {
+            flash.error = message(code: 'crmTask.not.found.message', args: [message(code: 'crmTask.label', default: 'Task'), params.id])
+            redirect action: 'index'
+            return
+        }
+
+        try {
+            def tombstone = crmTask.toString()
+            crmTask.delete(flush: true)
+            flash.warning = message(code: 'crmTask.deleted.message', args: [message(code: 'crmTask.label', default: 'Task'), tombstone])
+            redirect action: 'index'
+        }
+        catch (DataIntegrityViolationException e) {
+            flash.error = message(code: 'crmTask.not.deleted.message', args: [message(code: 'crmTask.label', default: 'Task'), params.id])
+            redirect action: 'show', id: params.id
+        }
+    }
+
+    def createFavorite() {
+        def crmTask = CrmTask.findByIdAndTenantId(params.id, TenantUtils.tenant)
+        if (!crmTask) {
+            flash.error = message(code: 'crmTask.not.found.message', args: [message(code: 'crmTask.label', default: 'Task'), params.id])
+            redirect action: 'index'
+            return
+        }
+        userTagService.tag(crmTask, grailsApplication.config.crm.tag.favorite, crmSecurityService.currentUser?.username, TenantUtils.tenant)
+
+        redirect(action: 'show', id: params.id)
+    }
+
+    def deleteFavorite() {
+        def crmTask = CrmTask.findByIdAndTenantId(params.id, TenantUtils.tenant)
+        if (!crmTask) {
+            flash.error = message(code: 'crmTask.not.found.message', args: [message(code: 'crmTask.label', default: 'Task'), params.id])
+            redirect action: 'index'
+            return
+        }
+        userTagService.untag(crmTask, grailsApplication.config.crm.tag.favorite, crmSecurityService.currentUser?.username, TenantUtils.tenant)
+        redirect(action: 'show', id: params.id)
+    }
+
+    def completed(Long id) {
+        def crmTask = CrmTask.findByIdAndTenantId(params.id, TenantUtils.tenant)
+        if (!crmTask) {
+            flash.error = message(code: 'crmTask.not.found.message', args: [message(code: 'crmTask.label', default: 'Task'), params.id])
+            redirect action: 'index'
+            return
+        }
+        crmTaskService.setStatusCompleted(crmTask)
+        flash.success = message(code: 'crmTask.completed.message', args: [message(code: 'crmTask.label', default: 'Task'), crmTask.toString()])
+        redirect action: 'show', id: crmTask.id
+    }
+
+    def autocompleteUsername() {
+        def query = params.q?.toLowerCase()
+        def list = shiroCrmSecurityService.getTenantUsers().findAll { user ->
+            if (query) {
+                return user.name.toLowerCase().contains(query) || user.username.toLowerCase().contains(query)
+            }
+            return true
+        }.collect { user ->
+            [id: user.username, text: user.name]
+        }
+        def result = [q: params.q, timestamp: System.currentTimeMillis(), length: list.size(), more: false, results: list]
+        WebUtils.shortCache(response)
+        render result as JSON
+    }
+
+    def autocompleteLocation() {
+        def list = CrmTask.withCriteria() {
+            projections {
+                distinct('location')
+            }
+            eq('tenantId', TenantUtils.tenant)
+            if (params.q) {
+                ilike('location', SearchUtils.wildcard(params.q))
+            }
+            maxResults 100
+        }
+        if (params.q && !list.contains(params.q)) {
+            list << params.q
+        }
+        list = list.collect { [id: it, text: it] }
+        def result = [q: params.q, timestamp: System.currentTimeMillis(), length: list.size(), more: false, results: list]
+        WebUtils.shortCache(response)
+        render result as JSON
+    }
+
+    def autocompleteType() {
+        def list = CrmTaskType.withCriteria(params) {
+            projections {
+                property('id')
+                property('name')
+            }
+            eq('tenantId', TenantUtils.tenant)
+            if (params.q) {
+                ilike('name', SearchUtils.wildcard(params.q))
+            }
+        }.collect { [id: it[0], text: it[1]] }
+        def result = [q: params.q, timestamp: System.currentTimeMillis(), length: list.size(), more: false, results: list]
+        WebUtils.shortCache(response)
+        render result as JSON
+    }
+}
