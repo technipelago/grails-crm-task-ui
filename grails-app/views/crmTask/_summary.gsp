@@ -4,7 +4,7 @@
 
 <h2>${bean.name}</h2>
 
-<h3><g:formatDate date="${bean.startTime}" type="datetime" style="long"/></h3>
+<h3><g:formatDate date="${bean.startTime}" type="datetime" style="long" timeStyle="medium"/></h3>
 
 <g:if test="${bean.location}">
     <h3>${bean.location}</h3>
