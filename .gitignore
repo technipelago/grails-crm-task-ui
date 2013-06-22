@@ -3,6 +3,8 @@
 *Db.script
 .settings
 stacktrace.log
+/*.idea
+/*.iml
 /*.zip
 /plugin.xml
 /*.log
