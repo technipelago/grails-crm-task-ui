@@ -23,6 +23,8 @@ import grails.converters.JSON
 import grails.plugins.crm.core.WebUtils
 import grails.plugins.crm.core.SearchUtils
 
+import javax.servlet.http.HttpServletResponse
+
 class CrmTaskController {
 
     static allowedMethods = [list: ['GET', 'POST'], create: ['GET', 'POST'], edit: ['GET', 'POST'], delete: 'POST']
@@ -34,6 +36,7 @@ class CrmTaskController {
     def crmTaskService
     def selectionService
     def userTagService
+    def crmContactService
 
     def index() {
         // If any query parameters are specified in the URL, let them override the last query stored in session.
@@ -207,7 +210,6 @@ class CrmTaskController {
     }
 
     private void bindDate(CrmTask crmTask, String property, String value, TimeZone timezone = null) {
-        println "Binding $value to $property"
         if (value) {
             try {
                 crmTask[property] = DateUtils.parseDateTime(value, timezone ?: TimeZone.default)
@@ -230,7 +232,7 @@ class CrmTaskController {
             return
         }
 
-        [crmTask: crmTask]
+        [crmTask: crmTask, statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId)]
     }
 
     def edit() {
@@ -329,6 +331,118 @@ class CrmTaskController {
         crmTaskService.setStatusCompleted(crmTask)
         flash.success = message(code: 'crmTask.completed.message', args: [message(code: 'crmTask.label', default: 'Task'), crmTask.toString()])
         redirect action: 'show', id: crmTask.id
+    }
+
+    def attender(Long id, Long task) {
+        def crmTask = CrmTask.findByIdAndTenantId(task, TenantUtils.tenant)
+        if (!crmTask) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "No CrmTask found with id [$task]")
+            return
+        }
+        def taskAttender
+        if (id) {
+            taskAttender = CrmTaskAttender.findByIdAndEvent(id, crmTask)
+            if (!taskAttender) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "No CrmTaskAttender found with id [$id] and task [$task]")
+                return
+            }
+        } else {
+            taskAttender = new CrmTaskAttender(event: crmTask)
+        }
+
+        if (request.method == 'GET') {
+            return [bean: taskAttender, crmEvent: crmTask, statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId)]
+        } else if (request.method == 'POST') {
+            fixCompany(params)
+
+            def currentUser = crmSecurityService.getUserInfo()
+            bindData(taskAttender, params, [include: ['contact', 'bookingRef', 'notes', 'status']])
+            bindDate(taskAttender, 'bookingDate', params.bookingDate, currentUser.timezone)
+
+            if (taskAttender.validate() && taskAttender.save()) {
+                redirect action: "show", id: crmTask.id, fragment: "attender"
+            } else {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, taskAttender.errors.allErrors.toListString())
+            }
+        }
+    }
+
+    def deleteAttender(Long id, Long task) {
+        def crmTask = CrmTask.findByIdAndTenantId(task, TenantUtils.tenant)
+        if (!crmTask) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "No CrmEvent found with id [$task]")
+            return
+        }
+        def taskAttender = CrmTaskAttender.findByIdAndEvent(id, crmTask)
+        if (!taskAttender) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "No CrmTaskAttender found with id [$id] and task [$task]")
+            return
+        }
+
+        try {
+            def tombstone = taskAttender.toString()
+            taskAttender.delete(flush: true)
+            flash.warning = message(code: 'crmTaskAttender.deleted.message', args: [message(code: 'crmTaskAttender.label', default: 'Attender'), tombstone])
+        }
+        catch (DataIntegrityViolationException e) {
+            flash.error = message(code: 'crmTaskAttender.not.deleted.message', args: [message(code: 'crmTaskAttender.label', default: 'Attender'), id])
+        }
+        redirect(action: "show", id: crmTask.id, fragment: "attender")
+    }
+
+    private List fixCompany(Map params) {
+        def company = params['company.id'] ? CrmContact.get(params['company.id']) : null
+        def contact = params['person.id'] ? CrmContact.get(params['person.id']) : null
+
+        // Company is not specified but the selected person is associated with a company (parent)
+        // Set params as if the user had selected the person's parent in the company field.
+        if (company == null && contact?.parent != null) {
+            company = contact.parent
+            params['company.name'] = company.name
+            params['company.id'] = company.id
+        }
+
+        // A company name is specified but it's not an existing company.
+        // Create a new company.
+        if (params['company.name'] && !company) {
+            company = crmContactService.createCompany(name: params['company.name']).save(failOnError: true, flush: true)
+            params['company.id'] = company.id
+        }
+
+        // A person name is specified but it's not an existing person.
+        // Create a new person.
+        if (params['person.name'] && !contact) {
+            contact = crmContactService.createPerson([firstName: params['person.name'], parent: company]).save(failOnError: true, flush: true)
+            params['person.id'] = contact.id
+        }
+
+        return [company, contact]
+    }
+
+    private void bindDate(def target, String property, String value, TimeZone timezone = null) {
+        if (value) {
+            try {
+                target[property] = DateUtils.parseSqlDate(value, timezone)
+            } catch (Exception e) {
+                def entityName = message(code: 'crmTask.label', default: 'Task')
+                def propertyName = message(code: 'crmTask.' + property + '.label', default: property)
+                target.errors.rejectValue(property, 'default.invalid.date.message', [propertyName, entityName, value.toString(), e.message].toArray(), "Invalid date: {2}")
+            }
+        } else {
+            target[property] = null
+        }
+    }
+
+    def autocompleteCompany() {
+        def result = crmContactService.list([name: params.q], [max: 100]).collect { [it.name, it.id] }
+        WebUtils.noCache(response)
+        render result as JSON
+    }
+
+    def autocompletePerson(Long parent) {
+        def result = crmContactService.list([parent: parent, name: params.q], [max: 100]).collect { [it.name, it.id] }
+        WebUtils.noCache(response)
+        render result as JSON
     }
 
     def autocompleteUsername() {

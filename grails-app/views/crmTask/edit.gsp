@@ -110,15 +110,15 @@
                         <label class="control-label"><g:message code="crmTask.startTime.label"/></label>
 
                         <div class="controls">
-                            <span class="input-append date" style="margin-right: 20px;"
+                            <span class="input-append date"
                                   data-date="${formatDate(format: 'yyyy-MM-dd', date: crmTask.startTime ?: new Date())}">
-                                <g:textField name="startDate" class="span5" size="10" placeholder="ÅÅÅÅ-MM-DD"
+                                <g:textField name="startDate" class="input-medium" size="10" placeholder="ÅÅÅÅ-MM-DD"
                                              value="${formatDate(format: 'yyyy-MM-dd', date: crmTask.startTime)}"/><span
                                     class="add-on"><i class="icon-th"></i></span>
                             </span>
 
                             <g:select name="startTime" from="${timeList}"
-                                      value="${formatDate(format: 'HH:mm', date: crmTask.startTime)}" class="span4"/>
+                                      value="${formatDate(format: 'HH:mm', date: crmTask.startTime)}" class="input-small"/>
                         </div>
                     </div>
 
@@ -126,15 +126,15 @@
                         <label class="control-label"><g:message code="crmTask.endTime.label"/></label>
 
                         <div class="controls">
-                            <span class="input-append date" style="margin-right: 20px;"
+                            <span class="input-append date"
                                   data-date="${formatDate(format: 'yyyy-MM-dd', date: crmTask.endTime ?: new Date())}">
-                                <g:textField name="endDate" class="span5" size="10" placeholder="ÅÅÅÅ-MM-DD"
+                                <g:textField name="endDate" class="input-medium" size="10" placeholder="ÅÅÅÅ-MM-DD"
                                              value="${formatDate(format: 'yyyy-MM-dd', date: crmTask.endTime)}"/><span
                                     class="add-on"><i class="icon-th"></i></span>
                             </span>
 
                             <g:select name="endTime" from="${timeList}"
-                                      value="${formatDate(format: 'HH:mm', date: crmTask.endTime)}" class="span4"/>
+                                      value="${formatDate(format: 'HH:mm', date: crmTask.endTime)}" class="input-small"/>
                         </div>
                     </div>
 

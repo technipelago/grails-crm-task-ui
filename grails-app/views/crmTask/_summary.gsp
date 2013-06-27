@@ -1,15 +1,20 @@
 <%@ page import="grails.plugins.crm.core.DateUtils" defaultCodec="html" %>
 
-<h4>${bean.type}</h4>
-
-<h2>${bean.name}</h2>
-
-<h3><g:formatDate date="${bean.startTime}" type="datetime" style="long" timeStyle="medium"/></h3>
-
-<g:if test="${bean.location}">
-    <h3>${bean.location}</h3>
+<g:if test="${bean.attenders}">
+    <p>${bean.attenders.size()} st deltagare är anmälda till</p>
 </g:if>
 
+<h4>${bean.name}</h4>
+
 <p>
-    ${bean.description}
+    ${bean.type}
+    <strong><g:formatDate date="${bean.startTime}" type="date" style="long"/></strong>
+
+    <g:if test="${bean.location}">
+        vid <strong>${bean.location}</strong>.
+    </g:if>
 </p>
+
+<g:if test="${bean.username}">
+    <p><strong>${bean.username}</strong> är ansvarig.</p>
+</g:if>
