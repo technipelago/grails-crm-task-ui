@@ -16,8 +16,10 @@
 
 package grails.plugins.crm.task
 
+import grails.plugins.crm.contact.CrmContact
 import grails.plugins.crm.core.DateUtils
 import grails.plugins.crm.core.TenantUtils
+import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
 import org.springframework.dao.DataIntegrityViolationException
 import grails.converters.JSON
 import grails.plugins.crm.core.WebUtils
@@ -252,13 +254,14 @@ class CrmTaskController {
                 return [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList]
             case 'POST':
                 try {
-                    def startDate = params.remove('startDate') ?: (new Date() + 1).format("yyyy-MM-dd")
-                    def endDate = params.remove('endDate') ?: startDate
-                    def startTime = params.remove('startTime') ?: '09:00'
-                    def endTime = params.remove('endTime') ?: '10:00'
+                    bindData(crmTask, params, [include: CrmTask.BIND_WHITELIST - ['startTime', 'endTime']])
 
-                    bindData(crmTask, params)
                     //setReference(crmTask, params.ref)
+
+                    def startDate = params.startDate ?: (new Date() + 1).format("yyyy-MM-dd")
+                    def endDate = params.endDate ?: startDate
+                    def startTime = params.startTime ?: '09:00'
+                    def endTime = params.endTime ?: '10:00'
                     bindDate(crmTask, 'startTime', startDate + ' ' + startTime, user?.timezone)
                     bindDate(crmTask, 'endTime', endDate + ' ' + endTime, user?.timezone)
 
@@ -341,19 +344,19 @@ class CrmTaskController {
         }
         def taskAttender
         if (id) {
-            taskAttender = CrmTaskAttender.findByIdAndEvent(id, crmTask)
+            taskAttender = CrmTaskAttender.findByIdAndTask(id, crmTask)
             if (!taskAttender) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "No CrmTaskAttender found with id [$id] and task [$task]")
                 return
             }
         } else {
-            taskAttender = new CrmTaskAttender(event: crmTask)
+            taskAttender = new CrmTaskAttender(task: crmTask)
         }
 
         if (request.method == 'GET') {
-            return [bean: taskAttender, crmEvent: crmTask, statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId)]
+            return [bean: taskAttender, crmTask: crmTask, statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId)]
         } else if (request.method == 'POST') {
-            fixCompany(params)
+            fixContact(params)
 
             def currentUser = crmSecurityService.getUserInfo()
             bindData(taskAttender, params, [include: ['contact', 'bookingRef', 'notes', 'status']])
@@ -370,10 +373,10 @@ class CrmTaskController {
     def deleteAttender(Long id, Long task) {
         def crmTask = CrmTask.findByIdAndTenantId(task, TenantUtils.tenant)
         if (!crmTask) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "No CrmEvent found with id [$task]")
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "No CrmTask found with id [$task]")
             return
         }
-        def taskAttender = CrmTaskAttender.findByIdAndEvent(id, crmTask)
+        def taskAttender = CrmTaskAttender.findByIdAndTask(id, crmTask)
         if (!taskAttender) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "No CrmTaskAttender found with id [$id] and task [$task]")
             return
@@ -390,33 +393,43 @@ class CrmTaskController {
         redirect(action: "show", id: crmTask.id, fragment: "attender")
     }
 
-    private List fixCompany(Map params) {
-        def company = params['company.id'] ? CrmContact.get(params['company.id']) : null
-        def contact = params['person.id'] ? CrmContact.get(params['person.id']) : null
-
-        // Company is not specified but the selected person is associated with a company (parent)
-        // Set params as if the user had selected the person's parent in the company field.
-        if (company == null && contact?.parent != null) {
-            company = contact.parent
-            params['company.name'] = company.name
-            params['company.id'] = company.id
+    def updateAttenders(Long task, Long status) {
+        def tenant = TenantUtils.tenant
+        def crmTask = CrmTask.findByIdAndTenantId(task, tenant)
+        if (!crmTask) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "No CrmTask found with id [$task]")
+            return
         }
-
-        // A company name is specified but it's not an existing company.
-        // Create a new company.
-        if (params['company.name'] && !company) {
-            company = crmContactService.createCompany(name: params['company.name']).save(failOnError: true, flush: true)
-            params['company.id'] = company.id
+        def attenderStatus = CrmTaskAttenderStatus.findByIdAndTenantId(status, tenant)
+        if (!attenderStatus) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "No CrmTaskAttenderStatus found with id [$status]")
+            return
         }
+        List<Long> attenders = params.list('attenders')
+        CrmTaskAttender.withTransaction {
+            for (a in attenders) {
+                CrmTaskAttender attender = CrmTaskAttender.findByIdAndTask(a, crmTask)
+                if (attender) {
+                    attender.status = attenderStatus
+                } else {
+                    log.error("No CrmTaskAttender found with id [$a] in tenant [$tenant]")
+                }
+            }
+        }
+        redirect(action: "show", id: crmTask.id, fragment: "attender")
+    }
 
-        // A person name is specified but it's not an existing person.
+    private CrmContact fixContact(GrailsParameterMap params) {
+        CrmContact contact = params['contact.id'] ? CrmContact.findByIdAndTenantId(params.long('contact.id'), TenantUtils.tenant) : null
+
+        // A contact name is specified but it's not an existing contact.
         // Create a new person.
-        if (params['person.name'] && !contact) {
-            contact = crmContactService.createPerson([firstName: params['person.name'], parent: company]).save(failOnError: true, flush: true)
-            params['person.id'] = contact.id
+        if (params['contact.name'] && !contact) {
+            contact = crmContactService.createPerson([firstName: params['contact.name']]).save(failOnError: true, flush: true)
+            params['contact.id'] = contact.id
         }
 
-        return [company, contact]
+        return contact
     }
 
     private void bindDate(def target, String property, String value, TimeZone timezone = null) {
@@ -433,14 +446,8 @@ class CrmTaskController {
         }
     }
 
-    def autocompleteCompany() {
-        def result = crmContactService.list([name: params.q], [max: 100]).collect { [it.name, it.id] }
-        WebUtils.noCache(response)
-        render result as JSON
-    }
-
-    def autocompletePerson(Long parent) {
-        def result = crmContactService.list([parent: parent, name: params.q], [max: 100]).collect { [it.name, it.id] }
+    def autocompleteContact(Long parent) {
+        def result = crmContactService.list([parent: parent, name: params.q], [max: 100]).collect { [it.fullName, it.id] }
         WebUtils.noCache(response)
         render result as JSON
     }
@@ -461,7 +468,7 @@ class CrmTaskController {
     }
 
     def autocompleteLocation() {
-        def list = CrmTask.withCriteria() {
+        def result = CrmTask.withCriteria() {
             projections {
                 distinct('location')
             }
@@ -469,13 +476,10 @@ class CrmTaskController {
             if (params.q) {
                 ilike('location', SearchUtils.wildcard(params.q))
             }
+            order 'location', 'asc'
             maxResults 100
+            cache true
         }
-        if (params.q && !list.contains(params.q)) {
-            list << params.q
-        }
-        list = list.collect { [id: it, text: it] }
-        def result = [q: params.q, timestamp: System.currentTimeMillis(), length: list.size(), more: false, results: list]
         WebUtils.shortCache(response)
         render result as JSON
     }

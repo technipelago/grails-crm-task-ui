@@ -1,9 +1,4 @@
-<%@ page import="grails.plugins.crm.core.DateUtils" defaultCodec="html" %>
-
-<g:if test="${bean.attenders}">
-    <p>${bean.attenders.size()} st deltagare är anmälda till</p>
-</g:if>
-
+<%@ page import="org.apache.commons.lang.StringUtils" defaultCodec="html" %>
 <h4>${bean.name}</h4>
 
 <p>
@@ -15,6 +10,10 @@
     </g:if>
 </p>
 
-<g:if test="${bean.username}">
-    <p><strong>${bean.username}</strong> är ansvarig.</p>
+<g:if test="${bean.description}">
+    <p>${StringUtils.abbreviate(bean.description, 150)}</p>
+</g:if>
+
+<g:if test="${bean.attenders}">
+    <p><strong>${bean.attenders.size()} st</strong> deltagare är anmälda.</p>
 </g:if>

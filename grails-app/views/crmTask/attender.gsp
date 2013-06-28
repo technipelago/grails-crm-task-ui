@@ -23,8 +23,8 @@
                 <label class="control-label">Person/Företag</label>
 
                 <div class="controls">
-                    <g:textField name="person.name" value="${bean.contact?.name}" class="input-large"/>
-                    <input type="hidden" name="person.id" value="${bean.contact?.id}"/>
+                    <g:textField name="contact.name" value="${bean.contact?.name}" class="input-large"/>
+                    <input type="hidden" name="contact.id" value="${bean.contact?.id}"/>
                 </div>
             </div>
 

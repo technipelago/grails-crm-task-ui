@@ -1,19 +1,3 @@
-%{--
-  - Copyright (c) 2013 Goran Ehrsson.
-  -
-  - Licensed under the Apache License, Version 2.0 (the "License");
-  - you may not use this file except in compliance with the License.
-  - You may obtain a copy of the License at
-  -
-  -     http://www.apache.org/licenses/LICENSE-2.0
-  -
-  - Unless required by applicable law or agreed to in writing, software
-  - distributed under the License is distributed on an "AS IS" BASIS,
-  - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  - See the License for the specific language governing permissions and
-  - limitations under the License.
-  --}%
-
 <%@ page import="grails.plugins.crm.task.CrmTask" %>
 <!DOCTYPE html>
 <html>
@@ -127,7 +111,7 @@
                         <div class="controls">
                             <span class="input-append date" style="margin-right: 20px;"
                                   data-date="${formatDate(format: 'yyyy-MM-dd', date: crmTask.startTime ?: new Date())}">
-                                <g:textField name="startDate" class="span5" size="10" placeholder="ÅÅÅÅ-MM-DD"
+                                <g:textField name="startDate" class="span7" size="10" placeholder="ÅÅÅÅ-MM-DD"
                                              value="${formatDate(format: 'yyyy-MM-dd', date: crmTask.startTime)}"/><span
                                     class="add-on"><i class="icon-th"></i></span>
                             </span>
@@ -142,7 +126,7 @@
                         <div class="controls">
                             <span class="input-append date" style="margin-right: 20px;"
                                   data-date="${formatDate(format: 'yyyy-MM-dd', date: crmTask.endTime ?: new Date())}">
-                                <g:textField name="endDate" class="span5" size="10" placeholder="ÅÅÅÅ-MM-DD"
+                                <g:textField name="endDate" class="span7" size="10" placeholder="ÅÅÅÅ-MM-DD"
                                              value="${formatDate(format: 'yyyy-MM-dd', date: crmTask.endTime)}"/><span
                                     class="add-on"><i class="icon-th"></i></span>
                             </span>

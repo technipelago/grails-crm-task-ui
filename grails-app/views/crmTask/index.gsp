@@ -1,19 +1,3 @@
-%{--
-  - Copyright (c) 2013 Goran Ehrsson.
-  -
-  - Licensed under the Apache License, Version 2.0 (the "License");
-  - you may not use this file except in compliance with the License.
-  - You may obtain a copy of the License at
-  -
-  -     http://www.apache.org/licenses/LICENSE-2.0
-  -
-  - Unless required by applicable law or agreed to in writing, software
-  - distributed under the License is distributed on an "AS IS" BASIS,
-  - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  - See the License for the specific language governing permissions and
-  - limitations under the License.
-  --}%
-
 <%@ page import="grails.plugins.crm.task.CrmTask" %>
 <!doctype html>
 <html>
@@ -86,7 +70,7 @@
                             <f:field property="fromDate">
                                 <div class="input-append date"
                                      data-date="${formatDate(format: 'yyyy-MM-dd', date: cmd.fromDate ?: new Date())}">
-                                    <g:textField name="fromDate" class="span8" size="10" placeholder="ÅÅÅÅ-MM-DD"
+                                    <g:textField name="fromDate" class="span11" size="10" placeholder="ÅÅÅÅ-MM-DD"
                                                  value="${formatDate(format:'yyyy-MM-dd', date:cmd.fromDate)}"/><span
                                         class="add-on"><i
                                             class="icon-th"></i></span>
@@ -95,7 +79,7 @@
                             <f:field property="toDate">
                                 <div class="input-append date"
                                      data-date="${formatDate(format: 'yyyy-MM-dd', date: cmd.toDate ?: new Date())}">
-                                    <g:textField name="toDate" class="span8" size="10" placeholder="ÅÅÅÅ-MM-DD"
+                                    <g:textField name="toDate" class="span11" size="10" placeholder="ÅÅÅÅ-MM-DD"
                                                  value="${formatDate(format:'yyyy-MM-dd', date:cmd.toDate)}"/><span
                                         class="add-on"><i
                                             class="icon-th"></i></span>

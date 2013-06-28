@@ -1,42 +1,48 @@
-<table class="table table-striped">
-    <thead>
-    <tr>
-        <crm:sortableColumn property="name"
-                            title="${message(code: 'crmContact.name.label', default: 'Name')}"/>
-        <th><g:message code="crmContact.address.label"/></th>
-        <crm:sortableColumn property="status"
-                            title="${message(code: 'crmTaskAttender.status.label', default: 'Status')}"/>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    <g:each in="${list}" var="m">
+<g:form name="attender-change-form" action="updateAttenders">
+
+    <g:hiddenField name="task" value="${crmTask?.id}"/>
+    <g:hiddenField name="status" value=""/>
+
+    <table class="table table-striped">
+        <thead>
         <tr>
-
-            <td>
-                <g:link controller="crmContact" action="show" id="${m.contact.id}"
-                        class="link-edit" data-crm-id="${m.id}">
-                    ${fieldValue(bean: m.contact, field: "fullName")}
-                </g:link>
-            </td>
-
-            <td>
-                ${m.contact.address?.encodeAsHTML()}
-            </td>
-
-            <td title="${m.notes?.encodeAsHTML()}">
-                <g:fieldValue bean="${m}" field="status"/>
-                <g:if test="${m.notes}">
-                    <i class="icon-comment"></i>
-                </g:if>
-            </td>
-            <td>
-                <input type="checkbox" name="change" value="${m.id}"/>
-            </td>
+            <crm:sortableColumn property="name"
+                                title="${message(code: 'crmContact.name.label', default: 'Name')}"/>
+            <th><g:message code="crmContact.address.label"/></th>
+            <crm:sortableColumn property="status"
+                                title="${message(code: 'crmTaskAttender.status.label', default: 'Status')}"/>
+            <th><g:checkBox name="changeAll" title="Markera alla"/></th>
         </tr>
-    </g:each>
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+        <g:each in="${list}" var="m">
+            <tr>
+
+                <td>
+                    <g:link controller="crmContact" action="show" id="${m.contact.id}"
+                            class="link-edit" data-crm-id="${m.id}">
+                        ${fieldValue(bean: m.contact, field: "fullName")}
+                    </g:link>
+                </td>
+
+                <td>
+                    ${m.contact.address?.encodeAsHTML()}
+                </td>
+
+                <td title="${m.notes?.encodeAsHTML()}">
+                    <g:fieldValue bean="${m}" field="status"/>
+                    <g:if test="${m.notes}">
+                        <i class="icon-comment"></i>
+                    </g:if>
+                </td>
+                <td>
+                    <input type="checkbox" name="attenders" value="${m.id}"/>
+                </td>
+            </tr>
+        </g:each>
+        </tbody>
+    </table>
+</g:form>
 
 <crm:hasPermission permission="crmTask:edit">
 
@@ -67,7 +73,7 @@
                         <g:each in="${statusList}" var="status">
                             <li>
                                 <a href="javascript:void(0)"
-                                   onclick="changeAttenderStatus(${bean.id}, ${status.id})">${status.encodeAsHTML()}</a>
+                                   onclick="updateAttenders('status', ${status.id})">${status.encodeAsHTML()}</a>
                             </li>
                         </g:each>
                     </crm:hasPermission>
