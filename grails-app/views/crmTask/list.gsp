@@ -71,7 +71,7 @@
 
     <g:if test="${crmTaskTotal}">
         <div class="btn-group">
-            <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+            <button class="btn btn-info dropdown-toggle" data-toggle="dropdown">
                 <i class="icon-print icon-white"></i>
                 <g:message code="crmTask.button.print.label" default="Print"/>
                 <span class="caret"></span>

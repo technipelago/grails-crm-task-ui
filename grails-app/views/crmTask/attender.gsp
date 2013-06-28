@@ -23,7 +23,10 @@
                 <label class="control-label">Person/Företag</label>
 
                 <div class="controls">
-                    <g:textField name="contact.name" value="${bean.contact?.name}" class="input-large"/>
+                    <div class="input-append">
+                        <g:textField name="contact.name" value="${bean.contact?.name}" class="input-large"/><span
+                            class="add-on"><g:link controller="crmContact" action="show" id="${bean.contact?.id}"><i class="icon-zoom-in"></i></g:link></span>
+                    </div>
                     <input type="hidden" name="contact.id" value="${bean.contact?.id}"/>
                 </div>
             </div>

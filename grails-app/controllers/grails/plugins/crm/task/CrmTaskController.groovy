@@ -86,11 +86,15 @@ class CrmTaskController {
     }
 
     def print() {
+        if(! params.report) {
+            params.report = 'list'
+        }
         def user = crmSecurityService.currentUser
-        def tempFile = event(for: "crmTask", topic: "print", data: params + [report: 'list', user: user, tenant: TenantUtils.tenant]).waitFor(20000)?.value
+        def tempFile = event(for: "crmTask", topic: "print", data: params + [user: user, tenant: TenantUtils.tenant]).waitFor(60000)?.value
         if (tempFile instanceof File) {
             try {
-                def filename = message(code: 'crmTask.label', default: 'Task') + '.pdf'
+                def entityName = message(code: 'crmTask.label', default: 'Task')
+                def filename = message(code: 'crmTask.' + params.report + '.label', default: 'Task ' + params.report, args: [entityName]) + '.pdf'
                 WebUtils.inlineHeaders(response, "application/pdf", filename)
                 WebUtils.renderFile(response, tempFile)
             } finally {
@@ -110,7 +114,7 @@ class CrmTaskController {
         def user = crmSecurityService.getUserInfo(crmSecurityService.currentUser?.username)
         def filename = message(code: 'crmTask.label', default: 'Task')
         def result = event(for: "crmTask", topic: "export",
-                data: params + [user: user, tenant: TenantUtils.tenant, locale: request.locale, filename: filename]).waitFor(30000)?.value
+                data: params + [user: user, tenant: TenantUtils.tenant, locale: request.locale, filename: filename]).waitFor(60000)?.value
         if (result?.file) {
             try {
                 WebUtils.inlineHeaders(response, result.contentType ?: "application/vnd.ms-excel", result.filename ?: filename)
