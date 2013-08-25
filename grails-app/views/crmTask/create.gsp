@@ -1,11 +1,10 @@
-<%@ page import="grails.plugins.crm.task.CrmTask" %>
-<!DOCTYPE html>
+<%@ page import="grails.plugins.crm.task.CrmTask" %><!DOCTYPE html>
 <html>
 <head>
     <meta name="layout" content="main">
     <g:set var="entityName" value="${message(code: 'crmTask.label', default: 'Task')}"/>
     <title><g:message code="crmTask.create.title" args="[entityName]"/></title>
-    <r:require modules="datepicker,select2,aligndates"/>
+    <r:require modules="datepicker,aligndates,autocomplete"/>
     <r:script>
     $(document).ready(function() {
 
@@ -31,30 +30,10 @@
         });
 
         // Add autocomplete for location field.
-        $("input[name='location']").select2({
-            placeholder: "${message(code: 'crmTask.location.placeholder', default: '')}",
-            minimumInputLength: 1,
-            //tags: true,
-            ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
-                url: "${createLink(action: 'autocompleteLocation')}",
-                dataType: 'json',
-                data: function (term, page) {
-                    return {
-                        q: term,
-                        offset: (page-1) * 10,
-                        max: 10
-                    };
-                },
-                results: function (data, page) { // parse the results into the format expected by Select2.
-                    return data;
-                }
-            },
-            initSelection : function (element, callback) {
-                callback({id: element.val(), text: element.val()});
-            },
-            formatSearching: function() { return "Söker..."; },
-            formatNoMatches: function(term) { return ""; },
-            formatInputTooShort: function(term, minLengh) { return "Skriv ett par tecken i början av platsen..."; }
+        $("input[name='location']").autocomplete("${createLink(action: 'autocompleteLocation')}", {
+            remoteDataType: 'json',
+            preventDefaultReturn: true,
+            selectFirst: true
         });
 
         $("input[name='name']").blur(function(ev) {
@@ -111,7 +90,7 @@
                         <div class="controls">
                             <span class="input-append date" style="margin-right: 20px;"
                                   data-date="${formatDate(format: 'yyyy-MM-dd', date: crmTask.startTime ?: new Date())}">
-                                <g:textField name="startDate" class="span7" size="10" placeholder="ÅÅÅÅ-MM-DD"
+                                <g:textField name="startDate" class="span9" size="10" placeholder="ÅÅÅÅ-MM-DD"
                                              value="${formatDate(format: 'yyyy-MM-dd', date: crmTask.startTime)}"/><span
                                     class="add-on"><i class="icon-th"></i></span>
                             </span>
@@ -126,7 +105,7 @@
                         <div class="controls">
                             <span class="input-append date" style="margin-right: 20px;"
                                   data-date="${formatDate(format: 'yyyy-MM-dd', date: crmTask.endTime ?: new Date())}">
-                                <g:textField name="endDate" class="span7" size="10" placeholder="ÅÅÅÅ-MM-DD"
+                                <g:textField name="endDate" class="span9" size="10" placeholder="ÅÅÅÅ-MM-DD"
                                              value="${formatDate(format: 'yyyy-MM-dd', date: crmTask.endTime)}"/><span
                                     class="add-on"><i class="icon-th"></i></span>
                             </span>
@@ -135,16 +114,7 @@
                         </div>
                     </div>
 
-                    <div class="control-group clearfix">
-                        <label class="control-label"><g:message code="crmTask.location.label"
-                                                                default="Location"/></label>
-
-                        <div class="controls">
-                            <g:hiddenField id="location-select" name="location" value="${crmTask.location}"
-                                           class="span11"/>
-                        </div>
-                    </div>
-
+                    <f:field property="location" input-class="span11"/>
                 </div>
             </div>
 

@@ -45,7 +45,7 @@ class CrmTaskController {
         def cmd = new CrmTaskQueryCommand()
         def query = params.getSelectionQuery()
         bindData(cmd, query ?: WebUtils.getTenantData(request, 'crmTaskQuery'))
-        [cmd: cmd]
+        [cmd: cmd, useAttenders: grailsApplication.config.crm.task.attenders.enabled]
     }
 
     def list() {
@@ -86,7 +86,7 @@ class CrmTaskController {
     }
 
     def print() {
-        if(! params.report) {
+        if (!params.report) {
             params.report = 'list'
         }
         def user = crmSecurityService.currentUser
@@ -238,8 +238,9 @@ class CrmTaskController {
             return
         }
 
-        [crmTask: crmTask, useAttenders: grailsApplication.config.crm.task.attenders.enabled,
-                statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId)]
+        [crmTask: crmTask, statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId),
+                useAttenders: grailsApplication.config.crm.task.attenders.enabled,
+                selection: params.getSelectionURI()]
     }
 
     def edit() {
@@ -459,15 +460,11 @@ class CrmTaskController {
 
     def autocompleteUsername() {
         def query = params.q?.toLowerCase()
-        def list = shiroCrmSecurityService.getTenantUsers().findAll { user ->
-            if (query) {
-                return user.name.toLowerCase().contains(query) || user.username.toLowerCase().contains(query)
-            }
-            return true
-        }.collect { user ->
-            [id: user.username, text: user.name]
+        def result = crmSecurityService.getTenantUsers().collect { it.username }
+        if (query) {
+            result = result.findAll { it.toLowerCase().contains(query) }
         }
-        def result = [q: params.q, timestamp: System.currentTimeMillis(), length: list.size(), more: false, results: list]
+        result = result.sort()
         WebUtils.shortCache(response)
         render result as JSON
     }
@@ -490,17 +487,15 @@ class CrmTaskController {
     }
 
     def autocompleteType() {
-        def list = CrmTaskType.withCriteria(params) {
+        def result = CrmTaskType.withCriteria(params) {
             projections {
-                property('id')
                 property('name')
             }
             eq('tenantId', TenantUtils.tenant)
             if (params.q) {
                 ilike('name', SearchUtils.wildcard(params.q))
             }
-        }.collect { [id: it[0], text: it[1]] }
-        def result = [q: params.q, timestamp: System.currentTimeMillis(), length: list.size(), more: false, results: list]
+        }
         WebUtils.shortCache(response)
         render result as JSON
     }

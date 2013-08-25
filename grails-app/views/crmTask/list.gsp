@@ -1,5 +1,4 @@
-<%@ page import="grails.plugins.crm.task.CrmTask" %>
-<!DOCTYPE html>
+<%@ page import="grails.plugins.crm.task.CrmTask" %><!DOCTYPE html>
 <html>
 <head>
     <meta name="layout" content="main">
@@ -9,7 +8,7 @@
 
 <body>
 
-<crm:header title="crmTask.list.title" subtitle="Sökningen resulterade i ${crmTaskTotal} st uppgifter"
+<crm:header title="crmTask.list.title" subtitle="Sökningen resulterade i ${crmTaskTotal} st händelser"
             args="[entityName]">
 </crm:header>
 
