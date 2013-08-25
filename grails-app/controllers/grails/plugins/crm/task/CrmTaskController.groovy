@@ -238,7 +238,8 @@ class CrmTaskController {
             return
         }
 
-        [crmTask: crmTask, statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId)]
+        [crmTask: crmTask, useAttenders: grailsApplication.config.crm.task.attenders.enabled,
+                statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId)]
     }
 
     def edit() {
@@ -436,7 +437,7 @@ class CrmTaskController {
         return contact
     }
 
-    private void bindDate(def target, String property, String value, TimeZone timezone = null) {
+    private void bindDate(CrmTaskAttender target, String property, String value, TimeZone timezone = null) {
         if (value) {
             try {
                 target[property] = DateUtils.parseSqlDate(value, timezone)

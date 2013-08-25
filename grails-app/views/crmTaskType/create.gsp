@@ -46,12 +46,14 @@
             <f:with bean="crmTaskType">
                 <f:field property="name" input-autofocus=""/>
                 <f:field property="description"/>
+                <f:field property="param"/>
+                <f:field property="icon"/>
                 <f:field property="orderIndex"/>
                 <f:field property="enabled"/>
             </f:with>
 
             <div class="form-actions">
-                <crm:button visual="primary" icon="icon-ok icon-white" label="crmTaskType.button.save.label"/>
+                <crm:button visual="success" icon="icon-ok icon-white" label="crmTaskType.button.save.label"/>
                 <crm:button type="link" action="list"
                             icon="icon-remove"
                             label="crmTaskType.button.cancel.label"/>

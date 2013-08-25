@@ -32,12 +32,14 @@
             <f:with bean="crmTaskAttenderStatus">
                 <f:field property="name" input-autofocus=""/>
                 <f:field property="description"/>
+                <f:field property="param"/>
+                <f:field property="icon"/>
                 <f:field property="orderIndex"/>
                 <f:field property="enabled"/>
             </f:with>
 
             <div class="form-actions">
-                <crm:button visual="primary" icon="icon-ok icon-white" label="crmTaskAttenderStatus.button.update.label"/>
+                <crm:button visual="warning" icon="icon-ok icon-white" label="crmTaskAttenderStatus.button.update.label"/>
                 <crm:button action="delete" visual="danger" icon="icon-trash icon-white"
                             label="crmTaskAttenderStatus.button.delete.label"
                             confirm="crmTaskAttenderStatus.button.delete.confirm.message"

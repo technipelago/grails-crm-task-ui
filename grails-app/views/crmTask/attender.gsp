@@ -25,7 +25,8 @@
                 <div class="controls">
                     <div class="input-append">
                         <g:textField name="contact.name" value="${bean.contact?.name}" class="input-large"/><span
-                            class="add-on"><g:link controller="crmContact" action="show" id="${bean.contact?.id}"><i class="icon-zoom-in"></i></g:link></span>
+                            class="add-on"><g:link controller="crmContact" action="show" id="${bean.contact?.id}"><i
+                                class="icon-zoom-in"></i></g:link></span>
                     </div>
                     <input type="hidden" name="contact.id" value="${bean.contact?.id}"/>
                 </div>
@@ -77,10 +78,7 @@
     </div>
 
     <div class="form-actions">
-        <button type="submit" class="btn btn-success">
-            <i class="icon-ok icon-white"></i>
-            Spara
-        </button>
+        <crm:button visual="success" icon="icon-ok icon-white" label="crmTaskAttender.button.save.label"/>
 
         <g:if test="${bean.id}">
             <crm:button visual="danger" action="deleteAttender" label="Radera" icon="icon-trash icon-white"
@@ -89,7 +87,7 @@
 
         <button id="crm-cancel" class="btn" onclick="return cancelAttender()">
             <i class="icon-remove"></i>
-            Avbryt
+            <g:message code="crmAttender.button.cancel.label" default="Cancel"/>
         </button>
     </div>
 
