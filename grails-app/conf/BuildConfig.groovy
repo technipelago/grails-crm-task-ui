@@ -1,54 +1,34 @@
-grails.project.class.dir = "target/classes"
-grails.project.test.class.dir = "target/test-classes"
-grails.project.test.reports.dir = "target/test-reports"
+grails.project.work.dir = "target"
 grails.project.target.level = 1.6
-/*
- * Copyright (c) 2013 Goran Ehrsson.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-//grails.project.war.file = "target/${appName}-${appVersion}.war"
 
 grails.project.repos.default = "crm"
 
 grails.project.dependency.resolution = {
-    // inherit Grails' default dependencies
-    inherits("global") {
-        // uncomment to disable ehcache
-        // excludes 'ehcache'
-    }
+    inherits("global") {}
     log "warn"
+    legacyResolve false
     repositories {
         grailsHome()
         mavenRepo "http://labs.technipelago.se/repo/plugins-releases-local/"
         mavenRepo "http://labs.technipelago.se/repo/crm-releases-local/"
         grailsCentral()
+        mavenCentral()
     }
     dependencies {
-        //test "org.spockframework:spock-grails-support:0.7-groovy-2.0"
+        test "org.spockframework:spock-grails-support:0.7-groovy-2.0"
     }
 
     plugins {
-        runtime ":hibernate:$grailsVersion"
         build(":tomcat:$grailsVersion",
-                ":release:2.2.1") {
+                ":release:2.2.1",
+                ":rest-client-builder:1.0.3") {
             export = false
         }
+        runtime ":hibernate:$grailsVersion"
 
         test(":spock:0.7") {
             export = false
-            //exclude "spock-grails-support"
+            exclude "spock-grails-support"
         }
         test(":codenarc:0.18.1") { export = false }
         test(":code-coverage:1.2.6") { export = false }
