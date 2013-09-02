@@ -21,8 +21,4 @@ modules = {
         resource url:'/css/fullcalendar.css'
         resource url:'/css/fullcalendar.print.css', attrs:[media:'print']
     }
-    aligndates {
-        dependsOn 'dateformat'
-        resource url:'js/aligndates.js'
-    }
 }
