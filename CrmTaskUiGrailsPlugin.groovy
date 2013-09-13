@@ -19,19 +19,14 @@ import grails.plugins.crm.core.TenantUtils
 import grails.plugins.crm.task.CrmTask
 
 class CrmTaskUiGrailsPlugin {
-    // Dependency group
     def groupId = "grails.crm"
-    // the plugin version
-    def version = "1.2.0-SNAPSHOT"
-    // the version or versions of Grails the plugin is designed for
-    def grailsVersion = "2.0 > *"
-    // the other plugins this plugin depends on
+    def version = "1.2.0"
+    def grailsVersion = "2.2 > *"
     def dependsOn = [:]
-    // resources that are excluded from plugin packaging
+    def loadAfter = ['crmTask']
     def pluginExcludes = [
             "grails-app/views/error.gsp"
     ]
-
     def title = "Grails CRM Task Management User Interface"
     def author = "Goran Ehrsson"
     def authorEmail = "goran@technipelago.se"
@@ -49,6 +44,7 @@ class CrmTaskUiGrailsPlugin {
             link controller: "crmTask", action: "index"
             permissions {
                 guest "crmTask:index,list,show,createFavorite,deleteFavorite,clearQuery", "crmCalendar:index,events"
+                partner "crmTask:index,list,show,createFavorite,deleteFavorite,clearQuery", "crmCalendar:index,events"
                 user "crmTask,crmCalendar:*"
                 admin "crmTask,crmTaskCategory,crmTaskStatus,crmTaskType,crmCalendar:*"
             }
@@ -75,18 +71,7 @@ class CrmTaskUiGrailsPlugin {
 
     def doWithApplicationContext = { applicationContext ->
         def crmPluginService = applicationContext.crmPluginService
-        def crmCoreService = applicationContext.crmCoreService
         // TODO Move to application!!!
-        crmPluginService.registerView('crmContact', 'show', 'tabs',
-                [id: "tasks", index: 300, permission: "crmTask:show", label: "Händelser", template: '/crmTask/list', plugin: "crm-task-ui", model: {
-                    def result = CrmTask.createCriteria().list([sort: 'startTime', order: 'asc']) {
-                        eq('ref', crmCoreService.getReferenceIdentifier(crmContact))
-                    }
-                    return [bean: crmContact, reference: crmCoreService.getReferenceIdentifier(crmContact),
-                            result: result, totalCount: result.totalCount]
-                }]
-        )
-
         crmPluginService.registerView('start', 'index', 'urgent-important',
                 [id: "urgent-tasks", permission: "crmTask:index", label: "start.urgent.tasks.label", template: '/start/tasks', plugin: "crm-task-ui", model: {
                     def d = new Date()
