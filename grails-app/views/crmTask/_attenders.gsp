@@ -294,7 +294,30 @@ tr.crm-status-absent td {
                     </crm:hasPermission>
                 </ul>
             </div>
-        </g:if>
 
+            <div class="btn-group">
+                <button class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+                    <i class="icon-print icon-white"></i>
+                    <g:message code="crmTask.button.print.label" default="Print"/>
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <crm:hasPermission permission="crmTask:print">
+                        <li>
+                            <g:link action="print" accesskey="p" target="pdf"
+                                    params="${[id: crmTask.id, report: 'attenders', layout: 'internal']}">
+                                <g:message code="crmTask.button.print.attenders.internal.label" default="Internal attender list"/>
+                            </g:link>
+                        </li>
+                        <li>
+                            <g:link action="print" accesskey="p" target="pdf"
+                                    params="${[id: crmTask.id, report: 'attenders', layout: 'external']}">
+                                <g:message code="crmTask.button.print.attenders.external.label" default="Public attender list"/>
+                            </g:link>
+                        </li>
+                    </crm:hasPermission>
+                </ul>
+            </div>
+        </g:if>
     </g:form>
 </div>
