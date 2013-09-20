@@ -6,21 +6,131 @@
         return false;
     }
 
+    function setCompanyIndicator(icon) {
+        if(icon) {
+            $("#crm-company-indicator").html(' <i class="' + icon + '"></i>');
+        } else {
+            $("#crm-company-indicator").empty();
+        }
+    }
+
+    function setPersonIndicator(icon) {
+        if(icon) {
+            $("#crm-person-indicator").html(' <i class="' + icon + '"></i>');
+        } else {
+            $("#crm-person-indicator").empty();
+        }
+    }
+
     function bindPanelEvents(panel) {
         $('.date', panel).datepicker({weekStart:1});
 
-        $("input[name='contact.name']").autocomplete("${createLink(action: 'autocompleteContact')}", {
+        $("input[name='companyName']").autocomplete("${createLink(controller: 'crmTask', action: 'autocompleteContact', params: [company: true])}", {
             remoteDataType: 'json',
             preventDefaultReturn: true,
             selectFirst: true,
+            useCache: false,
+            filter: false,
+            queryParamName: 'name',
+            extraParams: {},
             onItemSelect: function(item) {
-                var id = item.data[0];
-                $("input[name='contact.id']").val(id);
+                var ac = $("input[name='firstName']").data('autocompleter');
+                if(ac) {
+                    ac.setExtraParam('parent', item.data[0]);
+                    ac.cacheFlush();
+                    }
+                ac = $("input[name='lastName']").data('autocompleter');
+                if(ac) {
+                    ac.setExtraParam('parent', item.data[0]);
+                    ac.cacheFlush();
+                }
+                $("input[name='companyId']").val(item.data[0]);
+                $("input[name='contactId']").val('');
+                $("input[name='firstName']").val('');
+                $("input[name='lastName']").val('');
+                $("input[name='address']").val(item.data[5]);
+                $("input[name='telephone']").val(item.data[6]);
+                $("input[name='email']").val(item.data[7]);
+                setCompanyIndicator('');
             },
             onNoMatch: function() {
-                $("input[name='contact.id']").val('');
+                var ac = $("input[name='firstName']").data('autocompleter');
+                if(ac) {
+                    ac.setExtraParam('parent', '');
+                    ac.cacheFlush();
+                }
+                ac = $("input[name='lastName']").data('autocompleter');
+                if(ac) {
+                    ac.setExtraParam('parent', '');
+                    ac.cacheFlush();
+                }
+                $("input[name='companyId']").val('');
+                setCompanyIndicator('icon-leaf');
             }
         });
+
+        $("input[name='firstName']").autocomplete("${createLink(controller: 'crmTask', action: 'autocompleteContact', params: [person: true])}", {
+            remoteDataType: 'json',
+            preventDefaultReturn: true,
+            minChars: 1,
+            /*selectFirst: true,*/
+            filter: false,
+            useCache: false,
+            queryParamName: 'firstName',
+            extraParams: {},
+            onItemSelect: function(item) {
+                $("input[name='contactId']").val(item.data[0]);
+                $("input[name='companyId']").val(item.data[1]);
+                $("input[name='companyName']").val(item.data[2]);
+                $("input[name='firstName']").val(item.data[3]);
+                $("input[name='lastName']").val(item.data[4]);
+                $("input[name='address']").val(item.data[5]);
+                $("input[name='telephone']").val(item.data[6]);
+                $("input[name='email']").val(item.data[7]);
+                setPersonIndicator('');
+            },
+            onNoMatch: function() {
+                $("input[name='contactId']").val('');
+                setPersonIndicator('icon-leaf');
+            }
+        });
+
+        $("input[name='lastName']").autocomplete("${createLink(controller: 'crmTask', action: 'autocompleteContact', params: [person: true])}", {
+            remoteDataType: 'json',
+            preventDefaultReturn: true,
+            minChars: 1,
+            /*selectFirst: true,*/
+            filter: false,
+            useCache: false,
+            queryParamName: 'lastName',
+            extraParams: {},
+            onItemSelect: function(item) {
+                $("input[name='contactId']").val(item.data[0]);
+                $("input[name='companyId']").val(item.data[1]);
+                $("input[name='companyName']").val(item.data[2]);
+                $("input[name='firstName']").val(item.data[3]);
+                $("input[name='lastName']").val(item.data[4]);
+                $("input[name='address']").val(item.data[5]);
+                $("input[name='telephone']").val(item.data[6]);
+                $("input[name='email']").val(item.data[7]);
+                setPersonIndicator('');
+            },
+            onNoMatch: function() {
+                $("input[name='contactId']").val('');
+                setPersonIndicator('icon-leaf');
+            }
+        });
+
+        if($("input[name='companyId']").val()) {
+            setCompanyIndicator('');
+        } else if($("input[name='companyName']").val()) {
+            setCompanyIndicator('icon-leaf');
+        }
+        if($("input[name='contactId']").val()) {
+            setPersonIndicator('');
+        } else if($("input[name='firstName']").val()) {
+            setPersonIndicator('icon-leaf');
+        }
     }
 
     function updateAttenders(property, value) {
@@ -35,9 +145,12 @@
     $(document).ready(function () {
         $("a.link-edit").click(function (ev) {
     <% if (crm.hasPermission(permission: 'crmTask:edit', { true })) { %>
+    if($("#attender-panel").is(":visible")) {
+        return true;
+    }
     var $elem = $(this);
     ev.preventDefault();
-    $("#attender-panel").load("${createLink(action: 'attender', params: [task: crmTask.id])}&id=" + $elem.data('crm-id'), function(data) {
+    $("#attender-panel").load("${createLink(controller: 'crmTask', action: 'attender', params: [task: crmTask.id])}&id=" + $elem.data('crm-id'), function(data) {
                 var $panel = $(this);
                 bindPanelEvents($panel);
                 $("#std-actions").slideUp('fast', function () {
@@ -55,7 +168,7 @@
     $("a[href='#attender-create']").click(function (ev) {
         ev.preventDefault();
     <% if (crm.hasPermission(permission: 'crmTask:edit', { true })) { %>
-    $("#attender-panel").load("${createLink(action: 'attender', params: [task: crmTask.id])}", function(data) {
+    $("#attender-panel").load("${createLink(controller: 'crmTask', action: 'attender', params: [task: crmTask.id])}", function(data) {
                 var $panel = $(this);
                 bindPanelEvents($panel);
                 $("#std-actions").slideUp('fast', function () {
@@ -74,35 +187,61 @@
 });
 </r:script>
 
+<style type="text/css">
+tr.crm-status-confirmed td,
+tr.crm-status-attended td {
+    color: #009900;
+    background-color: #eeffee !important;
+}
+tr.crm-status-cancelled td {
+    color: #f89406;
+    background-color: #eeeeff !important;
+}
+tr.crm-status-absent td {
+    color: #9d261d;
+    background-color: #ffeeee !important;
+}
+</style>
+
 <g:form name="attender-change-form" action="updateAttenders">
 
     <g:hiddenField name="task" value="${crmTask?.id}"/>
     <g:hiddenField name="status" value=""/>
+    <g:hiddenField name="sort" value="${params.sort}"/>
+    <g:hiddenField name="order" value="${params.order}"/>
 
     <table class="table table-striped">
         <thead>
         <tr>
-            <crm:sortableColumn property="name"
-                                title="${message(code: 'crmContact.name.label', default: 'Name')}"/>
+            <th><g:message code="crmContact.name.label" default="Name"/></th>
             <th><g:message code="crmContact.address.label"/></th>
-            <crm:sortableColumn property="status"
+            <crm:sortableColumn property="status.orderIndex" fragment="attender"
                                 title="${message(code: 'crmTaskAttender.status.label', default: 'Status')}"/>
             <th><g:checkBox name="changeAll" title="Markera alla"/></th>
         </tr>
         </thead>
         <tbody>
         <g:each in="${list}" var="m">
-            <tr>
+            <g:set var="contactInfo" value="${m.contactInformation}"/>
+            <tr class="crm-status-${m.status.param}">
 
                 <td>
-                    <g:link controller="crmContact" action="show" id="${m.contact.id}"
-                            class="link-edit" data-crm-id="${m.id}">
-                        ${fieldValue(bean: m.contact, field: "fullName")}
-                    </g:link>
+                    <g:if test="${m.contact}">
+                        <g:link mapping="crm-contact-show" id="${m.contact.id}"
+                                class="link-edit" data-crm-id="${m.id}">
+                            ${fieldValue(bean: contactInfo, field: "fullName")}
+                        </g:link>
+                    </g:if>
+                    <g:else>
+                        <a href="#" class="link-edit" data-crm-id="${m.id}">
+                            ${fieldValue(bean: contactInfo, field: "fullName")}
+                        </a>
+                        <i class="icon-leaf"></i>
+                    </g:else>
                 </td>
 
-                <td>
-                    ${m.contact.address?.encodeAsHTML()}
+                <td class="${m.hide ? 'muted' : ''}">
+                    ${contactInfo.address?.encodeAsHTML()}
                 </td>
 
                 <td title="${m.notes?.encodeAsHTML()}">
@@ -131,7 +270,7 @@
         <g:hiddenField name="id" value="${crmTask?.id}"/>
 
         <crm:hasPermission permission="crmTask:edit">
-            <a href="#attender-create" role="button" class="btn btn-success">
+            <a href="#attender-create" role="button" class="btn btn-success" accesskey="n">
                 <i class="icon-user icon-white"></i>
                 <g:message code="crmTask.button.book.label"/>
             </a>

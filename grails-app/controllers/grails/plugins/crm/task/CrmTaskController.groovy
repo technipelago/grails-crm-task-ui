@@ -29,16 +29,23 @@ import javax.servlet.http.HttpServletResponse
 
 class CrmTaskController {
 
-    static allowedMethods = [list: ['GET', 'POST'], create: ['GET', 'POST'], edit: ['GET', 'POST'], delete: 'POST']
+    static allowedMethods = [list: ['GET', 'POST'], create: ['GET', 'POST'], edit: ['GET', 'POST'], delete: 'POST', attender: ['GET', 'POST']]
 
     def grailsApplication
     def crmCoreService
     def crmSecurityService
-    def shiroCrmSecurityService // TODO reference to Shiro!!!
     def crmTaskService
     def selectionService
     def userTagService
     def crmContactService
+
+    private String createValidationErrorMessage(Object domainInstance) {
+        final List<String> errors = []
+        eachError(bean: domainInstance) {
+            errors << message(error: it)
+        }
+        errors.join('\n')
+    }
 
     def index() {
         // If any query parameters are specified in the URL, let them override the last query stored in session.
@@ -238,9 +245,14 @@ class CrmTaskController {
             return
         }
 
+        def attenders
+        if (grailsApplication.config.crm.task.attenders.enabled) {
+            attenders = CrmTaskAttender.createCriteria().list(params) {
+                eq('task', crmTask)
+            }
+        }
         [crmTask: crmTask, statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId),
-                useAttenders: grailsApplication.config.crm.task.attenders.enabled,
-                selection: params.getSelectionURI()]
+                attenders: attenders, selection: params.getSelectionURI()]
     }
 
     def edit() {
@@ -348,7 +360,7 @@ class CrmTaskController {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "No CrmTask found with id [$task]")
             return
         }
-        def taskAttender
+        CrmTaskAttender taskAttender
         if (id) {
             taskAttender = CrmTaskAttender.findByIdAndTask(id, crmTask)
             if (!taskAttender) {
@@ -360,19 +372,64 @@ class CrmTaskController {
         }
 
         if (request.method == 'GET') {
-            return [bean: taskAttender, crmTask: crmTask, statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId)]
+            return [bean: taskAttender, crmTask: crmTask,
+                    statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId)]
         } else if (request.method == 'POST') {
-            fixContact(params)
-
-            def currentUser = crmSecurityService.getUserInfo()
-            bindData(taskAttender, params, [include: ['contact', 'bookingRef', 'notes', 'status']])
-            bindDate(taskAttender, 'bookingDate', params.bookingDate, currentUser.timezone)
-
-            if (taskAttender.validate() && taskAttender.save()) {
-                redirect action: "show", id: crmTask.id, fragment: "attender"
-            } else {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, taskAttender.errors.allErrors.toListString())
+            try {
+                def currentUser = crmSecurityService.getUserInfo()
+                bindData(taskAttender, params, [include: ['bookingRef', 'notes', 'status', 'hide']])
+                bindDate(taskAttender, 'bookingDate', params.bookingDate, currentUser.timezone)
+                CrmContact.withTransaction {
+                    fixContact(taskAttender, params, params.boolean('createContact'))
+                }
+                if (taskAttender.validate() && taskAttender.save()) {
+                    if(taskAttender.contact) {
+                        rememberDomain(taskAttender.contact)
+                    }
+                    flash.success = "Deltagaren uppdaterad"
+                } else {
+                    flash.error = createValidationErrorMessage(taskAttender)
+                }
+            } catch (Exception e) {
+                flash.error = e.getLocalizedMessage()
             }
+            redirect action: "show", id: crmTask.id, fragment: "attender"
+        }
+    }
+
+    private void fixContact(CrmTaskAttender attender, GrailsParameterMap params, Boolean add) {
+        def tenant = TenantUtils.tenant
+        CrmContact contact = params['contactId'] ? CrmContact.findByIdAndTenantId(params.long('contactId'), tenant) : null
+        if (contact) {
+            attender.contact = contact
+        } else if (add) {
+            def company = params['companyId'] ? CrmContact.findByIdAndTenantId(params.long('companyId'), tenant) : null
+            if (params.companyName && !company) {
+                company = crmContactService.createCompany(name: params.companyName,
+                        telephone: params.telephone, email: params.email, address: [address1: params.address],
+                        true)
+                params['companyId'] = company.ident()
+            }
+
+            // A contact name is specified but it's not an existing contact.
+            // Create a new person.
+            def person
+            if (params.firstName) {
+                if (company.hasErrors()) {
+                    company = null // TODO lame...
+                }
+                person = crmContactService.createPerson(parent: company, firstName: params.firstName, lastName: params.lastName,
+                        telephone: params.telephone, email: params.email, address: [address1: params.address],
+                        true)
+                params['contactId'] = person.ident()
+                if (!person.hasErrors()) {
+                    attender.contact = person
+                    attender.tmp = null
+                }
+            }
+        } else {
+            attender.contact = null
+            bindData(attender.contactInformation, params, [include: ['firstName', 'lastName', 'companyName', 'address', 'telephone', 'email']])
         }
     }
 
@@ -422,20 +479,16 @@ class CrmTaskController {
                 }
             }
         }
-        redirect(action: "show", id: crmTask.id, fragment: "attender")
-    }
-
-    private CrmContact fixContact(GrailsParameterMap params) {
-        CrmContact contact = params['contact.id'] ? CrmContact.findByIdAndTenantId(params.long('contact.id'), TenantUtils.tenant) : null
-
-        // A contact name is specified but it's not an existing contact.
-        // Create a new person.
-        if (params['contact.name'] && !contact) {
-            contact = crmContactService.createPerson([firstName: params['contact.name']]).save(failOnError: true, flush: true)
-            params['contact.id'] = contact.id
+        def linkParams = [id: crmTask.id]
+        if(params.sort) {
+            linkParams.sort = params.sort
         }
+        if(params.order) {
+            linkParams.order = params.order
+        }
+        flash.success = "Status uppdaterades för ${attenders.size()} st deltagare".toString()
 
-        return contact
+        redirect(action: "show", params: linkParams, fragment: "attender")
     }
 
     private void bindDate(CrmTaskAttender target, String property, String value, TimeZone timezone = null) {
@@ -452,8 +505,19 @@ class CrmTaskController {
         }
     }
 
-    def autocompleteContact(Long parent) {
-        def result = crmContactService.list([parent: parent, name: params.q], [max: 100]).collect { [it.fullName, it.id] }
+    def autocompleteContact() {
+        if (params.parent) {
+            params.parent = params.long('parent')
+        }
+        if (params.company) {
+            params.company = params.boolean('company')
+        }
+        if (params.person) {
+            params.person = params.boolean('person')
+        }
+        def result = crmContactService.list(params, [max: 100]).collect {
+            [it.fullName, it.id, it.parentId, it.parent?.toString(), it.firstName, it.lastName, it.address.toString(), it.telephone, it.email]
+        }
         WebUtils.noCache(response)
         render result as JSON
     }

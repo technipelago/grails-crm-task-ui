@@ -31,10 +31,10 @@
 <ul class="nav nav-tabs">
     <li class="active"><a href="#main" data-toggle="tab"><g:message code="crmTask.tab.main.label"/></a>
     </li>
-    <g:if test="${useAttenders}">
+    <g:if test="${attenders != null}">
         <li><a href="#attender" data-toggle="tab"><g:message
                 code="crmTask.tab.attender.label"/><crm:countIndicator
-                count="${crmTask.attenders.size()}"/></a>
+                count="${attenders.size()}"/></a>
         </li>
     </g:if>
     <crm:pluginViews location="tabs" var="view">
@@ -172,7 +172,7 @@
                         title="crmTask.button.create.help"
                         permission="crmTask:create"/>
 
-            <g:if test="${useAttenders}">
+            <g:if test="${attenders != null}">
                 <div class="btn-group">
                     <button class="btn btn-info dropdown-toggle" data-toggle="dropdown">
                         <i class="icon-print icon-white"></i>
@@ -232,10 +232,10 @@
 
 </div>
 
-<g:if test="${useAttenders}">
+<g:if test="${attenders != null}">
     <div class="tab-pane" id="attender">
         <g:render template="attenders"
-                  model="${[bean: crmTask, list: crmTask.attenders, statusList: statusList]}"/>
+                  model="${[bean: crmTask, list: attenders, statusList: statusList]}"/>
     </div>
 </g:if>
 
@@ -257,7 +257,7 @@
 
     <g:render template="/tags" plugin="crm-tags" model="${[bean: crmTask]}"/>
 
-    <g:if test="${useAttenders && crmTask.attenders}">
+    <g:if test="${attenders}">
         <div class="well">
             <ul class="nav nav-list">
                 <li class="nav-header">
@@ -267,10 +267,16 @@
                 <g:each in="${crmTask.attenders}" var="a" status="i">
                     <g:if test="${i < 5}">
                         <li>
-                            <g:link controller="crmContact" action="show" id="${a.contact.id}">
+                            <g:if test="${a.contact}">
+                                <g:link controller="crmContact" action="show" id="${a.contact.id}">
+                                    <g:formatDate format="d MMM" date="${a.bookingDate}"/>
+                                    ${a.encodeAsHTML()}
+                                </g:link>
+                            </g:if>
+                            <g:else>
                                 <g:formatDate format="d MMM" date="${a.bookingDate}"/>
                                 ${a.encodeAsHTML()}
-                            </g:link>
+                            </g:else>
                         </li>
                     </g:if>
                 </g:each>
