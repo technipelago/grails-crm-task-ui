@@ -103,7 +103,11 @@ class CrmTaskController {
                 def entityName = message(code: 'crmTask.label', default: 'Task')
                 def filename = message(code: 'crmTask.' + params.report + '.label', default: 'Task ' + params.report, args: [entityName]) + '.pdf'
                 WebUtils.inlineHeaders(response, "application/pdf", filename)
-                WebUtils.renderFile(response, tempFile)
+                response.setContentLength(tempFile.length().intValue())
+                response.setCharacterEncoding('UTF-8')
+                tempFile.withInputStream {is->
+                    response.outputStream << is
+                }
             } finally {
                 tempFile.delete()
             }
