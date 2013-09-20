@@ -172,26 +172,6 @@
                         title="crmTask.button.create.help"
                         permission="crmTask:create"/>
 
-            <g:if test="${attenders != null}">
-                <div class="btn-group">
-                    <button class="btn btn-info dropdown-toggle" data-toggle="dropdown">
-                        <i class="icon-print icon-white"></i>
-                        <g:message code="crmTask.button.print.label" default="Print"/>
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <crm:hasPermission permission="crmTask:print">
-                            <li>
-                                <g:link action="print" accesskey="p" target="pdf"
-                                        params="${[id: crmTask.id, report: 'attenders']}">
-                                    <g:message code="crmTask.button.print.attenders.label" default="Print to PDF"/>
-                                </g:link>
-                            </li>
-                        </crm:hasPermission>
-                    </ul>
-                </div>
-            </g:if>
-
             <div class="btn-group">
                 <button class="btn btn-info dropdown-toggle" data-toggle="dropdown">
                     <i class="icon-info-sign icon-white"></i>
