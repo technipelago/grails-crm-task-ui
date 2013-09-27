@@ -145,9 +145,6 @@
     $(document).ready(function () {
         $("a.link-edit").click(function (ev) {
     <% if (crm.hasPermission(permission: 'crmTask:edit', { true })) { %>
-    if($("#attender-panel").is(":visible")) {
-        return true;
-    }
     var $elem = $(this);
     ev.preventDefault();
     $("#attender-panel").load("${createLink(controller: 'crmTask', action: 'attender', params: [task: crmTask.id])}&id=" + $elem.data('crm-id'), function(data) {
