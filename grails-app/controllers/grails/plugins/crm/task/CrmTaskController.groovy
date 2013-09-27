@@ -103,11 +103,7 @@ class CrmTaskController {
                 def entityName = message(code: 'crmTask.label', default: 'Task')
                 def filename = message(code: 'crmTask.' + params.report + '.label', default: 'Task ' + params.report, args: [entityName]) + '.pdf'
                 WebUtils.inlineHeaders(response, "application/pdf", filename)
-                response.setContentLength(tempFile.length().intValue())
-                response.setCharacterEncoding('UTF-8')
-                tempFile.withInputStream {is->
-                    response.outputStream << is
-                }
+                WebUtils.renderFile(response, tempFile)
             } finally {
                 tempFile.delete()
             }
@@ -126,12 +122,13 @@ class CrmTaskController {
         def filename = message(code: 'crmTask.label', default: 'Task')
         def result = event(for: "crmTask", topic: "export",
                 data: params + [user: user, tenant: TenantUtils.tenant, locale: request.locale, filename: filename]).waitFor(60000)?.value
-        if (result?.file) {
+        def tempFile = result?.file
+        if (tempFile) {
             try {
                 WebUtils.inlineHeaders(response, result.contentType ?: "application/vnd.ms-excel", result.filename ?: filename)
-                WebUtils.renderFile(response, result.file)
+                WebUtils.renderFile(response, tempFile)
             } finally {
-                result.file.delete()
+                tempFile.delete()
             }
             return null // Success
         } else {
@@ -387,7 +384,7 @@ class CrmTaskController {
                     fixContact(taskAttender, params, params.boolean('createContact'))
                 }
                 if (taskAttender.validate() && taskAttender.save()) {
-                    if(taskAttender.contact) {
+                    if (taskAttender.contact) {
                         rememberDomain(taskAttender.contact)
                     }
                     flash.success = "Deltagaren uppdaterad"
@@ -484,10 +481,10 @@ class CrmTaskController {
             }
         }
         def linkParams = [id: crmTask.id]
-        if(params.sort) {
+        if (params.sort) {
             linkParams.sort = params.sort
         }
-        if(params.order) {
+        if (params.order) {
             linkParams.order = params.order
         }
         flash.success = "Status uppdaterades för ${attenders.size()} st deltagare".toString()
