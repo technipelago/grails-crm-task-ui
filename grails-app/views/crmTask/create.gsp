@@ -75,6 +75,7 @@
 <g:form action="create">
 
     <g:hiddenField name="ref" value="${crmTask.ref}"/>
+    <g:hiddenField name="referer" id="hiddenReferer" value="${referer}"/>
 
     <f:with bean="crmTask">
 
@@ -186,8 +187,17 @@
                         </div>
                     </div>
 
+                    <div class="control-group">
+                        <div class="controls">
+                            <label class="checkbox inline">
+                                <g:checkBox name="hidden" value="${crmTask.hidden}"/>
+                                <g:message code="crmTask.hidden.label" default="Hidden"/>
+                            </label>
+                        </div>
+                    </div>
+
                     <f:field property="description">
-                        <g:textArea name="description" value="${crmTask.description}" rows="6" cols="50"
+                        <g:textArea name="description" value="${crmTask.description}" rows="4" cols="50"
                                     class="span12"/>
                     </f:field>
                 </div>

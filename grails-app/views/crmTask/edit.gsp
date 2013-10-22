@@ -62,6 +62,7 @@
 
 <g:hiddenField name="id" value="${crmTask?.id}"/>
 <g:hiddenField name="version" value="${crmTask?.version}"/>
+<g:hiddenField name="referer" id="hiddenReferer" value="${referer}"/>
 
 <div class="tabbable">
     <ul class="nav nav-tabs">

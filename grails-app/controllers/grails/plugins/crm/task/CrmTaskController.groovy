@@ -167,6 +167,19 @@ class CrmTaskController {
         def typeList = crmTaskService.listTaskTypes()
         def userList = crmSecurityService.getTenantUsers()
         def timeList = (0..23).inject([]) { list, h -> 4.times { list << String.format("%02d:%02d", h, it * 15) }; list }
+        if(crmTask.startTime) {
+            def hm = crmTask.startTime.format("HH:mm")
+            if(! timeList.contains(hm)) {
+                timeList << hm
+            }
+        }
+        if(crmTask.endTime) {
+            def hm = crmTask.endTime.format("HH:mm")
+            if(! timeList.contains(hm)) {
+                timeList << hm
+            }
+        }
+        timeList = timeList.sort()
         switch (request.method) {
             case 'GET':
                 if (!checkPrerequisites()) {
@@ -177,7 +190,7 @@ class CrmTaskController {
                 bindDate(crmTask, 'startTime', startDate + ' ' + startTime, user?.timezone)
                 bindDate(crmTask, 'endTime', endDate + ' ' + endTime, user?.timezone)
                 crmTask.clearErrors()
-                return [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList]
+                return [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList, referer: params.referer]
             case 'POST':
                 try {
                     setReference(crmTask, params.ref)
@@ -185,15 +198,19 @@ class CrmTaskController {
                     bindDate(crmTask, 'endTime', endDate + ' ' + endTime, user?.timezone)
 
                     if (crmTask.hasErrors() || !crmTask.save()) {
-                        render view: 'create', model: [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList]
+                        render view: 'create', model: [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList, referer: params.referer]
                         return
                     }
                     flash.success = message(code: 'crmTask.created.message', args: [message(code: 'crmTask.label', default: 'Task'), crmTask.toString()])
-                    redirect action: 'show', id: crmTask.id
+                    if (params.referer) {
+                        redirect(uri: params.referer - request.contextPath)
+                    } else {
+                        redirect action: 'show', id: crmTask.id
+                    }
                 } catch (Exception e) {
                     log.error("error", e)
                     flash.error = e.message
-                    render view: 'create', model: [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList]
+                    render view: 'create', model: [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList, referer: params.referer]
                 }
                 break
         }
@@ -268,9 +285,22 @@ class CrmTaskController {
         def typeList = crmTaskService.listTaskTypes()
         def userList = crmSecurityService.getTenantUsers()
         def timeList = (0..23).inject([]) { list, h -> 4.times { list << String.format("%02d:%02d", h, it * 15) }; list }
+        if(crmTask.startTime) {
+            def hm = crmTask.startTime.format("HH:mm")
+            if(! timeList.contains(hm)) {
+                timeList << hm
+            }
+        }
+        if(crmTask.endTime) {
+            def hm = crmTask.endTime.format("HH:mm")
+            if(! timeList.contains(hm)) {
+                timeList << hm
+            }
+        }
+        timeList = timeList.sort()
         switch (request.method) {
             case 'GET':
-                return [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList]
+                return [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList, referer: params.referer]
             case 'POST':
                 try {
                     bindData(crmTask, params, [include: CrmTask.BIND_WHITELIST - ['startTime', 'endTime']])
@@ -285,16 +315,20 @@ class CrmTaskController {
                     bindDate(crmTask, 'endTime', endDate + ' ' + endTime, user?.timezone)
 
                     if (crmTask.hasErrors() || !crmTask.save()) {
-                        render view: 'edit', model: [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList]
+                        render view: 'edit', model: [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList, referer: params.referer]
                         return
                     }
 
                     flash.success = message(code: 'crmTask.updated.message', args: [message(code: 'crmTask.label', default: 'Task'), crmTask.toString()])
-                    redirect action: 'show', id: crmTask.id
+                    if (params.referer) {
+                        redirect(uri: params.referer - request.contextPath)
+                    } else {
+                        redirect action: 'show', id: crmTask.id
+                    }
                 } catch (Exception e) {
                     log.error(e)
                     flash.error = e.message
-                    render view: 'edit', model: [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList]
+                    render view: 'edit', model: [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList, referer: params.referer]
                 }
                 break
         }
@@ -312,7 +346,11 @@ class CrmTaskController {
             def tombstone = crmTask.toString()
             crmTask.delete(flush: true)
             flash.warning = message(code: 'crmTask.deleted.message', args: [message(code: 'crmTask.label', default: 'Task'), tombstone])
-            redirect action: 'index'
+            if (params.referer) {
+                redirect(uri: params.referer - request.contextPath)
+            } else {
+                redirect action: 'index'
+            }
         }
         catch (DataIntegrityViolationException e) {
             flash.error = message(code: 'crmTask.not.deleted.message', args: [message(code: 'crmTask.label', default: 'Task'), params.id])
