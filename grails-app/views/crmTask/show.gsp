@@ -13,17 +13,15 @@
 <div class="row-fluid">
 <div class="span9">
 
-<header class="page-header clearfix">
+<header class="page-header">
     <crm:user>
-        <h1 class="pull-left">
+        <h1>
             ${crmTask.name.encodeAsHTML()}
             <crm:favoriteIcon bean="${crmTask}"/>
             <small>${(crmTask.reference ?: crmTask.location)?.encodeAsHTML()}</small>
             ${crmTask.alarm ? '<i class="icon-bell"></i>' : ''}
             ${crmTask.complete ? '<i class="icon-check"></i>' : ''}
         </h1>
-
-        <h2 class="pull-right"><g:fieldValue bean="${crmTask}" field="type"/></h2>
     </crm:user>
 </header>
 
