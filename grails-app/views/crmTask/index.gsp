@@ -86,6 +86,10 @@
                                    class="span12"/>
                         </f:field>
                     </g:if>
+                    <f:field property="tags" label="crmTask.tags.label">
+                        <g:textField name="tags" class="span12" value="${cmd.tags}"
+                                     placeholder="${message(code: 'crmTask.tags.placeholder', default: '')}"/>
+                    </f:field>
                 </div>
             </div>
         </f:with>
@@ -99,7 +103,7 @@
         </crm:selectionMenu>
         <crm:button type="link" group="true" action="create" visual="success" icon="icon-file icon-white"
                     label="crmTask.button.create.label" permission="crmTask:create"/>
-        <g:link action="clearQuery" class="btn btn-link"><g:message code="crmAgreement.button.query.clear.label"
+        <g:link action="clearQuery" class="btn btn-link"><g:message code="crmTask.button.query.clear.label"
                                                                     default="Reset fields"/></g:link>
     </div>
 
