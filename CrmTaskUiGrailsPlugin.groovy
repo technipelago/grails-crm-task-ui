@@ -20,7 +20,7 @@ import grails.plugins.crm.task.CrmTask
 
 class CrmTaskUiGrailsPlugin {
     def groupId = "grails.crm"
-    def version = "1.2.1"
+    def version = "1.2.2"
     def grailsVersion = "2.2 > *"
     def dependsOn = [:]
     def loadAfter = ['crmTask']
@@ -31,11 +31,11 @@ class CrmTaskUiGrailsPlugin {
     def author = "Goran Ehrsson"
     def authorEmail = "goran@technipelago.se"
     def description = "Provides task management user interface for Grails CRM."
-    def documentation = "https://github.com/goeh/grails-crm-task-ui"
+    def documentation = "https://github.com/technipelago/grails-crm-task-ui"
     def license = "APACHE"
     def organization = [name: "Technipelago AB", url: "http://www.technipelago.se/"]
-    def issueManagement = [system: "github", url: "https://github.com/goeh/grails-crm-task-ui/issues"]
-    def scm = [url: "https://github.com/goeh/grails-crm-task-ui"]
+    def issueManagement = [system: "github", url: "https://github.com/technipelago/grails-crm-task-ui/issues"]
+    def scm = [url: "https://github.com/technipelago/grails-crm-task-ui"]
 
     // Provided CRM features.
     def features = {
