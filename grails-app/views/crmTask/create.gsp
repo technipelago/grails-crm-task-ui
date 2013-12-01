@@ -46,7 +46,7 @@
                         var first = result[0];
                         $("input[name='ref']").val(first.id);
                         $(".page-header h1 small").remove();
-                        $(".page-header h1").append($('<small class="pulse">' + first.text + '</small>'));
+                        $(".page-header h1").append($(' <small class="pulse">' + first.text + '</small>'));
                     }
                 });
             }
