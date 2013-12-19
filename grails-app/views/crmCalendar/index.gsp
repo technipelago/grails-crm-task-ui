@@ -30,6 +30,8 @@
                     agenda: 'H:mm{ - H:mm}'
                 },
                 firstDay: 1, // Monday
+                weekNumbers: true,
+                weekNumberTitle: "v.",
                 eventClick: function(calEvent, jsEvent, view) {
                     window.location = "${createLink(controller: 'crmTask', action: 'show')}/" + calEvent.id;
                 }
