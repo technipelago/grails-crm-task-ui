@@ -343,8 +343,7 @@ class CrmTaskController {
         }
 
         try {
-            def tombstone = crmTask.toString()
-            crmTask.delete(flush: true)
+            def tombstone = crmTaskService.deleteTask(crmTask)
             flash.warning = message(code: 'crmTask.deleted.message', args: [message(code: 'crmTask.label', default: 'Task'), tombstone])
             if (params.referer) {
                 redirect(uri: params.referer - request.contextPath)
