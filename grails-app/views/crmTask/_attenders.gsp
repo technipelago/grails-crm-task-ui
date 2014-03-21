@@ -23,7 +23,13 @@
     }
 
     function bindPanelEvents(panel) {
-        $('.date', panel).datepicker({weekStart:1});
+        $('.date', panel).datepicker({
+            weekStart:1,
+            language: "${(org.springframework.web.servlet.support.RequestContextUtils.getLocale(request) ?: new Locale('sv_SE')).getLanguage()}",
+            calendarWeeks: ${grailsApplication.config.crm.datepicker.calendarWeeks ?: false},
+            todayHighlight: true,
+            autoclose: true
+        });
 
         $("input[name='companyName']").autocomplete("${createLink(controller: 'crmTask', action: 'autocompleteContact', params: [company: true])}", {
             remoteDataType: 'json',

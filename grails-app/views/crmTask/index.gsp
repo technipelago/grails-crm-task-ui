@@ -8,7 +8,7 @@
     <r:require modules="datepicker,autocomplete"/>
     <r:script>
         $(document).ready(function() {
-            $("form .date").datepicker({weekStart:1});
+            <crm:datepicker selector="form .date"/>
 
             $("input[name='type']").autocomplete("${createLink(action: 'autocompleteType')}", {
                 remoteDataType: 'json',

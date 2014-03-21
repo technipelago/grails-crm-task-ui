@@ -8,13 +8,25 @@
     <r:script>
     $(document).ready(function() {
 
-        $('#startDate').closest('.date').datepicker({weekStart:1}).on('changeDate', function(ev) {
+        $('#startDate').closest('.date').datepicker({
+            weekStart:1,
+            language: "${(org.springframework.web.servlet.support.RequestContextUtils.getLocale(request) ?: new Locale('sv_SE')).getLanguage()}",
+            calendarWeeks: ${grailsApplication.config.crm.datepicker.calendarWeeks ?: false},
+            todayHighlight: true,
+            autoclose: true
+        }).on('changeDate', function(ev) {
             alignDates($("#startDate"), $("#endDate"), false, ".date");
         });
         $("#startDate").blur(function(ev) {
           alignDates($(this), $("#endDate"), false, ".date");
         });
-        $('#endDate').closest('.date').datepicker({weekStart:1}).on('changeDate', function(ev) {
+        $('#endDate').closest('.date').datepicker({
+            weekStart:1,
+            language: "${(org.springframework.web.servlet.support.RequestContextUtils.getLocale(request) ?: new Locale('sv_SE')).getLanguage()}",
+            calendarWeeks: ${grailsApplication.config.crm.datepicker.calendarWeeks ?: false},
+            todayHighlight: true,
+            autoclose: true
+        }).on('changeDate', function(ev) {
             alignDates($("#endDate"), $("#startDate"), true, ".date");
         });
         $("#endDate").blur(function(ev) {
