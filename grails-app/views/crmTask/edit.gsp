@@ -109,8 +109,7 @@
                             <label class="control-label"><g:message code="crmTask.startTime.label"/></label>
 
                             <div class="controls">
-                                <span class="input-append date"
-                                      data-date="${formatDate(format: 'yyyy-MM-dd', date: crmTask.startTime ?: new Date())}">
+                                <span class="input-append date">
                                     <g:textField name="startDate" class="span8" size="10"
                                                  placeholder="ÅÅÅÅ-MM-DD"
                                                  value="${formatDate(format: 'yyyy-MM-dd', date: crmTask.startTime)}"/><span
@@ -127,8 +126,7 @@
                             <label class="control-label"><g:message code="crmTask.endTime.label"/></label>
 
                             <div class="controls">
-                                <span class="input-append date"
-                                      data-date="${formatDate(format: 'yyyy-MM-dd', date: crmTask.endTime ?: new Date())}">
+                                <span class="input-append date">
                                     <g:textField name="endDate" class="span8" size="10" placeholder="ÅÅÅÅ-MM-DD"
                                                  value="${formatDate(format: 'yyyy-MM-dd', date: crmTask.endTime)}"/><span
                                         class="add-on"><i class="icon-th"></i></span>

@@ -45,8 +45,7 @@
             <div class="span3">
                 <div class="row-fluid">
                     <f:field property="fromDate">
-                        <div class="input-append date"
-                             data-date="${formatDate(format: 'yyyy-MM-dd', date: cmd.fromDate ?: new Date())}">
+                        <div class="input-append date">
                             <g:textField name="fromDate" class="span11" size="10" placeholder="ÅÅÅÅ-MM-DD"
                                          value="${formatDate(format: 'yyyy-MM-dd', date: cmd.fromDate)}"/><span
                                 class="add-on"><i
@@ -54,8 +53,7 @@
                         </div>
                     </f:field>
                     <f:field property="toDate">
-                        <div class="input-append date"
-                             data-date="${formatDate(format: 'yyyy-MM-dd', date: cmd.toDate ?: new Date())}">
+                        <div class="input-append date">
                             <g:textField name="toDate" class="span11" size="10" placeholder="ÅÅÅÅ-MM-DD"
                                          value="${formatDate(format: 'yyyy-MM-dd', date: cmd.toDate)}"/><span
                                 class="add-on"><i

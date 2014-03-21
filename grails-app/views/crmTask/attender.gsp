@@ -106,8 +106,7 @@
                     <label class="control-label">Bokningsdatum</label>
 
                     <div class="controls">
-                        <div class="input-append date"
-                             data-date="${formatDate(format: 'yyyy-MM-dd', date: new Date())}">
+                        <div class="input-append date">
                             <g:textField name="bookingDate" class="span9" size="10"
                                          placeholder="ÅÅÅÅ-MM-DD"
                                          value="${formatDate(format: 'yyyy-MM-dd', date: bean.bookingDate ?: new Date())}"/><span
