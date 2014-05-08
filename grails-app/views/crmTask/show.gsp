@@ -99,7 +99,7 @@
             <g:if test="${crmTask.description}">
                 <dl style="margin-top: 0;">
                     <dt><g:message code="crmTask.description.label" default="Description"/></dt>
-                    <dd><g:decorate encode="HTML">${crmTask.description}</g:decorate></dd>
+                    <dd><g:decorate encode="HTML" nlbr="true">${crmTask.description}</g:decorate></dd>
                 </dl>
             </g:if>
         </div>
