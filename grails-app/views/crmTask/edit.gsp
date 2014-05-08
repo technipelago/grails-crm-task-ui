@@ -100,6 +100,8 @@
                         <f:field property="location" input-class="span11"/>
 
                         <f:field property="displayDate" input-class="span11"/>
+
+                        <f:field property="scope" input-class="span11"/>
                     </div>
                 </div>
 
