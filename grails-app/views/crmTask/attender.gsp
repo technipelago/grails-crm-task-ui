@@ -44,6 +44,14 @@
                 </div>
 
                 <div class="control-group">
+                    <label class="control-label">Titel</label>
+
+                    <div class="controls">
+                        <g:textField name="title" value="${contact.title}" class="span11"/>
+                    </div>
+                </div>
+
+                <div class="control-group">
                     <label class="control-label">Adress</label>
 
                     <div class="controls">
@@ -70,14 +78,6 @@
                     </div>
                 </div>
 
-                <div class="control-group">
-                    <div class="controls">
-                        <label class="checkbox">
-                            <g:checkBox name="hide" value="true" checked="${bean.hide}"/>
-                            Dölj e-post i detaltagarlistor
-                        </label>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -129,6 +129,15 @@
                         <label class="checkbox">
                             <g:checkBox name="createContact" value="true" checked="${bean.contact != null}"/>
                             Spara deltagaren i kontaktregistret
+                        </label>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="controls">
+                        <label class="checkbox">
+                            <g:checkBox name="hide" value="true" checked="${bean.hide}"/>
+                            Dölj e-post i detaltagarlistor
                         </label>
                     </div>
                 </div>

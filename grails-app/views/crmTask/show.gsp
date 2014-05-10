@@ -235,28 +235,26 @@
 
     <g:render template="/tags" plugin="crm-tags" model="${[bean: crmTask]}"/>
 
-    <g:if test="${attenders}">
+    <g:if test="${recentBooked}">
         <div class="well">
             <ul class="nav nav-list">
                 <li class="nav-header">
                     <i class="icon-thumbs-up"></i>
                     Senast anmälda
                 </li>
-                <g:each in="${crmTask.attenders}" var="a" status="i">
-                    <g:if test="${i < 5}">
-                        <li>
-                            <g:if test="${a.contact}">
-                                <g:link controller="crmContact" action="show" id="${a.contact.id}">
-                                    <g:formatDate format="d MMM" date="${a.bookingDate}"/>
-                                    ${a.encodeAsHTML()}
-                                </g:link>
-                            </g:if>
-                            <g:else>
+                <g:each in="${recentBooked}" var="a" status="i">
+                    <li>
+                        <g:if test="${a.contact}">
+                            <g:link controller="crmContact" action="show" id="${a.contact.id}">
                                 <g:formatDate format="d MMM" date="${a.bookingDate}"/>
                                 ${a.encodeAsHTML()}
-                            </g:else>
-                        </li>
-                    </g:if>
+                            </g:link>
+                        </g:if>
+                        <g:else>
+                            <g:formatDate format="d MMM" date="${a.bookingDate}"/>
+                            ${a.encodeAsHTML()}
+                        </g:else>
+                    </li>
                 </g:each>
             </ul>
         </div>

@@ -264,13 +264,17 @@ class CrmTaskController {
         }
 
         def attenders
+        def recent
         if (grailsApplication.config.crm.task.attenders.enabled) {
             attenders = CrmTaskAttender.createCriteria().list(params) {
                 eq('task', crmTask)
             }
+            recent = CrmTaskAttender.createCriteria().list([max:5, sort: 'bookingDate', order: 'desc']) {
+                eq('task', crmTask)
+            }
         }
         [crmTask: crmTask, statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId),
-                attenders: attenders, selection: params.getSelectionURI()]
+                attenders: attenders, recentBooked: recent, selection: params.getSelectionURI()]
     }
 
     def edit() {
@@ -457,7 +461,7 @@ class CrmTaskController {
                     company = null // TODO lame...
                 }
                 person = crmContactService.createPerson(parent: company, firstName: params.firstName, lastName: params.lastName,
-                        telephone: params.telephone, email: params.email, address: [address1: params.address],
+                        title: params.title, telephone: params.telephone, email: params.email, address: [address1: params.address],
                         true)
                 params['contactId'] = person.ident()
                 if (!person.hasErrors()) {
@@ -467,7 +471,7 @@ class CrmTaskController {
             }
         } else {
             attender.contact = null
-            bindData(attender.contactInformation, params, [include: ['firstName', 'lastName', 'companyName', 'address', 'telephone', 'email']])
+            bindData(attender.contactInformation, params, [include: ['firstName', 'lastName', 'companyName', 'title', 'address', 'telephone', 'email']])
         }
     }
 
