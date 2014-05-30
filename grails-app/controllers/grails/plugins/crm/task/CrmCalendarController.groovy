@@ -20,6 +20,7 @@ import org.joda.time.Instant
 import org.joda.time.DateTime
 import grails.converters.JSON
 import grails.plugins.crm.core.TenantUtils
+import grails.plugins.crm.core.DateUtils
 import org.apache.commons.lang.StringUtils
 import org.springframework.web.servlet.support.RequestContextUtils as RCU
 import javax.servlet.http.HttpServletResponse
@@ -39,15 +40,13 @@ class CrmCalendarController {
             return
         }
         def user = crmSecurityService.getUserInfo(null)
-        // TODO Move month name stuff to DateUtils in plugin crm-core
         def locale = RCU.getLocale(request)
-        def calendar = Calendar.getInstance(user.timezone, locale)
         def metadata = [:]
-        metadata.firstDayOfWeek = calendar.getFirstDayOfWeek()
-        metadata.monthNames = (0..11).collect{calendar.set(Calendar.MONTH, it); calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, locale)}
-        metadata.monthNamesShort = (0..11).collect{calendar.set(Calendar.MONTH, it); calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, locale)}
-        metadata.dayNames = [1,2,3,4,5,6,0].collect{calendar.set(Calendar.DAY_OF_WEEK, it); calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, locale)}
-        metadata.dayNamesShort = [1,2,3,4,5,6,0].collect{calendar.set(Calendar.DAY_OF_WEEK, it); calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, locale)}
+        metadata.firstDayOfWeek = DateUtils.getFirstDayOfWeek(locale, user.timezone)
+        metadata.monthNames = DateUtils.getMonthNames(locale, user.timezone, false)
+        metadata.monthNamesShort = DateUtils.getMonthNames(locale, user.timezone, true)
+        metadata.dayNames = DateUtils.getDayNames(locale, user.timezone, true)
+        metadata.dayNamesShort = DateUtils.getDayNames(locale, user.timezone, true)
         return [calendars: checked, metadata: metadata]
     }
 
