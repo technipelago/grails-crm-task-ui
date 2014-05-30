@@ -8,17 +8,17 @@
 
     function setCompanyIndicator(icon) {
         if(icon) {
-            $("#crm-company-indicator").html(' <i class="' + icon + '"></i>');
+            $("#crm-company-label > span").html(' <i class="' + icon + '"></i>');
         } else {
-            $("#crm-company-indicator").empty();
+            $("#crm-company-label > span").empty();
         }
     }
 
     function setPersonIndicator(icon) {
         if(icon) {
-            $("#crm-person-indicator").html(' <i class="' + icon + '"></i>');
+            $("#crm-person-label > span").html(' <i class="' + icon + '"></i>');
         } else {
-            $("#crm-person-indicator").empty();
+            $("#crm-person-label > span").empty();
         }
     }
 
@@ -29,6 +29,22 @@
             calendarWeeks: ${grailsApplication.config.crm.datepicker.calendarWeeks ?: false},
             todayHighlight: true,
             autoclose: true
+        });
+
+        $("#crm-company-label").click(function(ev) {
+            ev.preventDefault();
+            var companyId = $("input[name='companyId']").val();
+            if(companyId) {
+                window.location.href = "${createLink(mapping: 'crm-contact-show')}/" + companyId;
+            }
+        });
+
+        $("#crm-person-label").click(function(ev) {
+            ev.preventDefault();
+            var contactId = $("input[name='contactId']").val();
+            if(contactId) {
+                window.location.href = "${createLink(mapping: 'crm-contact-show')}/" + contactId;
+            }
         });
 
         $("input[name='companyName']").autocomplete("${createLink(controller: 'crmTask', action: 'autocompleteContact', params: [company: true])}", {
