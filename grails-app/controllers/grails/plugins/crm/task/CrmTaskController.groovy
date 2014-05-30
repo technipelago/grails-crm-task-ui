@@ -146,11 +146,11 @@ class CrmTaskController {
     }
 
     def create() {
-        def startDate = params.remove('startDate') ?: (new Date() + 1).format("yyyy-MM-dd")
+        def startDate = params.remove('startDate') ?: formatDate(type: 'date', date: new Date() + 1)
         def endDate = params.remove('endDate') ?: startDate
         def startTime = params.remove('startTime') ?: '09:00'
         def endTime = params.remove('endTime') ?: '10:00'
-        def user = params.username ? crmSecurityService.getUserInfo(params.username) : crmSecurityService.currentUser
+        def user = crmSecurityService.getUserInfo(params.username)
         if (!params.username) {
             params.username = user?.username
         }
@@ -194,8 +194,8 @@ class CrmTaskController {
             case 'POST':
                 try {
                     setReference(crmTask, params.ref)
-                    bindDate(crmTask, 'startTime', startDate + ' ' + startTime, user?.timezone)
-                    bindDate(crmTask, 'endTime', endDate + ' ' + endTime, user?.timezone)
+                    bindDate(crmTask, 'startTime', startDate + startTime, user?.timezone)
+                    bindDate(crmTask, 'endTime', endDate + endTime, user?.timezone)
 
                     if (crmTask.hasErrors() || !crmTask.save()) {
                         render view: 'create', model: [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList, referer: params.referer]
@@ -315,8 +315,8 @@ class CrmTaskController {
                     def endDate = params.endDate ?: startDate
                     def startTime = params.startTime ?: '09:00'
                     def endTime = params.endTime ?: '10:00'
-                    bindDate(crmTask, 'startTime', startDate + ' ' + startTime, user?.timezone)
-                    bindDate(crmTask, 'endTime', endDate + ' ' + endTime, user?.timezone)
+                    bindDate(crmTask, 'startTime', startDate + startTime, user?.timezone)
+                    bindDate(crmTask, 'endTime', endDate + endTime, user?.timezone)
 
                     if (crmTask.hasErrors() || !crmTask.save()) {
                         render view: 'edit', model: [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList, referer: params.referer]

@@ -1,17 +1,18 @@
-<%@ page import="grails.plugins.crm.task.CrmTask" %>
+<%@ page import="org.springframework.web.servlet.support.RequestContextUtils; grails.plugins.crm.core.DateUtils; grails.plugins.crm.task.CrmTask" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta name="layout" content="main">
     <g:set var="entityName" value="${message(code: 'crmTask.label', default: 'Task')}"/>
+    <g:set var="locale" value="${RequestContextUtils.getLocale(request) ?: new Locale('sv_SE')}"/>
     <title><g:message code="crmTask.edit.title" args="[entityName, crmTask]"/></title>
     <r:require modules="datepicker,autocomplete,aligndates"/>
     <r:script>
     $(document).ready(function() {
 
         $('#startDate').closest('.date').datepicker({
-            weekStart:1,
-            language: "${(org.springframework.web.servlet.support.RequestContextUtils.getLocale(request) ?: new Locale('sv_SE')).getLanguage()}",
+            weekStart: <%= DateUtils.getFirstDayOfWeek(locale, user.timezone) - 1 %>,
+            language: "${locale.getLanguage()}",
             calendarWeeks: ${grailsApplication.config.crm.datepicker.calendarWeeks ?: false},
             todayHighlight: true,
             autoclose: true
@@ -22,8 +23,8 @@
           alignDates($(this), $("#endDate"), false, ".date");
         });
         $('#endDate').closest('.date').datepicker({
-            weekStart:1,
-            language: "${(org.springframework.web.servlet.support.RequestContextUtils.getLocale(request) ?: new Locale('sv_SE')).getLanguage()}",
+            weekStart: <%= DateUtils.getFirstDayOfWeek(locale, user.timezone) - 1 %>,
+            language: "${locale.getLanguage()}",
             calendarWeeks: ${grailsApplication.config.crm.datepicker.calendarWeeks ?: false},
             todayHighlight: true,
             autoclose: true
@@ -114,7 +115,7 @@
                                 <span class="input-append date">
                                     <g:textField name="startDate" class="span8" size="10"
                                                  placeholder="ÅÅÅÅ-MM-DD"
-                                                 value="${formatDate(format: 'yyyy-MM-dd', date: crmTask.startTime)}"/><span
+                                                 value="${formatDate(type: 'date', date: crmTask.startTime)}"/><span
                                         class="add-on"><i class="icon-th"></i></span>
                                 </span>
 
@@ -130,7 +131,7 @@
                             <div class="controls">
                                 <span class="input-append date">
                                     <g:textField name="endDate" class="span8" size="10" placeholder="ÅÅÅÅ-MM-DD"
-                                                 value="${formatDate(format: 'yyyy-MM-dd', date: crmTask.endTime)}"/><span
+                                                 value="${formatDate(type: 'date', date: crmTask.endTime)}"/><span
                                         class="add-on"><i class="icon-th"></i></span>
                                 </span>
 
