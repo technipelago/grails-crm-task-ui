@@ -30,7 +30,7 @@ grails.project.dependency.resolution = {
             export = false
             exclude "spock-grails-support"
         }
-        test(":codenarc:0.19") { export = false }
+        test(":codenarc:0.21") { export = false }
         test(":code-coverage:1.2.7") { export = false }
 
         compile "grails.crm:crm-core:latest.integration"
