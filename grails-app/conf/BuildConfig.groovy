@@ -34,8 +34,8 @@ grails.project.dependency.resolution = {
         test(":code-coverage:1.2.7") { export = false }
 
         compile "grails.crm:crm-core:latest.integration"
+        compile "grails.crm:crm-task:latest.integration"
         runtime "grails.crm:crm-ui-bootstrap:latest.integration"
-        runtime "grails.crm:crm-task:latest.integration"
         runtime "grails.crm:crm-tags:latest.integration"
 
         runtime ":decorator:latest.integration"
