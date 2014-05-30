@@ -24,7 +24,7 @@
             <div class="row-fluid">
 
                 <div class="control-group">
-                    <label class="control-label">Företag<span id="crm-company-indicator"></span></label>
+                    <label id="crm-company-label" class="control-label">Företag<span></span></label>
 
                     <div class="controls">
                         <g:textField name="companyName" value="${contact.companyName}" class="span11"
@@ -34,7 +34,7 @@
                 </div>
 
                 <div class="control-group">
-                    <label class="control-label">Person<span id="crm-person-indicator"></span></label>
+                    <label id="crm-person-label" class="control-label">Person<span></span></label>
 
                     <div class="controls">
                         <g:textField name="firstName" value="${contact.firstName}" class="span5" placeholder="Förnamn"/>
