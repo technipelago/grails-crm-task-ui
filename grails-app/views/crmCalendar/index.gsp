@@ -13,17 +13,17 @@
                     center: 'title',
                     right: 'month,agendaWeek,agendaDay'
                 },
-                monthNames: ['januari', 'februari','mars','april','maj','juni','juli','augusti','september','oktober','november','december'],
-                monthNamesShort: ['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'],
-                dayNames: ['söndag', 'måndag', 'tisdag', 'onsdag', 'torsdag', 'fredag', 'lördag'],
-                dayNamesShort: ['sön', 'mån', 'tis', 'ons', 'tor', 'fre', 'lör'],
+                monthNames: <%= metadata.monthNames.collect{"'$it'"} %>,
+                monthNamesShort: <%= metadata.monthNamesShort.collect{"'$it'"} %>,
+                dayNames: <%= metadata.dayNames.collect{"'$it'"} %>,
+                dayNamesShort: <%= metadata.dayNamesShort.collect{"'$it'"} %>,
                 buttonText: {
-                    today: 'Idag',
-                    month: 'Månad',
-                    week: 'Vecka',
-                    day: 'Dag'
+                    today: "${message(code: 'crmCalendar.today.label', default: 'Today')}",
+                    month: "${message(code: 'crmCalendar.month.label', default: 'Month')}",
+                    week: "${message(code: 'crmCalendar.week.label', default: 'Week')}",
+                    day: "${message(code: 'crmCalendar.day.label', default: 'Dag')}"
                 },
-                allDayText: 'Heldag',
+                allDayText: "${message(code: 'crmCalendar.allday.label', default: 'All day')}",
                 axisFormat: 'H:mm',
                 timeFormat: {
                     '': 'H:mm', // default
@@ -33,7 +33,7 @@
                 weekNumbers: true,
                 weekNumberTitle: "v.",
                 eventClick: function(calEvent, jsEvent, view) {
-                    window.location = "${createLink(controller: 'crmTask', action: 'show')}/" + calEvent.id;
+                    window.location.href = calEvent.url;
                 }
             });
 
@@ -52,7 +52,7 @@
     </div>
 
     <div class="span2">
-        <h4>Visa uppgifter i följande vyer</h4>
+        <h4><g:message code="crmCalendar.tenants.label" default="Show tenants"/></h4>
         <g:form name="tenantForm">
             <crm:eachTenant var="t">
                 <label class="checkbox"><g:checkBox name="calendars" value="${t.id}"

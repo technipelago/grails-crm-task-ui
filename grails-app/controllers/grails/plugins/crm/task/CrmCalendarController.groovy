@@ -21,22 +21,14 @@ import org.joda.time.DateTime
 import grails.converters.JSON
 import grails.plugins.crm.core.TenantUtils
 import org.apache.commons.lang.StringUtils
-
+import org.springframework.web.servlet.support.RequestContextUtils as RCU
 import javax.servlet.http.HttpServletResponse
 
 /**
  * FullCalendar controller.
  */
 class CrmCalendarController {
-    /*
-    static navigation = [
-            [group: 'main',
-                    order: 70,
-                    title: 'crmCalendar.index.label',
-                    action: 'index'
-            ]
-    ]
-    */
+
     def crmCalendarService
     def crmSecurityService
 
@@ -46,7 +38,15 @@ class CrmCalendarController {
             response.sendError(HttpServletResponse.SC_FORBIDDEN)
             return
         }
-        return [calendars: checked]
+        // TODO Move month name stuff to DateUtils in plugin crm-core
+        def locale = RCU.getLocale(request)
+        def calendar = Calendar.getInstance(locale)
+        def metadata = [:]
+        metadata.monthNames = (0..11).collect{calendar.set(Calendar.MONTH, it); calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, locale)}
+        metadata.monthNamesShort = (0..11).collect{calendar.set(Calendar.MONTH, it); calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, locale)}
+        metadata.dayNames = (0..6).collect{calendar.set(Calendar.DAY_OF_WEEK, it); calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, locale)}
+        metadata.dayNamesShort = (0..6).collect{calendar.set(Calendar.DAY_OF_WEEK, it); calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, locale)}
+        return [calendars: checked, metadata: metadata]
     }
 
     private List<Long> getCalendarTenants(params) {
@@ -111,6 +111,7 @@ class CrmCalendarController {
                 }
                 eventList << [
                         id: event.id,
+                        tenant: event.tenantId,
                         title: event.name + (event.completed ? ' ✓' : ''),
                         description: StringUtils.abbreviate(event.description, 200),
                         url: g.createLink(controller: 'crmTask', action: 'show', params: linkParams),
