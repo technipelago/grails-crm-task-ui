@@ -29,9 +29,9 @@
                     '': 'H:mm', // default
                     agenda: 'H:mm{ - H:mm}'
                 },
-                firstDay: 1, // Monday
+                firstDay: <%= metadata.firstDayOfWeek - 1 %>,
                 weekNumbers: true,
-                weekNumberTitle: "v.",
+                weekNumberTitle: "${message(code: 'crmCalendar.weekNumber.label', default: 'w.')}",
                 eventClick: function(calEvent, jsEvent, view) {
                     window.location.href = calEvent.url;
                 }

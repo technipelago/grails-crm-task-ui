@@ -38,14 +38,16 @@ class CrmCalendarController {
             response.sendError(HttpServletResponse.SC_FORBIDDEN)
             return
         }
+        def user = crmSecurityService.getUserInfo(null)
         // TODO Move month name stuff to DateUtils in plugin crm-core
         def locale = RCU.getLocale(request)
-        def calendar = Calendar.getInstance(locale)
+        def calendar = Calendar.getInstance(user.timezone, locale)
         def metadata = [:]
+        metadata.firstDayOfWeek = calendar.getFirstDayOfWeek()
         metadata.monthNames = (0..11).collect{calendar.set(Calendar.MONTH, it); calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, locale)}
         metadata.monthNamesShort = (0..11).collect{calendar.set(Calendar.MONTH, it); calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, locale)}
-        metadata.dayNames = (0..6).collect{calendar.set(Calendar.DAY_OF_WEEK, it); calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, locale)}
-        metadata.dayNamesShort = (0..6).collect{calendar.set(Calendar.DAY_OF_WEEK, it); calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, locale)}
+        metadata.dayNames = [1,2,3,4,5,6,0].collect{calendar.set(Calendar.DAY_OF_WEEK, it); calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, locale)}
+        metadata.dayNamesShort = [1,2,3,4,5,6,0].collect{calendar.set(Calendar.DAY_OF_WEEK, it); calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.SHORT, locale)}
         return [calendars: checked, metadata: metadata]
     }
 
