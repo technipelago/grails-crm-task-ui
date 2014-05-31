@@ -11,29 +11,42 @@
     $(document).ready(function() {
 
         $('#startDate').closest('.date').datepicker({
+            format: "${metadata.dateFormat.toPattern().toLowerCase()}",
             weekStart: <%= DateUtils.getFirstDayOfWeek(locale, user.timezone) - 1 %>,
             language: "${locale.getLanguage()}",
             calendarWeeks: ${grailsApplication.config.crm.datepicker.calendarWeeks ?: false},
             todayHighlight: true,
             autoclose: true
         }).on('changeDate', function(ev) {
+        <% if(grailsApplication.config.crm.task.alignDates) { %>
             alignDates($("#startDate"), $("#endDate"), false, ".date");
+        <% } %>
         });
+
+        <% if(grailsApplication.config.crm.task.alignDates) { %>
         $("#startDate").blur(function(ev) {
           alignDates($(this), $("#endDate"), false, ".date");
         });
+        <% } %>
+
         $('#endDate').closest('.date').datepicker({
+            format: "${metadata.dateFormat.toPattern().toLowerCase()}",
             weekStart: <%= DateUtils.getFirstDayOfWeek(locale, user.timezone) - 1 %>,
             language: "${locale.getLanguage()}",
             calendarWeeks: ${grailsApplication.config.crm.datepicker.calendarWeeks ?: false},
             todayHighlight: true,
             autoclose: true
         }).on('changeDate', function(ev) {
+        <% if(grailsApplication.config.crm.task.alignDates) { %>
             alignDates($("#endDate"), $("#startDate"), true, ".date");
+        <% } %>
         });
+
+        <% if(grailsApplication.config.crm.task.alignDates) { %>
         $("#endDate").blur(function(ev) {
           alignDates($(this), $("#startDate"), true, ".date");
         });
+        <% } %>
 
         $('select[name="alarmType"]').change(function(ev) {
             if($(this).val() == '0') {
@@ -114,12 +127,11 @@
                             <div class="controls">
                                 <span class="input-append date">
                                     <g:textField name="startDate" class="span8" size="10"
-                                                 placeholder="ÅÅÅÅ-MM-DD"
                                                  value="${formatDate(type: 'date', date: crmTask.startTime)}"/><span
                                         class="add-on"><i class="icon-th"></i></span>
                                 </span>
 
-                                <g:select name="startTime" from="${timeList}"
+                                <g:select name="startTime" from="${metadata.timeList}"
                                           value="${formatDate(format: 'HH:mm', date: crmTask.startTime)}"
                                           class="span4"/>
                             </div>
@@ -130,12 +142,12 @@
 
                             <div class="controls">
                                 <span class="input-append date">
-                                    <g:textField name="endDate" class="span8" size="10" placeholder="ÅÅÅÅ-MM-DD"
+                                    <g:textField name="endDate" class="span8" size="10"
                                                  value="${formatDate(type: 'date', date: crmTask.endTime)}"/><span
                                         class="add-on"><i class="icon-th"></i></span>
                                 </span>
 
-                                <g:select name="endTime" from="${timeList}"
+                                <g:select name="endTime" from="${metadata.timeList}"
                                           value="${formatDate(format: 'HH:mm', date: crmTask.endTime)}"
                                           class="span4"/>
                             </div>
@@ -186,7 +198,7 @@
                 <div class="span4">
                     <div class="row-fluid">
                         <f:field property="type">
-                            <g:select name="type.id" from="${typeList}" optionKey="id"
+                            <g:select name="type.id" from="${metadata.typeList}" optionKey="id"
                                       value="${crmTask.type?.id}" class="span11"/>
                         </f:field>
 
@@ -205,7 +217,7 @@
                         </f:field>
 
                         <f:field property="username">
-                            <g:select name="username" from="${userList}" optionKey="username" optionValue="name"
+                            <g:select name="username" from="${metadata.userList}" optionKey="username" optionValue="name"
                                       value="${crmTask.username}" class="span11"/>
                         </f:field>
                     </div>

@@ -24,8 +24,10 @@ import org.springframework.dao.DataIntegrityViolationException
 import grails.converters.JSON
 import grails.plugins.crm.core.WebUtils
 import grails.plugins.crm.core.SearchUtils
+import org.springframework.web.servlet.support.RequestContextUtils
 
 import javax.servlet.http.HttpServletResponse
+import java.text.DateFormat
 
 class CrmTaskController {
 
@@ -180,6 +182,14 @@ class CrmTaskController {
             }
         }
         timeList = timeList.sort()
+
+        def metadata = [:]
+        metadata.locale = RequestContextUtils.getLocale(request)
+        metadata.dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, metadata.locale)
+        metadata.typeList = typeList
+        metadata.userList = userList
+        metadata.timeList = timeList
+
         switch (request.method) {
             case 'GET':
                 if (!checkPrerequisites()) {
@@ -190,7 +200,7 @@ class CrmTaskController {
                 bindDate(crmTask, 'startTime', startDate + ' ' + startTime, user?.timezone)
                 bindDate(crmTask, 'endTime', endDate + ' ' + endTime, user?.timezone)
                 crmTask.clearErrors()
-                return [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList, referer: params.referer]
+                return [crmTask: crmTask, user: user, referer: params.referer, metadata: metadata]
             case 'POST':
                 try {
                     setReference(crmTask, params.ref)
@@ -198,7 +208,7 @@ class CrmTaskController {
                     bindDate(crmTask, 'endTime', endDate + endTime, user?.timezone)
 
                     if (crmTask.hasErrors() || !crmTask.save()) {
-                        render view: 'create', model: [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList, referer: params.referer]
+                        render view: 'create', model: [crmTask: crmTask, user: user, referer: params.referer, metadata: metadata]
                         return
                     }
                     flash.success = message(code: 'crmTask.created.message', args: [message(code: 'crmTask.label', default: 'Task'), crmTask.toString()])
@@ -210,7 +220,7 @@ class CrmTaskController {
                 } catch (Exception e) {
                     log.error("error", e)
                     flash.error = e.message
-                    render view: 'create', model: [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList, referer: params.referer]
+                    render view: 'create', model: [crmTask: crmTask, user: user, referer: params.referer, metadata: metadata]
                 }
                 break
         }
@@ -302,9 +312,17 @@ class CrmTaskController {
             }
         }
         timeList = timeList.sort()
+
+        def metadata = [:]
+        metadata.locale = RequestContextUtils.getLocale(request)
+        metadata.dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, metadata.locale)
+        metadata.typeList = typeList
+        metadata.userList = userList
+        metadata.timeList = timeList
+
         switch (request.method) {
             case 'GET':
-                return [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList, referer: params.referer]
+                return [crmTask: crmTask, user: user, referer: params.referer, metadata: metadata]
             case 'POST':
                 try {
                     bindData(crmTask, params, [include: CrmTask.BIND_WHITELIST - ['startTime', 'endTime']])
@@ -319,7 +337,7 @@ class CrmTaskController {
                     bindDate(crmTask, 'endTime', endDate + endTime, user?.timezone)
 
                     if (crmTask.hasErrors() || !crmTask.save()) {
-                        render view: 'edit', model: [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList, referer: params.referer]
+                        render view: 'edit', model: [crmTask: crmTask, user: user, referer: params.referer, metadata: metadata]
                         return
                     }
 
@@ -332,7 +350,7 @@ class CrmTaskController {
                 } catch (Exception e) {
                     log.error(e)
                     flash.error = e.message
-                    render view: 'edit', model: [crmTask: crmTask, typeList: typeList, user: user, userList: userList, timeList: timeList, referer: params.referer]
+                    render view: 'edit', model: [crmTask: crmTask, user: user, referer: params.referer, metadata: metadata]
                 }
                 break
         }
