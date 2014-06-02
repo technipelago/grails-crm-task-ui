@@ -125,7 +125,11 @@
 
                 <g:if test="${crmTask.username}">
                     <dt><g:message code="crmTask.username.label" default="Responsible"/></dt>
-                    <dd><crm:user username="${crmTask.username}">${name}</crm:user></dd>
+                    <dd>
+                        <crm:user username="${crmTask.username}" nouser="${crmTask.username}">
+                            ${name}
+                        </crm:user>
+                    </dd>
                 </g:if>
 
             </dl>
