@@ -296,6 +296,9 @@ class CrmTaskController {
             return
         }
         def user = crmSecurityService.getUserInfo(params.username ?: crmTask.username)
+        if(! user) {
+            user = crmSecurityService.getUserInfo(null)
+        }
         def typeList = crmTaskService.listTaskTypes()
         def userList = crmSecurityService.getTenantUsers()
         def timeList = (0..23).inject([]) { list, h -> 4.times { list << String.format("%02d:%02d", h, it * 15) }; list }
