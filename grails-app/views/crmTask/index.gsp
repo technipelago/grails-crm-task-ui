@@ -12,11 +12,15 @@
 
             $("input[name='type']").autocomplete("${createLink(action: 'autocompleteType')}", {
                 remoteDataType: 'json',
+                useCache: false,
+                filter: false,
                 preventDefaultReturn: true,
                 selectFirst: true
             });
             $("input[name='username']").autocomplete("${createLink(action: 'autocompleteUsername')}", {
                 remoteDataType: 'json',
+                useCache: false,
+                filter: false,
                 preventDefaultReturn: true,
                 selectFirst: true
             });

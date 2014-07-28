@@ -58,6 +58,8 @@
         // Add autocomplete for location field.
         $("input[name='location']").autocomplete("${createLink(action: 'autocompleteLocation')}", {
             remoteDataType: 'json',
+            useCache: false,
+            filter: false,
             preventDefaultReturn: true,
             selectFirst: true
         });
