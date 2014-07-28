@@ -6,6 +6,7 @@ stacktrace.log
 /*.idea
 /*.iml
 /*.zip
+/.gradle
 /plugin.xml
 /*.log
 /*DB.*

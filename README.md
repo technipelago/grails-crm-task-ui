@@ -14,3 +14,7 @@ With CRM we mean features like:
 ## Task Management User Interface
 This plugin provides user inteface for task/todo management.
 It depends on the crm-task plugin for services and persistence.
+
+### Documentation
+
+Complete documentation for this plugin can be found at [gr8crm.github.io](http://gr8crm.github.io/plugins/crm-task-ui/)

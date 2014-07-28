@@ -1,0 +1,91 @@
+= GR8 CRM - Task Management User Interface Plugin
+Göran Ehrsson <goran@technipelago.se>
+:description: Official documentation for the GR8 CRM Task Management User Interface Plugin
+:keywords: groovy, grails, crm, gr8crm, documentation
+:toc:
+:numbered:
+:icons: font
+:imagesdir: ./images
+:source-highlighter: prettify
+:homepage: http://gr8crm.github.io
+:gr8crm: GR8 CRM
+:gr8source: https://github.com/technipelago/grails-crm-task-ui
+:license: This plugin is licensed with http://www.apache.org/licenses/LICENSE-2.0.html[Apache License version 2.0]
+
+== Introduction
+
+{gr8crm} is a set of http://www.grails.org/[Grails Web Application Framework]
+plugins that makes it easy to develop web applications with CRM functionality.
+
+You can find more information about {gr8crm} on the main documentation site {homepage}.
+
+=== Customer Relationship Management
+
+Customer relationship management (CRM) is a system for managing a company’s interactions with current and future customers.
+It involves using technology to organize, automate and synchronize sales, marketing, customer service, and technical support.
+http://en.wikipedia.org/wiki/Customer_relationship_management[Wikipedia]
+
+The {gr8crm} "Ecosystem" currently contains over 40 Grails plugins. For a complete list of plugins see {homepage}.
+
+Each {gr8crm} plugin defines a http://martinfowler.com/bliki/BoundedContext.html[Bounded Context]
+that focus on one specific domain, for example *contact*, *project* or *document*.
+
+== Task Management User Interface Plugin
+
+This plugin provide user interfaces for managing tasks in {gr8crm} applications. If depends on the +crm-task+ plugin for low level services and persistence.
+A *Task* in {gr8crm} is a domain instance that represents a unit of work that has been done in the past or is scheduled to be done in the future.
+A task is very similar to a calendar item, it has a start time and a duration.
+
+With this plugin you get a basic *CRUD* controller where you can create new, search for and update existing tasks.
+You also get a calendar that can display tasks in monthly, weekly and daily views.
+Tasks can be associated with other domain instances and the plugin provide a GSP template that you can inject in other
+GSP pages to get a list of tasks associated with a domain instance.
+
+== Create a new task
+
+To create a new task you visit +crmTask/create+ which will show an input form where you can add task details.
+
+image::task-create.png[role="thumb"]
+
+== Search for tasks
+
+To query for tasks you visit +crmTask/index+ which will show the query form.
+
+image::task-query.png[The task query form, role="thumb"]
+
+You can enter query values in any field and then hit the +Search+ button to search for tasks matching your query.
+If you don't enter any query value all tasks will be included in the search result.
+
+If the query result contains more than one task, a list will be displayed. If the query result contains
+exactly one task, then details for that task will be displayed.
+I.e. it will skip the +list+ view and go directly to the +show+ view.
+
+== Task details
+
+The task details page +crmTask/show+ shows all the details for a selected task.
+Here you will find task name, start time, priority, etc.
+
+image::task-show.png[Task details, role="thumb"]
+
+If the +crm-tags+ plugin is installed you can see existing tags and add new tags to a task.
+
+== Edit task details
+
+image::task-edit.png[role="thumb"]
+
+To edit task details you hit the +Edit+ button. This will display the edit page +crmTask/edit+.
+Here you can alter values and then hit +Save+ to store the new values in the database.
+
+== Calendar
+
+The CrmCalendarController +crmCalendar/index+ displays a month/week/day calendar with all the tasks in your database.
+
+image::calendar-month.png[role="thumb"]
+
+== License
+
+{license}
+
+== Source Code
+
+The source code for this plugin is available at {gr8source}
