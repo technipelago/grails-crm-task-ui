@@ -8,8 +8,8 @@
 
 <body>
 
-<crm:header title="crmTask.list.title" subtitle="Sökningen resulterade i ${crmTaskTotal} st händelser"
-            args="[entityName]">
+<crm:header title="crmTask.list.title" subtitle="crmContact.totalCount.label"
+            args="[entityName, crmTaskTotal]">
 </crm:header>
 
 <table class="table table-striped">
@@ -69,29 +69,10 @@
     <crm:selectionMenu visual="primary"/>
 
     <g:if test="${crmTaskTotal}">
-        <div class="btn-group">
-            <button class="btn btn-info dropdown-toggle" data-toggle="dropdown">
-                <i class="icon-print icon-white"></i>
-                <g:message code="crmTask.button.print.label" default="Print"/>
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu">
-                <crm:hasPermission permission="crmTask:print">
-                    <li>
-                        <select:link action="print" accesskey="p" target="pdf" selection="${selection}">
-                            <g:message code="crmTask.button.print.pdf.label" default="Print to PDF"/>
-                        </select:link>
-                    </li>
-                </crm:hasPermission>
-                <crm:hasPermission permission="crmTask:export">
-                    <li>
-                        <select:link action="export" accesskey="e" selection="${selection}">
-                            <g:message code="crmTask.button.export.calc.label" default="Print to spreadsheet"/>
-                        </select:link>
-                    </li>
-                </crm:hasPermission>
-            </ul>
-        </div>
+        <select:link action="export" accesskey="p" selection="${selection}" class="btn btn-info">
+            <i class="icon-print icon-white"></i>
+            <g:message code="crmTask.button.export.label" default="Print/Export"/>
+        </select:link>
     </g:if>
 
     <div class="btn-group">

@@ -28,6 +28,7 @@ import org.springframework.web.servlet.support.RequestContextUtils
 
 import javax.servlet.http.HttpServletResponse
 import java.text.DateFormat
+import java.util.concurrent.TimeoutException
 
 class CrmTaskController {
 
@@ -77,8 +78,8 @@ class CrmTaskController {
         def result
         try {
             result = selectionService.select(uri, params)
-            if (result.size() == 1) {
-                redirect action: "show", id: result.head().ident()
+            if (result.totalCount == 1 && params.view != 'list') {
+                redirect action: "show", params: selectionService.createSelectionParameters(uri) + [id: result.head().ident()]
             } else {
                 [crmTaskList: result, crmTaskTotal: result.totalCount, selection: uri]
             }
@@ -120,23 +121,38 @@ class CrmTaskController {
     }
 
     def export() {
-        def user = crmSecurityService.getUserInfo(crmSecurityService.currentUser?.username)
-        def filename = message(code: 'crmTask.label', default: 'Task')
-        def result = event(for: "crmTask", topic: "export",
-                data: params + [user: user, tenant: TenantUtils.tenant, locale: request.locale, filename: filename]).waitFor(60000)?.value
-        def tempFile = result?.file
-        if (tempFile) {
+        def user = crmSecurityService.getUserInfo()
+        if (request.post) {
+            def filename = message(code: 'crmTask.label', default: 'Task')
             try {
-                WebUtils.inlineHeaders(response, result.contentType ?: "application/vnd.ms-excel", result.filename ?: filename)
-                WebUtils.renderFile(response, tempFile)
-            } finally {
-                tempFile.delete()
+                def namespace = params.namespace ?: 'crmTask'
+                def topic = params.topic ?: 'export'
+                def result = event(for: namespace, topic: topic,
+                        data: params + [user: user, tenant: TenantUtils.tenant, locale: request.locale, filename: filename]).waitFor(60000)?.value
+                if (result?.file) {
+                    try {
+                        WebUtils.inlineHeaders(response, result.contentType, result.filename ?: namespace)
+                        WebUtils.renderFile(response, result.file)
+                    } finally {
+                        result.file.delete()
+                    }
+                    return null // Success
+                } else {
+                    flash.warning = message(code: 'crmTask.export.nothing.message', default: 'Nothing was exported')
+                }
+            } catch (TimeoutException te) {
+                flash.error = message(code: 'crmTask.export.timeout.message', default: 'Export did not complete')
+            } catch (Exception e) {
+                log.error("Export event throwed an exception", e)
+                flash.error = message(code: 'crmTask.export.error.message', default: 'Export failed due to an error', args: [e.message])
             }
-            return null // Success
+            redirect(action: "index")
         } else {
-            flash.warning = message(code: 'crmTask.export.nothing.message', default: 'Nothing was exported')
+            def uri = params.getSelectionURI()
+            def layouts = event(for: 'crmTask', topic: 'exportLayout',
+                    data: [tenant: TenantUtils.tenant, username: user.username, uri: uri]).waitFor(10000)?.values
+            [layouts: layouts, selection: uri]
         }
-        redirect(action: "list")
     }
 
     private boolean checkPrerequisites() {

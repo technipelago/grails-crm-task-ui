@@ -181,6 +181,13 @@
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
+                    <g:if test="${selection}">
+                        <li>
+                            <select:link action="list" selection="${selection}" params="${[view: 'list']}">
+                                <g:message code="crmTask.show.result.label" default="Show result in list view"/>
+                            </select:link>
+                        </li>
+                    </g:if>
                     <crm:hasPermission permission="crmTask:createFavorite">
                         <crm:user>
                             <g:if test="${crmTask.isUserTagged('favorite', username)}">
