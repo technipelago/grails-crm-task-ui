@@ -35,13 +35,13 @@ grails.project.dependency.resolution = {
 
         compile "grails.crm:crm-core:latest.integration"
         compile "grails.crm:crm-task:latest.integration"
-        runtime "grails.crm:crm-ui-bootstrap:latest.integration"
-        runtime "grails.crm:crm-tags:latest.integration"
+        compile "grails.crm:crm-ui-bootstrap:latest.integration"
+        compile "grails.crm:crm-tags:latest.integration"
 
-        runtime ":decorator:latest.integration"
-        runtime ":user-tag:latest.integration"
-        compile ":selection:latest.integration"
-        runtime ":selection-repository:latest.integration"
+        compile ":decorator:1.1"
+        compile ":user-tag:0.6"
+        compile ":selection:0.9.7"
+        compile ":selection-repository:0.9.3"
     }
 }
 codenarc {
