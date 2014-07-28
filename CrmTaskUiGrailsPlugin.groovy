@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Goran Ehrsson.
+ * Copyright (c) 2014 Goran Ehrsson.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,19 @@
  */
 
 class CrmTaskUiGrailsPlugin {
-    def groupId = "grails.crm"
-    def version = "1.2.9"
+    def groupId = ""
+    def version = "2.0.0"
     def grailsVersion = "2.2 > *"
     def dependsOn = [:]
     def loadAfter = ['crmTask']
     def pluginExcludes = [
             "grails-app/views/error.gsp"
     ]
-    def title = "GR8 CRM Task Management User Interface"
+    def title = "Task Management User Interface for GR8 CRM"
     def author = "Goran Ehrsson"
     def authorEmail = "goran@technipelago.se"
-    def description = "Provides task management user interface for GR8 CRM."
-    def documentation = "https://github.com/technipelago/grails-crm-task-ui"
+    def description = "Provides task management user interface for GR8 CRM applications"
+    def documentation = "http://gr8crm.github.io/plugins/crm-task-ui/"
     def license = "APACHE"
     def organization = [name: "Technipelago AB", url: "http://www.technipelago.se/"]
     def issueManagement = [system: "github", url: "https://github.com/technipelago/grails-crm-task-ui/issues"]
