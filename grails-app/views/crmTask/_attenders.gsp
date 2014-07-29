@@ -236,7 +236,7 @@ tr.crm-status-absent td {
             <th><g:message code="crmContact.address.label"/></th>
             <crm:sortableColumn property="status.orderIndex" fragment="attender"
                                 title="${message(code: 'crmTaskAttender.status.label', default: 'Status')}"/>
-            <th><g:checkBox name="changeAll" title="Markera alla"/></th>
+            <th><g:checkBox name="changeAll" title="${message(code: 'crmTaskAttender.button.select.all.label', default: 'Select all')}"/></th>
         </tr>
         </thead>
         <tbody>

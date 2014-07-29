@@ -1,4 +1,4 @@
-<h3>${bean.id ? 'Ändra' : 'Registrera'} deltagare</h3>
+<h3>${message(code: 'crmTaskAttender.' + (bean.id ? 'edit' : 'create') + '.title')}</h3>
 
 <g:hasErrors bean="${bean}">
     <crm:alert class="alert-error">
@@ -24,57 +24,57 @@
             <div class="row-fluid">
 
                 <div class="control-group">
-                    <label id="crm-company-label" class="control-label">Företag<span></span></label>
+                    <label id="crm-company-label" class="control-label"><g:message code="crmTaskAttender.company.label" /><span></span></label>
 
                     <div class="controls">
                         <g:textField name="companyName" value="${contact.companyName}" class="span11"
-                                     placeholder="Företagsnamn" autocomplete="off"/>
+                                     placeholder="${message(code: 'crmTaskAttender.company.help')}" autocomplete="off"/>
                         <input type="hidden" name="companyId" value="${bean.contact?.parentId}"/>
                     </div>
                 </div>
 
                 <div class="control-group">
-                    <label id="crm-person-label" class="control-label">Person<span></span></label>
+                    <label id="crm-person-label" class="control-label"><g:message code="crmTaskAttender.person.label" /><span></span></label>
 
                     <div class="controls">
-                        <g:textField name="firstName" value="${contact.firstName}" class="span5" placeholder="Förnamn"/>
-                        <g:textField name="lastName" value="${contact.lastName}" class="span6" placeholder="Efternamn"/>
+                        <g:textField name="firstName" value="${contact.firstName}" class="span5" placeholder="${message(code: 'crmContact.firstName.help')}"/>
+                        <g:textField name="lastName" value="${contact.lastName}" class="span6" placeholder="${message(code: 'crmContact.lastName.help')}"/>
                         <input type="hidden" name="contactId" value="${bean.contactId}"/>
                     </div>
                 </div>
 
                 <div class="control-group">
-                    <label class="control-label">Titel</label>
+                    <label class="control-label"><g:message code="crmContact.title.label" /></label>
 
                     <div class="controls">
-                        <g:textField name="title" value="${contact.title}" class="span11"/>
+                        <g:textField name="title" value="${contact.title}" class="span11" placeholder="${message(code: 'crmContact.title.help')}"/>
                     </div>
                 </div>
 
                 <div class="control-group">
-                    <label class="control-label">Adress</label>
+                    <label class="control-label"><g:message code="crmTaskAttender.address.label" /></label>
 
                     <div class="controls">
                         <g:textField name="address" value="${contact.fullAddress}" class="span11"
-                                     placeholder="Postadress"/>
+                                     placeholder="${message(code: 'crmTaskAttender.address.help')}"/>
                     </div>
                 </div>
 
                 <div class="control-group">
-                    <label class="control-label">Telefon</label>
+                    <label class="control-label"><g:message code="crmTaskAttender.telephone.label" /></label>
 
                     <div class="controls">
                         <g:textField name="telephone" value="${contact.telephone}" class="span11"
-                                     placeholder="Telefon till deltagaren"/>
+                                     placeholder="${message(code: 'crmTaskAttender.telephone.help')}"/>
                     </div>
                 </div>
 
                 <div class="control-group">
-                    <label class="control-label">E-post</label>
+                    <label class="control-label"><g:message code="crmTaskAttender.email.label" /></label>
 
                     <div class="controls">
                         <g:textField name="email" value="${contact.email}" class="span11"
-                                     placeholder="E-post till deltagaren"/>
+                                     placeholder="${message(code: 'crmTaskAttender.email.help')}"/>
                     </div>
                 </div>
 
@@ -85,38 +85,37 @@
             <div class="row-fluid">
 
                 <div class="control-group">
-                    <label class="control-label">Referens</label>
+                    <label class="control-label"><g:message code="crmTaskAttender.bookingRef.label" /></label>
 
                     <div class="controls">
                         <g:textField name="bookingRef" value="${bean.bookingRef}" class="span11"
-                                     placeholder="Referens hos beställaren"/>
+                                     placeholder="${message(code: 'crmTaskAttender.bookingRef.help')}"/>
                     </div>
                 </div>
 
                 <div class="control-group">
-                    <label class="control-label">Meddelande</label>
+                    <label class="control-label"><g:message code="crmTaskAttender.notes.label" /></label>
 
                     <div class="controls">
                         <g:textArea name="notes" value="${bean.notes}" rows="5" class="span11"
-                                    placeholder="Eventuellt meddelande, t.ex. allergi eller andra önskemål"/>
+                                    placeholder="${message(code: 'crmTaskAttender.notes.help')}"/>
                     </div>
                 </div>
 
                 <div class="control-group">
-                    <label class="control-label">Bokningsdatum</label>
+                    <label class="control-label"><g:message code="crmTaskAttender.bookingDate.label" /></label>
 
                     <div class="controls">
                         <div class="input-append date">
                             <g:textField name="bookingDate" class="span9" size="10"
-                                         placeholder="ÅÅÅÅ-MM-DD"
-                                         value="${formatDate(format: 'yyyy-MM-dd', date: bean.bookingDate ?: new Date())}"/><span
+                                         value="${formatDate(type: 'date', date: bean.bookingDate ?: new Date())}"/><span
                                 class="add-on"><i class="icon-th"></i></span>
                         </div>
                     </div>
                 </div>
 
                 <div class="control-group">
-                    <label class="control-label">Deltagarstatus</label>
+                    <label class="control-label"><g:message code="crmTaskAttender.status.label" /></label>
 
                     <div class="controls">
                         <g:select from="${statusList}" name="status.id" optionKey="id" value="${bean.status?.id}"
@@ -128,7 +127,7 @@
                     <div class="controls">
                         <label class="checkbox">
                             <g:checkBox name="createContact" value="true" checked="${bean.contact != null}"/>
-                            Spara deltagaren i kontaktregistret
+                            <g:message code="crmTaskAttender.save.contact.label" />
                         </label>
                     </div>
                 </div>
@@ -137,7 +136,7 @@
                     <div class="controls">
                         <label class="checkbox">
                             <g:checkBox name="hide" value="true" checked="${bean.hide}"/>
-                            Dölj e-post i detaltagarlistor
+                            <g:message code="crmTaskAttender.hidden.label" />
                         </label>
                     </div>
                 </div>
@@ -149,8 +148,8 @@
         <crm:button action="attender" visual="success" icon="icon-ok icon-white"
                     label="crmTaskAttender.button.save.label"/>
         <g:if test="${bean.id}">
-            <crm:button visual="danger" action="deleteAttender" label="Radera" icon="icon-trash icon-white"
-                        confirm="Är du säker på att du vill radera bokningen för ${bean}?"/>
+            <crm:button visual="danger" action="deleteAttender" label="crmTaskAttender.button.delete.label" icon="icon-trash icon-white"
+                        confirm="${message(code: 'crmTaskAttender.button.delete.confirm')}"/>
         </g:if>
 
         <button id="crm-cancel" class="btn" onclick="return cancelAttender()">

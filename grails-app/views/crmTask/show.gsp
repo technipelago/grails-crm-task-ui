@@ -251,7 +251,7 @@
             <ul class="nav nav-list">
                 <li class="nav-header">
                     <i class="icon-thumbs-up"></i>
-                    Senast anmälda
+                    <g:message code="crmTaskAttender.recent.registered.title" default="Recently Registered"/>
                 </li>
                 <g:each in="${recentBooked}" var="a" status="i">
                     <li>
