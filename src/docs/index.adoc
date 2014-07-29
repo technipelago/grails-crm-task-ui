@@ -65,26 +65,40 @@ I.e. it will skip the +list+ view and go directly to the +show+ view.
 The task details page +crmTask/show+ shows all the details for a selected task.
 Here you will find task name, start time, priority, etc.
 
-image::task-show.png[Task details, role="thumb"]
+image::task-show.png[View task details, role="thumb"]
 
 If the +crm-tags+ plugin is installed you can see existing tags and add new tags to a task.
 
 == Edit task details
 
-image::task-edit.png[role="thumb"]
+image::task-edit.png[Edit task details, role="thumb"]
 
 To edit task details you hit the +Edit+ button. This will display the edit page +crmTask/edit+.
 Here you can alter values and then hit +Save+ to store the new values in the database.
 
+== Attenders
+
+A task can have a collection of attenders. Attenders can be people stored as a +CrmContact+ domain instance,
+or just name and address stored in the +CrmTaskAttender+ instance.
+Task attenders are not enabled by default. If you set the config option +crm.task.attenders.enabled+ to +true+ you will
+get an extra tab in the task details page. This tab will display attenders and let you add attenders to the task.
+
+image::task-attenders.png[Task attenders, role="thumb"]
+
 == Calendar
 
 The CrmCalendarController +crmCalendar/index+ displays a month/week/day calendar with all the tasks in your database.
+The calendar is based on the http://arshaw.com/fullcalendar/[FullCalendar^] jQuery plugin.
+A +username+ query parameter can be specified to filter events for a specific user. Otherwise it will display
+all events in the current tenant.
 
-image::calendar-month.png[role="thumb"]
+image::calendar-month.png[Month Calendar, role="thumb"]
 
 == License
 
 {license}
+
+FullCalendar jQuery plugin is open source licensed under an http://arshaw.com/js/fullcalendar-2.0.2/license.txt[MIT license^].
 
 == Source Code
 
