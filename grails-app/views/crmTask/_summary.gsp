@@ -15,5 +15,7 @@
 </g:if>
 
 <g:if test="${bean.attenders}">
-    <p><strong>${bean.attenders.size()} st</strong> deltagare är anmälda.</p>
+    <p>
+        <g:message code="crmTask.attenders.count" args="${[bean.toString(), bean.attenders.size()]}"/>.
+    </p>
 </g:if>
