@@ -95,37 +95,12 @@ class CrmTaskController {
         redirect(action: "index")
     }
 
-    def print() {
-        if (!params.report) {
-            params.report = 'list'
-        }
-        def user = crmSecurityService.currentUser
-        def tempFile = event(for: "crmTask", topic: "print", data: params + [user: user, tenant: TenantUtils.tenant]).waitFor(60000)?.value
-        if (tempFile instanceof File) {
-            try {
-                def entityName = message(code: 'crmTask.label', default: 'Task')
-                def filename = message(code: 'crmTask.' + params.report + '.label', default: 'Task ' + params.report, args: [entityName]) + '.pdf'
-                WebUtils.inlineHeaders(response, "application/pdf", filename)
-                WebUtils.renderFile(response, tempFile)
-            } finally {
-                tempFile.delete()
-            }
-            return null // Success
-        } else if (tempFile) {
-            log.error("Print event returned an unexpected value: $tempFile (${tempFile.class.name})")
-            flash.error = message(code: 'crmTask.print.error.message', default: 'Printing failed due to an error', args: [tempFile.class.name])
-        } else {
-            flash.warning = message(code: 'crmTask.print.nothing.message', default: 'Nothing was printed')
-        }
-        redirect(action: "index") // error condition, return to search form.
-    }
-
     def export() {
         def user = crmSecurityService.getUserInfo()
+        def namespace = params.namespace ?: 'crmTask'
         if (request.post) {
             def filename = message(code: 'crmTask.label', default: 'Task')
             try {
-                def namespace = params.namespace ?: 'crmTask'
                 def topic = params.topic ?: 'export'
                 def result = event(for: namespace, topic: topic,
                         data: params + [user: user, tenant: TenantUtils.tenant, locale: request.locale, filename: filename]).waitFor(60000)?.value
@@ -149,8 +124,8 @@ class CrmTaskController {
             redirect(action: "index")
         } else {
             def uri = params.getSelectionURI()
-            def layouts = event(for: 'crmTask', topic: 'exportLayout',
-                    data: [tenant: TenantUtils.tenant, username: user.username, uri: uri]).waitFor(10000)?.values
+            def layouts = event(for: namespace, topic: (params.topic ?: 'exportLayout'),
+                    data: [tenant: TenantUtils.tenant, username: user.username, uri: uri, locale: request.locale]).waitFor(10000)?.values?.flatten()
             [layouts: layouts, selection: uri]
         }
     }
@@ -497,7 +472,7 @@ class CrmTaskController {
                 if (company.hasErrors()) {
                     company = null // TODO lame...
                 }
-                person = crmContactService.createPerson(parent: company, firstName: params.firstName, lastName: params.lastName,
+                person = crmContactService.createPerson(related: company, firstName: params.firstName, lastName: params.lastName,
                         title: params.title, telephone: params.telephone, email: params.email, address: [address1: params.address],
                         true)
                 params['contactId'] = person.ident()
@@ -508,7 +483,8 @@ class CrmTaskController {
             }
         } else {
             attender.contact = null
-            bindData(attender.contactInformation, params, [include: ['firstName', 'lastName', 'companyName', 'title', 'address', 'telephone', 'email']])
+            bindData(attender.contactInformation, params,
+                    [include: ['firstName', 'lastName', 'companyName', 'companyId', 'title', 'address', 'telephone', 'email']])
         }
     }
 
@@ -588,6 +564,9 @@ class CrmTaskController {
         if (params.parent) {
             params.parent = params.long('parent')
         }
+        if (params.related) {
+            params.related = params.long('related')
+        }
         if (params.company) {
             params.company = params.boolean('company')
         }
@@ -595,7 +574,8 @@ class CrmTaskController {
             params.person = params.boolean('person')
         }
         def result = crmContactService.list(params, [max: 100]).collect {
-            [it.fullName, it.id, it.parentId, it.parent?.toString(), it.firstName, it.lastName, it.address.toString(), it.telephone, it.email]
+            def contact = it.primaryContact ?: it.parent
+            [it.fullName, it.id, contact?.id, contact?.toString(), it.firstName, it.lastName, it.address.toString(), it.telephone, it.email]
         }
         WebUtils.noCache(response)
         render result as JSON

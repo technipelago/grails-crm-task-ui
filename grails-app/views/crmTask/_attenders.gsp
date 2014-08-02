@@ -58,12 +58,12 @@
             onItemSelect: function(item) {
                 var ac = $("input[name='firstName']").data('autocompleter');
                 if(ac) {
-                    ac.setExtraParam('parent', item.data[0]);
+                    ac.setExtraParam('related', item.data[0]);
                     ac.cacheFlush();
                     }
                 ac = $("input[name='lastName']").data('autocompleter');
                 if(ac) {
-                    ac.setExtraParam('parent', item.data[0]);
+                    ac.setExtraParam('related', item.data[0]);
                     ac.cacheFlush();
                 }
                 $("input[name='companyId']").val(item.data[0]);
@@ -78,12 +78,12 @@
             onNoMatch: function() {
                 var ac = $("input[name='firstName']").data('autocompleter');
                 if(ac) {
-                    ac.setExtraParam('parent', '');
+                    ac.setExtraParam('related', '');
                     ac.cacheFlush();
                 }
                 ac = $("input[name='lastName']").data('autocompleter');
                 if(ac) {
-                    ac.setExtraParam('parent', '');
+                    ac.setExtraParam('related', '');
                     ac.cacheFlush();
                 }
                 $("input[name='companyId']").val('');
@@ -317,24 +317,16 @@ tr.crm-status-absent td {
             <div class="btn-group">
                 <button class="btn btn-info dropdown-toggle" data-toggle="dropdown">
                     <i class="icon-print icon-white"></i>
-                    <g:message code="crmTask.button.print.label" default="Print"/>
+                    <g:message code="crmTaskAttender.button.print.label" default="Print"/>
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                    <crm:hasPermission permission="crmTask:print">
-                        <li>
-                            <g:link action="print" accesskey="p" target="pdf"
-                                    params="${[id: crmTask.id, report: 'attenders', layout: 'internal']}">
-                                <g:message code="crmTask.button.print.attenders.internal.label" default="Internal attender list"/>
-                            </g:link>
-                        </li>
-                        <li>
-                            <g:link action="print" accesskey="p" target="pdf"
-                                    params="${[id: crmTask.id, report: 'attenders', layout: 'external']}">
-                                <g:message code="crmTask.button.print.attenders.external.label" default="Public attender list"/>
-                            </g:link>
-                        </li>
-                    </crm:hasPermission>
+                    <li>
+                        <select:link action="export" params="${[namespace:'crmTaskAttender']}"
+                                     selection="${new URI('bean://crmTaskService/list?id=' + crmTask.id)}">
+                            <g:message code="crmTask.print.attenders.label" default="Attender list"/>
+                        </select:link>
+                    </li>
                 </ul>
             </div>
         </g:if>

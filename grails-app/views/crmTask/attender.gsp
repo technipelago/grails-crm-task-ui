@@ -29,7 +29,7 @@
                     <div class="controls">
                         <g:textField name="companyName" value="${contact.companyName}" class="span11"
                                      placeholder="${message(code: 'crmTaskAttender.company.help')}" autocomplete="off"/>
-                        <input type="hidden" name="companyId" value="${bean.contact?.parentId}"/>
+                        <input type="hidden" name="companyId" value="${contact?.companyId}"/>
                     </div>
                 </div>
 
