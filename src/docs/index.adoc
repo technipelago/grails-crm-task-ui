@@ -94,6 +94,10 @@ all events in the current tenant.
 
 image::calendar-month.png[Month Calendar, role="thumb"]
 
+== Changes
+
+2.0.0:: First public release
+
 == License
 
 {license}
