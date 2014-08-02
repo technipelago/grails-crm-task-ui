@@ -15,6 +15,7 @@
         <input type="hidden" name="q" value="${select.encode(selection: selection)}"/>
         <input type="hidden" name="namespace" value="${l.namespace}"/>
         <input type="hidden" name="topic" value="${l.topic}"/>
+        <input type="hidden" name="layout" value="${l.layout}"/>
 
         <div class="row-fluid">
             <div class="span7">
