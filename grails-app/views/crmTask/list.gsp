@@ -8,7 +8,7 @@
 
 <body>
 
-<crm:header title="crmTask.list.title" subtitle="crmContact.totalCount.label"
+<crm:header title="crmTask.list.title" subtitle="crmTask.totalCount.label"
             args="[entityName, crmTaskTotal]">
 </crm:header>
 
