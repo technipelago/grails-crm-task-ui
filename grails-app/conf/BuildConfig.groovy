@@ -30,7 +30,7 @@ grails.project.dependency.resolution = {
         test(":codenarc:0.21") { export = false }
         test(":code-coverage:1.2.7") { export = false }
 
-        compile ":crm-core:2.0.1"
+        compile ":crm-core:2.0.2"
         compile ":crm-task:2.0.0"
         compile ":crm-contact:2.0.2"
         compile ":crm-ui-bootstrap:2.0.0"
@@ -38,7 +38,7 @@ grails.project.dependency.resolution = {
 
         compile ":decorator:1.1"
         compile ":user-tag:0.6"
-        compile ":selection:0.9.7"
+        compile ":selection:0.9.8"
         compile ":selection-repository:0.9.3"
     }
 }
