@@ -23,26 +23,6 @@ class CrmTaskAttenderStatusController {
 
     static allowedMethods = [create: ['GET', 'POST'], edit: ['GET', 'POST'], delete: 'POST']
 
-    static navigation = [
-            [group: 'admin',
-                    order: 320,
-                    title: 'crmTaskAttenderStatus.label',
-                    action: 'index'
-            ]/*,
-            [group: 'crmTaskAttenderStatus',
-                    order: 20,
-                    title: 'crmTaskAttenderStatus.create.label',
-                    action: 'create',
-                    isVisible: { actionName != 'create' }
-            ],
-            [group: 'crmTaskAttenderStatus',
-                    order: 30,
-                    title: 'crmTaskAttenderStatus.list.label',
-                    action: 'list',
-                    isVisible: { actionName != 'list' }
-            ]*/
-    ]
-
     def selectionService
     def crmTaskService
 

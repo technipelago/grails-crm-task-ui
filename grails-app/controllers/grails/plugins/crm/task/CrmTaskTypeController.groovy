@@ -23,26 +23,6 @@ class CrmTaskTypeController {
 
     static allowedMethods = [create: ['GET', 'POST'], edit: ['GET', 'POST'], delete: 'POST']
 
-    static navigation = [
-            [group: 'admin',
-                    order: 310,
-                    title: 'crmTaskType.label',
-                    action: 'index'
-            ]/*,
-            [group: 'crmTaskType',
-                    order: 20,
-                    title: 'crmTaskType.create.label',
-                    action: 'create',
-                    isVisible: { actionName != 'create' }
-            ],
-            [group: 'crmTaskType',
-                    order: 30,
-                    title: 'crmTaskType.list.label',
-                    action: 'list',
-                    isVisible: { actionName != 'list' }
-            ]*/
-    ]
-
     def selectionService
     def crmTaskService
 

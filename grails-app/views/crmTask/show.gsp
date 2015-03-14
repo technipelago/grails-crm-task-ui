@@ -16,11 +16,11 @@
 <header class="page-header">
     <crm:user>
         <h1>
-            ${crmTask.name.encodeAsHTML()}
+            ${crmTask.name}
             <crm:favoriteIcon bean="${crmTask}"/>
-            <small>${(crmTask.reference ?: crmTask.location)?.encodeAsHTML()}</small>
-            ${crmTask.alarm ? '<i class="icon-bell"></i>' : ''}
-            ${crmTask.complete ? '<i class="icon-check"></i>' : ''}
+            <small>${(crmTask.reference ?: crmTask.location)}</small>
+            ${crmTask.alarm ? raw('<i class="icon-bell"></i>') : ''}
+            ${crmTask.complete ? raw('<i class="icon-check"></i>') : ''}
         </h1>
     </crm:user>
 </header>

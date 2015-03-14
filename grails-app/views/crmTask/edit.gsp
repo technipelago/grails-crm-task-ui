@@ -160,9 +160,8 @@
                                                                     default="Notify"/></label>
 
                             <div class="controls">
-                                <g:select from="${CrmTask.constraints.alarmType.inList}" name="alarmType"
-                                          value="${crmTask.alarmType}"
-                                          valueMessagePrefix="crmTask.alarmType" class="span9"/>
+                                <g:select from="${metadata.alarmTypes}" name="alarmType" class="span9"
+                                          value="${crmTask.alarmType}" optionKey="value" optionValue="label"/>
                             </div>
 
                             <div class="controls">

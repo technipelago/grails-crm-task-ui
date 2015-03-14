@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main">
     <title><g:message code="crmCalendar.index.title"/></title>
-    <r:require module="calendar"/>
+    <r:require modules="calendar,qtip"/>
     <r:script>
         $(document).ready(function() {
             $("#calendar").fullCalendar({
@@ -13,17 +13,7 @@
                     center: 'title',
                     right: 'month,agendaWeek,agendaDay'
                 },
-                monthNames: <%= metadata.monthNames.collect{"'$it'"} %>,
-                monthNamesShort: <%= metadata.monthNamesShort.collect{"'$it'"} %>,
-                dayNames: <%= metadata.dayNames.collect{"'$it'"} %>,
-                dayNamesShort: <%= metadata.dayNamesShort.collect{"'$it'"} %>,
-                buttonText: {
-                    today: "${message(code: 'crmCalendar.today.label', default: 'Today')}",
-                    month: "${message(code: 'crmCalendar.month.label', default: 'Month')}",
-                    week: "${message(code: 'crmCalendar.week.label', default: 'Week')}",
-                    day: "${message(code: 'crmCalendar.day.label', default: 'Dag')}"
-                },
-                allDayText: "${message(code: 'crmCalendar.allday.label', default: 'All day')}",
+                lang: '${metadata.lang}',
                 axisFormat: 'H:mm',
                 timeFormat: {
                     '': 'H:mm', // default
@@ -32,6 +22,24 @@
                 firstDay: <%= metadata.firstDayOfWeek - 1 %>,
                 weekNumbers: true,
                 weekNumberTitle: "${message(code: 'crmCalendar.weekNumber.label', default: 'w.')}",
+                businessHours: {
+                    start: '8:00',
+                    end: '17:00',
+                    dow: [1, 2, 3, 4, 5]
+                    // days of week. an array of zero-based day of week integers (0=Sunday)
+                    // (Monday-Thursday in this example)
+                },
+                aspectRatio: 2,
+                eventRender: function(event, element) {
+                    element.find('.fc-time').hide(); // Hide title.
+                    if(event.description) {
+                        element.qtip({
+                            content: {
+                                text: '<p><strong>' + event.title + '</strong></p><p>' + event.description + '</p>'
+                            }
+                        });
+                    }
+                },
                 eventClick: function(calEvent, jsEvent, view) {
                     window.location.href = calEvent.url;
                 }

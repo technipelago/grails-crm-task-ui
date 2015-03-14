@@ -16,12 +16,15 @@
 
 package grails.plugins.crm.task
 
+import org.joda.time.DateTimeZone
 import org.joda.time.Instant
 import org.joda.time.DateTime
 import grails.converters.JSON
 import grails.plugins.crm.core.TenantUtils
 import grails.plugins.crm.core.DateUtils
 import org.apache.commons.lang.StringUtils
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import org.springframework.web.servlet.support.RequestContextUtils as RCU
 import javax.servlet.http.HttpServletResponse
 
@@ -41,12 +44,8 @@ class CrmCalendarController {
         }
         def user = crmSecurityService.getUserInfo(null)
         def locale = RCU.getLocale(request)
-        def metadata = [:]
+        def metadata = [locale: locale, lang: locale.language]
         metadata.firstDayOfWeek = DateUtils.getFirstDayOfWeek(locale, user.timezone)
-        metadata.monthNames = DateUtils.getMonthNames(locale, user.timezone, false)
-        metadata.monthNamesShort = DateUtils.getMonthNames(locale, user.timezone, true)
-        metadata.dayNames = DateUtils.getDayNames(locale, user.timezone, true)
-        metadata.dayNamesShort = DateUtils.getDayNames(locale, user.timezone, true)
         return [calendars: checked, metadata: metadata]
     }
 
@@ -66,9 +65,10 @@ class CrmCalendarController {
     }
 
     def events() {
-        def t0 = params.long('start') ?: (new Date() - 45).time
-        def t1 = params.long('end') ?: (new Date() + 45).time
-        def (startRange, endRange) = [t0, t1].collect { new Instant(it * 1000L).toDate() }
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd");
+        DateTimeFormatter iso8601 = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(DateTimeZone.forID("Europe/Stockholm"))
+        def t0 = params.start ? fmt.parseDateTime(params.start) : new DateTime().minusDays(45)
+        def t1 = params.end ? fmt.parseDateTime(params.end) : new DateTime().plusDays(45)
         def checked = getCalendarTenants(params)
         if (checked == null) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN)
@@ -83,13 +83,13 @@ class CrmCalendarController {
             or {
                 and {
                     eq("isRecurring", false)
-                    between("startTime", startRange, endRange)
+                    between("startTime", t0.toDate(), t1.toDate())
                 }
                 and {
                     eq("isRecurring", true)
                     or {
                         isNull("recurUntil")
-                        ge("recurUntil", startRange)
+                        ge("recurUntil", t0.toDate())
                     }
                 }
             }
@@ -101,7 +101,7 @@ class CrmCalendarController {
         def currentTenant = TenantUtils.tenant
         events.each {event ->
 
-            def dates = crmCalendarService.findOccurrencesInRange(event, startRange, endRange)
+            def dates = crmCalendarService.findOccurrencesInRange(event, t0.toDate(), t1.toDate())
 
             dates.each { date ->
                 DateTime startTime = new DateTime(date)
@@ -118,8 +118,8 @@ class CrmCalendarController {
                         url: g.createLink(controller: 'crmTask', action: 'show', params: linkParams),
                         color: crmCalendarService.getEventColor(event),
                         allDay: false,
-                        start: (startTime.toInstant().millis / 1000L),
-                        end: (endTime.toInstant().millis / 1000L)
+                        start: iso8601.print(startTime),
+                        end: iso8601.print(endTime)
                 ]
             }
         }

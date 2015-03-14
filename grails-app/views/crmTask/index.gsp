@@ -48,34 +48,36 @@
 
             <div class="span3">
                 <div class="row-fluid">
-                    <f:field property="fromDate">
-                        <div class="input-append date">
-                            <g:textField name="fromDate" class="span11" size="10" placeholder="ÅÅÅÅ-MM-DD"
-                                         value="${formatDate(format: 'yyyy-MM-dd', date: cmd.fromDate)}"/><span
-                                class="add-on"><i
-                                    class="icon-th"></i></span>
+                    <div class="control-group">
+                        <label class="control-label"><g:message code="crmTaskQueryCommand.fromDate.label"/></label>
+                        <div class="controls">
+                            <div class="input-append date">
+                                <g:textField name="fromDate" class="span11" size="10" placeholder="ÅÅÅÅ-MM-DD"
+                                             value="${cmd.fromDate}"/><span
+                                    class="add-on"><i class="icon-th"></i></span>
+                            </div>
                         </div>
-                    </f:field>
-                    <f:field property="toDate">
-                        <div class="input-append date">
-                            <g:textField name="toDate" class="span11" size="10" placeholder="ÅÅÅÅ-MM-DD"
-                                         value="${formatDate(format: 'yyyy-MM-dd', date: cmd.toDate)}"/><span
-                                class="add-on"><i
-                                    class="icon-th"></i></span>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label"><g:message code="crmTaskQueryCommand.toDate.label"/></label>
+                        <div class="controls">
+                            <div class="input-append date">
+                                <g:textField name="toDate" class="span11" size="10" placeholder="ÅÅÅÅ-MM-DD"
+                                             value="${cmd.toDate}"/><span
+                                    class="add-on"><i class="icon-th"></i></span>
+                            </div>
                         </div>
-                    </f:field>
+                    </div>
                 </div>
             </div>
 
             <div class="span3">
                 <div class="row-fluid">
                     <f:field property="type" label="crmTask.type.label">
-                        <input type="text" name="type" value="${fieldValue(bean: cmd, field: 'type')}"
-                               class="span12" autocomplete="off"/>
+                        <g:textField name="type" value="${cmd.type}" class="span12" autocomplete="off"/>
                     </f:field>
                     <f:field property="username" label="crmTask.username.label">
-                        <input type="text" name="username" value="${fieldValue(bean: cmd, field: 'username')}"
-                               class="span12" autocomplete="off"/>
+                        <g:textField name="username" value="${cmd.username}" class="span12" autocomplete="off"/>
                     </f:field>
                 </div>
             </div>
@@ -84,8 +86,7 @@
                 <div class="row-fluid">
                     <g:if test="${useAttenders}">
                         <f:field property="attender" label="crmTaskAttender.label">
-                            <input type="text" name="attender" value="${fieldValue(bean: cmd, field: 'attender')}"
-                                   class="span12"/>
+                            <g:textField name="attender" value="${cmd.attender}" class="span12"/>
                         </f:field>
                     </g:if>
                     <f:field property="tags" label="crmTask.tags.label">

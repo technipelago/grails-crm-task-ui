@@ -19,6 +19,8 @@ package grails.plugins.crm.task
 import grails.plugins.crm.contact.CrmContact
 import grails.plugins.crm.core.DateUtils
 import grails.plugins.crm.core.TenantUtils
+import grails.transaction.Transactional
+import org.codehaus.groovy.grails.web.binding.DataBindingUtils
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
 import org.springframework.dao.DataIntegrityViolationException
 import grails.converters.JSON
@@ -138,6 +140,7 @@ class CrmTaskController {
         return true
     }
 
+    @Transactional
     def create() {
         def startDate = params.remove('startDate') ?: formatDate(type: 'date', date: new Date() + 1)
         def endDate = params.remove('endDate') ?: startDate
@@ -180,6 +183,9 @@ class CrmTaskController {
         metadata.typeList = typeList
         metadata.userList = userList
         metadata.timeList = timeList
+        metadata.alarmTypes = CrmTask.constraints.alarmType.inList.collect{ t ->
+            [value: t, label: message(code: 'crmTask.alarmType.' + t, default: '')]
+        }.findAll{it.label}
 
         switch (request.method) {
             case 'GET':
@@ -278,6 +284,7 @@ class CrmTaskController {
                 attenders: attenders, recentBooked: recent, selection: params.getSelectionURI()]
     }
 
+    @Transactional
     def edit() {
         def tenant = TenantUtils.tenant
         def crmTask = CrmTask.findByIdAndTenantId(params.id, tenant)
@@ -313,15 +320,16 @@ class CrmTaskController {
         metadata.typeList = typeList
         metadata.userList = userList
         metadata.timeList = timeList
+        metadata.alarmTypes = CrmTask.constraints.alarmType.inList.collect{ t ->
+            [value: t, label: message(code: 'crmTask.alarmType.' + t, default: '')]
+        }.findAll{it.label}
 
         switch (request.method) {
             case 'GET':
                 return [crmTask: crmTask, user: user, referer: params.referer, metadata: metadata]
             case 'POST':
                 try {
-                    bindData(crmTask, params, [include: CrmTask.BIND_WHITELIST - ['startTime', 'endTime']])
-
-                    //setReference(crmTask, params.ref)
+                    DataBindingUtils.bindObjectToInstance(crmTask, params, CrmTask.BIND_WHITELIST, ['startTime', 'endTime'], null)
 
                     def startDate = params.startDate ?: (new Date() + 1).format("yyyy-MM-dd")
                     def endDate = params.endDate ?: startDate
@@ -350,6 +358,7 @@ class CrmTaskController {
         }
     }
 
+    @Transactional
     def delete() {
         def crmTask = CrmTask.findByIdAndTenantId(params.id, TenantUtils.tenant)
         if (!crmTask) {
@@ -373,6 +382,7 @@ class CrmTaskController {
         }
     }
 
+    @Transactional
     def createFavorite() {
         def crmTask = CrmTask.findByIdAndTenantId(params.id, TenantUtils.tenant)
         if (!crmTask) {
@@ -385,6 +395,7 @@ class CrmTaskController {
         redirect(action: 'show', id: params.id)
     }
 
+    @Transactional
     def deleteFavorite() {
         def crmTask = CrmTask.findByIdAndTenantId(params.id, TenantUtils.tenant)
         if (!crmTask) {
@@ -396,6 +407,7 @@ class CrmTaskController {
         redirect(action: 'show', id: params.id)
     }
 
+    @Transactional
     def completed(Long id) {
         def crmTask = CrmTask.findByIdAndTenantId(params.id, TenantUtils.tenant)
         if (!crmTask) {
@@ -408,6 +420,7 @@ class CrmTaskController {
         redirect action: 'show', id: crmTask.id
     }
 
+    @Transactional
     def attender(Long id, Long task) {
         def crmTask = CrmTask.findByIdAndTenantId(task, TenantUtils.tenant)
         if (!crmTask) {
@@ -433,9 +446,7 @@ class CrmTaskController {
                 def currentUser = crmSecurityService.getUserInfo()
                 bindData(taskAttender, params, [include: ['bookingRef', 'notes', 'status', 'hide']])
                 bindDate(taskAttender, 'bookingDate', params.bookingDate, currentUser.timezone)
-                CrmContact.withTransaction {
-                    fixContact(taskAttender, params, params.boolean('createContact'))
-                }
+                fixContact(taskAttender, params, params.boolean('createContact'))
                 if (taskAttender.validate() && taskAttender.save()) {
                     if (taskAttender.contact) {
                         rememberDomain(taskAttender.contact)
@@ -488,6 +499,7 @@ class CrmTaskController {
         }
     }
 
+    @Transactional
     def deleteAttender(Long id, Long task) {
         def crmTask = CrmTask.findByIdAndTenantId(task, TenantUtils.tenant)
         if (!crmTask) {
@@ -511,6 +523,7 @@ class CrmTaskController {
         redirect(action: "show", id: crmTask.id, fragment: "attender")
     }
 
+    @Transactional
     def updateAttenders(Long task, Long status) {
         def tenant = TenantUtils.tenant
         def crmTask = CrmTask.findByIdAndTenantId(task, tenant)
@@ -524,14 +537,12 @@ class CrmTaskController {
             return
         }
         List<Long> attenders = params.list('attenders')
-        CrmTaskAttender.withTransaction {
-            for (a in attenders) {
-                CrmTaskAttender attender = CrmTaskAttender.findByIdAndTask(a, crmTask)
-                if (attender) {
-                    attender.status = attenderStatus
-                } else {
-                    log.error("No CrmTaskAttender found with id [$a] in tenant [$tenant]")
-                }
+        for (a in attenders) {
+            CrmTaskAttender attender = CrmTaskAttender.findByIdAndTask(a, crmTask)
+            if (attender) {
+                attender.status = attenderStatus
+            } else {
+                log.error("No CrmTaskAttender found with id [$a] in tenant [$tenant]")
             }
         }
         def linkParams = [id: crmTask.id]
