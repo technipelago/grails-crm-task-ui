@@ -32,7 +32,7 @@ that focus on one specific domain, for example *contact*, *project* or *document
 
 == Task Management User Interface Plugin
 
-This plugin provide user interfaces for managing tasks in {gr8crm} applications. If depends on the +crm-task+ plugin for low level services and persistence.
+This plugin provide user interfaces for managing tasks in {gr8crm} applications. It depends on the +crm-task+ plugin for low level services and persistence.
 A *Task* in {gr8crm} is a domain instance that represents a unit of work that has been done in the past or is scheduled to be done in the future.
 A task is very similar to a calendar item, it has a start time and a duration.
 
