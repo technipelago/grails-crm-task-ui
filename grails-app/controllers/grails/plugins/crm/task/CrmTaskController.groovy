@@ -480,7 +480,7 @@ class CrmTaskController {
             // Create a new person.
             def person
             if (params.firstName) {
-                if (company.hasErrors()) {
+                if (company?.hasErrors()) {
                     company = null // TODO lame...
                 }
                 person = crmContactService.createPerson(related: company, firstName: params.firstName, lastName: params.lastName,
