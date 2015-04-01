@@ -144,12 +144,12 @@
         });
 
         if($("input[name='companyId']").val()) {
-            setCompanyIndicator('');
+            setCompanyIndicator('icon-share-alt');
         } else if($("input[name='companyName']").val()) {
             setCompanyIndicator('icon-leaf');
         }
         if($("input[name='contactId']").val()) {
-            setPersonIndicator('');
+            setPersonIndicator('icon-share-alt');
         } else if($("input[name='firstName']").val()) {
             setPersonIndicator('icon-leaf');
         }
@@ -262,11 +262,14 @@ tr.crm-status-absent td {
                 <td class="${m.hide ? 'muted' : ''}">
                     ${contactInfo.address?.encodeAsHTML()}
                 </td>
-
-                <td title="${m.notes?.encodeAsHTML()}">
+                <g:set var="tags" value="${m.getTagValue()}"/>
+                <td title=" ${tags?.join(', ')} ${m.notes}">
                     <g:fieldValue bean="${m}" field="status"/>
                     <g:if test="${m.notes}">
-                        <i class="icon-comment"></i>
+                        <i class="icon-comment pull-right"></i>
+                    </g:if>
+                    <g:if test="${tags}">
+                        <i class="icon-tags pull-right" style="margin-right: 3px;"></i>
                     </g:if>
                 </td>
                 <td>

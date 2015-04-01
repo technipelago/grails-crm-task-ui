@@ -28,13 +28,13 @@ tr.crm-status-absent td {
         <g:set var="crmTask" value="${a.task}"/>
         <tr class="crm-status-${a.status.param}">
             <td>
-                <g:link controller="crmTask" action="show" id="${crmTask.id}">
+                <g:link controller="crmTask" action="show" id="${crmTask.id}" fragment="attender">
                     <g:formatDate type="date" date="${crmTask.startTime}"/>
                 </g:link>
             </td>
 
             <td>
-                <g:link controller="crmTask" action="show" id="${crmTask.id}">
+                <g:link controller="crmTask" action="show" id="${crmTask.id}" fragment="attender">
                     ${fieldValue(bean: crmTask, field: "name")}
                 </g:link>
             </td>
