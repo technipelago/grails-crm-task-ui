@@ -93,6 +93,18 @@
                     </div>
                 </div>
 
+                <g:set var="tags" value="${bean.getTagValue()}"/>
+                <g:if test="${tags}">
+                    <div class="control-group">
+                        <label class="control-label"><g:message code="crmTaskAttender.tags.label" /></label>
+                        <div class="controls">
+                            <g:each in="${tags}" var="tag">
+                                <span class="label label-info">${tag}</span>
+                            </g:each>
+                        </div>
+                    </div>
+                </g:if>
+
                 <div class="control-group">
                     <label class="control-label"><g:message code="crmTaskAttender.notes.label" /></label>
 
