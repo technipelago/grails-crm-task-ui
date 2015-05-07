@@ -8,6 +8,7 @@ grails.project.dependency.resolution = {
     log "warn"
     legacyResolve false
     repositories {
+        mavenRepo "http://repo.grails.org/grails/repo/"
         grailsCentral()
         mavenCentral()
     }
