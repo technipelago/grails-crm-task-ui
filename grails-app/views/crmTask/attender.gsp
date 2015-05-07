@@ -109,7 +109,7 @@
                     <label class="control-label"><g:message code="crmTaskAttender.notes.label" /></label>
 
                     <div class="controls">
-                        <g:textArea name="notes" value="${bean.notes}" rows="5" class="span11"
+                        <g:textArea name="notes" value="${bean.@notes}" rows="5" class="span11"
                                     placeholder="${message(code: 'crmTaskAttender.notes.help')}"/>
                     </div>
                 </div>
