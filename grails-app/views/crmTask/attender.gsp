@@ -93,7 +93,7 @@
                     </div>
                 </div>
 
-                <g:set var="tags" value="${bean.getTagValue()}"/>
+                <g:set var="tags" value="${bean.id ? bean.getTagValue() : []}"/>
                 <g:if test="${tags}">
                     <div class="control-group">
                         <label class="control-label"><g:message code="crmTaskAttender.tags.label" /></label>
