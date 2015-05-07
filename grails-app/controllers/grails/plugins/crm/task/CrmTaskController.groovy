@@ -313,6 +313,9 @@ class CrmTaskController {
         metadata.typeList = typeList
         metadata.userList = userList
         metadata.timeList = timeList
+        metadata.alarmTypes = CrmTask.constraints.alarmType.inList.collect{ t ->
+            [value: t, label: message(code: 'crmTask.alarmType.' + t, default: '')]
+        }.findAll{it.label}
 
         switch (request.method) {
             case 'GET':
