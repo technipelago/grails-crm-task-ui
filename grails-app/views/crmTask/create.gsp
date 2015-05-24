@@ -3,7 +3,7 @@
 <head>
     <meta name="layout" content="main">
     <g:set var="entityName" value="${message(code: 'crmTask.label', default: 'Task')}"/>
-    <g:set var="locale" value="${RequestContextUtils.getLocale(request) ?: new Locale('sv_SE')}"/>
+    <g:set var="locale" value="${RequestContextUtils.getLocale(request) ?: Locale.getDefault()}"/>
     <title><g:message code="crmTask.create.title" args="[entityName]"/></title>
     <r:require modules="datepicker,aligndates,autocomplete"/>
     <r:script>

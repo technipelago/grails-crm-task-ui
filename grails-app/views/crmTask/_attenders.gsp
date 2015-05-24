@@ -25,7 +25,7 @@
     function bindPanelEvents(panel) {
         $('.date', panel).datepicker({
             weekStart:1,
-            language: "${(org.springframework.web.servlet.support.RequestContextUtils.getLocale(request) ?: new Locale('sv_SE')).getLanguage()}",
+            language: "${(org.springframework.web.servlet.support.RequestContextUtils.getLocale(request) ?: Locale.getDefault()).getLanguage()}",
             calendarWeeks: ${grailsApplication.config.crm.datepicker.calendarWeeks ?: false},
             todayHighlight: true,
             autoclose: true
