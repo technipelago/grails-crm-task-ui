@@ -96,6 +96,7 @@ image::calendar-month.png[Month Calendar, role="thumb"]
 
 == Changes
 
+2.4.1:: Tagging support for task attenders and fixed compatibility issue with crm-notes plugin
 2.4.0:: First version compatible with Grails 2.4.4
 2.0.0:: First public release
 
