@@ -23,11 +23,10 @@ import grails.transaction.Transactional
 import javax.servlet.http.HttpServletResponse
 
 /**
- * Created by goran on 15-06-26.
+ * CRUD controller for task/event bookings.
  */
 class CrmTaskBookingController {
 
-    def crmTaskService
     def crmSecurityService
 
     def show(Long id) {
@@ -76,6 +75,7 @@ class CrmTaskBookingController {
                 def metadata = [:]
                 render view: 'edit', model: [crmTaskBooking: booking, crmTask: crmTask, metadata: metadata]
             } else {
+                flash.success = message(code: 'crmTaskBooking.updated.message', args: [message(code: 'crmTaskBooking.label', default: 'Booking'), booking.toString()])
                 redirect action: 'show', id: booking.id
             }
         } else {

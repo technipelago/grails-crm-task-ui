@@ -152,8 +152,8 @@
                 </ul>
             </crm:button>
             <g:link controller="crmTaskBooking" action="show" id="${crmTaskAttender.bookingId}" class="btn">
-                <i class="icon-remove"></i>
-                <g:message code="crmAttender.button.back.label" default="Back"/>
+                <i class="icon-glass"></i>
+                <g:message code="crmTaskBooking.label" default="Booking"/>
             </g:link>
         </div>
 

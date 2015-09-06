@@ -202,9 +202,19 @@
                                 icon="icon-pencil icon-white"
                                 label="crmTask.button.edit.label" permission="crmTaskBooking:edit"/>
                 </g:else>
+
+                <crm:hasPermission permission="crmTaskBooking:edit">
+                    <g:link controller="crmTaskAttender" action="create"
+                            params="${[id: crmTask.id, booking: crmTaskBooking.id]}"
+                            class="btn btn-success" accesskey="n">
+                        <i class="icon-user icon-white"></i>
+                        <g:message code="crmTask.button.book.label"/>
+                    </g:link>
+                </crm:hasPermission>
+
                 <g:link controller="crmTask" action="show" id="${crmTask.id}" fragment="attender" class="btn">
-                    <i class="icon-remove"></i>
-                    <g:message code="crmTaskBooking.button.back.label"/>
+                    <i class="icon-calendar"></i>
+                    <g:message code="crmTask.label"/>
                 </g:link>
 
             </div>

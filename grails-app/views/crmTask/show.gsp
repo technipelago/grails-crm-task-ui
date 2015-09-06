@@ -265,7 +265,7 @@
                 </li>
 
                 <g:each in="${attenderStatistics}" var="stat">
-                    <li>${stat[0]} <strong>${stat[1]} st</strong></li>
+                    <li>${stat[0]}: <strong>${stat[1]}</strong></li>
                 </g:each>
 
                 <li class="nav-header">

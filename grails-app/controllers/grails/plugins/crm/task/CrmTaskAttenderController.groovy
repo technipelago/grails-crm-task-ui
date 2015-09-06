@@ -28,7 +28,7 @@ import org.springframework.dao.DataIntegrityViolationException
 import javax.servlet.http.HttpServletResponse
 
 /**
- * Created by goran on 15-06-26.
+ * CRUD controller for task/event attenders.
  */
 class CrmTaskAttenderController {
 
@@ -58,7 +58,7 @@ class CrmTaskAttenderController {
     }
 
     @Transactional
-    def create(Long id) {
+    def create(Long id, Long booking) {
         CrmTask crmTask = CrmTask.get(id)
         if (!crmTask) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND)
@@ -69,7 +69,16 @@ class CrmTaskAttenderController {
             return
         }
 
-        def crmTaskBooking = new CrmTaskBooking(task: crmTask)
+        def crmTaskBooking
+        if(booking) {
+            crmTaskBooking = CrmTaskBooking.get(booking)
+            if(crmTaskBooking?.taskId != crmTask.id) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST) // TODO this is a little evil.
+                return
+            }
+        } else {
+            crmTaskBooking = new CrmTaskBooking(task: crmTask)
+        }
         def crmTaskAttender = new CrmTaskAttender(booking: crmTaskBooking)
         def bookingList = crmTask.bookings
 
@@ -81,7 +90,7 @@ class CrmTaskAttenderController {
                     if(crmTaskBooking.validate()) {
                         crmTask.addToBookings(crmTaskBooking)
                     } else {
-                        response.sendError(HttpServletResponse.SC_BAD_REQUEST) // TODO this is a little hard
+                        response.sendError(HttpServletResponse.SC_BAD_REQUEST) // TODO this is a little evil.
                         return
                     }
                 } else {
