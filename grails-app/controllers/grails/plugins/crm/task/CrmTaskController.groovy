@@ -163,16 +163,20 @@ class CrmTaskController {
         def crmTask = crmTaskService.createTask(params)
         def typeList = crmTaskService.listTaskTypes()
         def userList = crmSecurityService.getTenantUsers()
-        def timeList = (0..23).inject([]) { list, h -> 4.times { list << String.format("%02d:%02d", h, it * 15) }; list }
-        if(crmTask.startTime) {
+        def timeList = (0..23).inject([]) { list, h ->
+            4.times {
+                list << String.format("%02d:%02d", h, it * 15)
+            }; list
+        }
+        if (crmTask.startTime) {
             def hm = crmTask.startTime.format("HH:mm")
-            if(! timeList.contains(hm)) {
+            if (!timeList.contains(hm)) {
                 timeList << hm
             }
         }
-        if(crmTask.endTime) {
+        if (crmTask.endTime) {
             def hm = crmTask.endTime.format("HH:mm")
-            if(! timeList.contains(hm)) {
+            if (!timeList.contains(hm)) {
                 timeList << hm
             }
         }
@@ -184,9 +188,9 @@ class CrmTaskController {
         metadata.typeList = typeList
         metadata.userList = userList
         metadata.timeList = timeList
-        metadata.alarmTypes = CrmTask.constraints.alarmType.inList.collect{ t ->
+        metadata.alarmTypes = CrmTask.constraints.alarmType.inList.collect { t ->
             [value: t, label: message(code: 'crmTask.alarmType.' + t, default: '')]
-        }.findAll{it.label}
+        }.findAll { it.label }
 
         switch (request.method) {
             case 'GET':
@@ -240,8 +244,8 @@ class CrmTaskController {
     }
 
     def guessReference(String text) {
-        def future = event(for: "crm", topic: "guessReference", data: [text: text, user: crmSecurityService.currentUser,
-                tenant: TenantUtils.tenant, locale: request.locale]).waitFor(5000)
+        def future = event(for: "crm", topic: "guessReference", data: [text  : text, user: crmSecurityService.currentUser,
+                                                                       tenant: TenantUtils.tenant, locale: request.locale]).waitFor(5000)
         def list = future.values.flatten()
         def result = [q: text, timestamp: System.currentTimeMillis(), length: list.size(), more: false, results: list]
         WebUtils.shortCache(response)
@@ -273,16 +277,31 @@ class CrmTaskController {
 
         def attenders
         def recent
+        def stats
+
         if (grailsApplication.config.crm.task.attenders.enabled) {
-            attenders = CrmTaskAttender.createCriteria().list(params) {
-                eq('task', crmTask)
+            attenders = CrmTaskAttender.createCriteria().count() {
+                booking {
+                    eq('task', crmTask)
+                }
             }
-            recent = CrmTaskAttender.createCriteria().list([max:5, sort: 'bookingDate', order: 'desc']) {
-                eq('task', crmTask)
+            recent = CrmTaskAttender.createCriteria().list([max: 5, sort: 'bookingDate', order: 'desc']) {
+                booking {
+                    eq('task', crmTask)
+                }
+            }
+            stats = CrmTaskAttender.createCriteria().list() {
+                projections {
+                    groupProperty('status')
+                    rowCount()
+                }
+                booking {
+                    eq('task', crmTask)
+                }
             }
         }
-        [crmTask: crmTask, statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId),
-                attenders: attenders, recentBooked: recent, selection: params.getSelectionURI()]
+        [crmTask       : crmTask, statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId),
+         attendersTotal: attenders, attenderStatistics: stats, recentBooked: recent, selection: params.getSelectionURI()]
     }
 
     @Transactional
@@ -295,21 +314,25 @@ class CrmTaskController {
             return
         }
         def user = crmSecurityService.getUserInfo(params.username ?: crmTask.username)
-        if(! user) {
+        if (!user) {
             user = crmSecurityService.getUserInfo(null)
         }
         def typeList = crmTaskService.listTaskTypes()
         def userList = crmSecurityService.getTenantUsers()
-        def timeList = (0..23).inject([]) { list, h -> 4.times { list << String.format("%02d:%02d", h, it * 15) }; list }
-        if(crmTask.startTime) {
+        def timeList = (0..23).inject([]) { list, h ->
+            4.times {
+                list << String.format("%02d:%02d", h, it * 15)
+            }; list
+        }
+        if (crmTask.startTime) {
             def hm = crmTask.startTime.format("HH:mm")
-            if(! timeList.contains(hm)) {
+            if (!timeList.contains(hm)) {
                 timeList << hm
             }
         }
-        if(crmTask.endTime) {
+        if (crmTask.endTime) {
             def hm = crmTask.endTime.format("HH:mm")
-            if(! timeList.contains(hm)) {
+            if (!timeList.contains(hm)) {
                 timeList << hm
             }
         }
@@ -321,9 +344,9 @@ class CrmTaskController {
         metadata.typeList = typeList
         metadata.userList = userList
         metadata.timeList = timeList
-        metadata.alarmTypes = CrmTask.constraints.alarmType.inList.collect{ t ->
+        metadata.alarmTypes = CrmTask.constraints.alarmType.inList.collect { t ->
             [value: t, label: message(code: 'crmTask.alarmType.' + t, default: '')]
-        }.findAll{it.label}
+        }.findAll { it.label }
 
         switch (request.method) {
             case 'GET':
@@ -421,6 +444,28 @@ class CrmTaskController {
         redirect action: 'show', id: crmTask.id
     }
 
+    def attenders(Long id) {
+        final CrmTask crmTask = CrmTask.get(id)
+        if (crmTask?.tenantId != TenantUtils.tenant) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND)
+            return
+        }
+        List<CrmTaskAttender> result = CrmTaskAttender.createCriteria().list(params) {
+            booking {
+                eq('task', crmTask)
+            }
+            if(params.q) {
+                or {
+                    ilike('tmp.firstName', '%' + params.q + '%')
+                    ilike('tmp.lastName', '%' + params.q + '%')
+                }
+            }
+        }
+        render template: 'attender_list',
+                model: [bean      : crmTask, list: result,
+                        statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId)]
+    }
+
     @Transactional
     def attender(Long id, Long task) {
         def crmTask = CrmTask.findByIdAndTenantId(task, TenantUtils.tenant)
@@ -436,23 +481,31 @@ class CrmTaskController {
                 return
             }
         } else {
-            taskAttender = new CrmTaskAttender(task: crmTask)
+            taskAttender = new CrmTaskAttender(task: crmTask, bookingDate: new Date())
         }
 
+        def newBookingEntry = [id: 0L, title: message(code: 'crmTaskAttender.new.booking.label')]
+        def bookingList = [newBookingEntry] + CrmTaskBooking.findAllByTask(crmTask)
+
         if (request.method == 'GET') {
-            return [bean: taskAttender, crmTask: crmTask,
+            return [bean      : taskAttender, crmTask: crmTask, bookingList: bookingList,
                     statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId)]
         } else if (request.method == 'POST') {
             try {
                 def currentUser = crmSecurityService.getUserInfo()
-                bindData(taskAttender, params, [include: ['bookingRef', 'notes', 'status', 'hide']])
+                bindData(taskAttender, params, [include: ['notes', 'status', 'hide', 'bookingRef', 'externalRef']])
                 bindDate(taskAttender, 'bookingDate', params.bookingDate, currentUser.timezone)
                 fixContact(taskAttender, params, params.boolean('createContact'))
-                if (taskAttender.validate() && taskAttender.save()) {
+                if (params['booking.id'] == '0') {
+                    taskAttender.booking = new CrmTaskBooking(task: crmTask, bookingDate: taskAttender.bookingDate).save()
+                } else {
+                    bindData(taskAttender, params, [include: ['booking']])
+                }
+                if (taskAttender.save()) {
                     if (taskAttender.contact) {
                         rememberDomain(taskAttender.contact)
                     }
-                    flash.success = "Deltagaren uppdaterad"
+                    flash.success = "Attender info updated" // TODO i18n
                 } else {
                     flash.error = createValidationErrorMessage(taskAttender)
                 }
@@ -532,20 +585,25 @@ class CrmTaskController {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "No CrmTask found with id [$task]")
             return
         }
-        def attenderStatus = CrmTaskAttenderStatus.findByIdAndTenantId(status, tenant)
-        if (!attenderStatus) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "No CrmTaskAttenderStatus found with id [$status]")
-            return
-        }
-        List<Long> attenders = params.list('attenders')
-        for (a in attenders) {
-            CrmTaskAttender attender = CrmTaskAttender.findByIdAndTask(a, crmTask)
-            if (attender) {
-                attender.status = attenderStatus
-            } else {
-                log.error("No CrmTaskAttender found with id [$a] in tenant [$tenant]")
+
+        if(status) {
+            def attenderStatus = CrmTaskAttenderStatus.findByIdAndTenantId(status, tenant)
+            if (!attenderStatus) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "No CrmTaskAttenderStatus found with id [$status]")
+                return
             }
+            List<Long> attenders = params.list('attenders')
+            for (a in attenders) {
+                CrmTaskAttender attender = CrmTaskAttender.get(a)
+                if (attender != null && attender.booking.taskId == task) {
+                    attender.status = attenderStatus
+                } else {
+                    log.error("No CrmTaskAttender found with id [$a] in tenant [$tenant]")
+                }
+            }
+            flash.success = "Status uppdaterades för ${attenders.size()} st deltagare".toString()
         }
+
         def linkParams = [id: crmTask.id]
         if (params.sort) {
             linkParams.sort = params.sort
@@ -553,7 +611,6 @@ class CrmTaskController {
         if (params.order) {
             linkParams.order = params.order
         }
-        flash.success = "Status uppdaterades för ${attenders.size()} st deltagare".toString()
 
         redirect(action: "show", params: linkParams, fragment: "attender")
     }

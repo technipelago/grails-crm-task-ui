@@ -1,209 +1,87 @@
 <r:script>
-    function cancelAttender() {
-        $("#attender-panel").slideUp('fast', function () {
-            $("#std-actions").slideDown();
-        });
-        return false;
-    }
-
-    function setCompanyIndicator(icon) {
-        if(icon) {
-            $("#crm-company-label > span").html(' <i class="' + icon + '"></i>');
-        } else {
-            $("#crm-company-label > span").empty();
-        }
-    }
-
-    function setPersonIndicator(icon) {
-        if(icon) {
-            $("#crm-person-label > span").html(' <i class="' + icon + '"></i>');
-        } else {
-            $("#crm-person-label > span").empty();
-        }
-    }
-
-    function bindPanelEvents(panel) {
-        $('.date', panel).datepicker({
-            weekStart:1,
-            language: "${(org.springframework.web.servlet.support.RequestContextUtils.getLocale(request) ?: Locale.getDefault()).getLanguage()}",
-            calendarWeeks: ${grailsApplication.config.crm.datepicker.calendarWeeks ?: false},
-            todayHighlight: true,
-            autoclose: true
-        });
-
-        $("#crm-company-label").click(function(ev) {
-            ev.preventDefault();
-            var companyId = $("input[name='companyId']").val();
-            if(companyId) {
-                window.location.href = "${createLink(mapping: 'crm-contact-show')}/" + companyId;
-            }
-        });
-
-        $("#crm-person-label").click(function(ev) {
-            ev.preventDefault();
-            var contactId = $("input[name='contactId']").val();
-            if(contactId) {
-                window.location.href = "${createLink(mapping: 'crm-contact-show')}/" + contactId;
-            }
-        });
-
-        $("input[name='companyName']").autocomplete("${createLink(controller: 'crmTask', action: 'autocompleteContact', params: [company: true])}", {
-            remoteDataType: 'json',
-            preventDefaultReturn: true,
-            selectFirst: true,
-            useCache: false,
-            filter: false,
-            queryParamName: 'name',
-            extraParams: {},
-            onItemSelect: function(item) {
-                var ac = $("input[name='firstName']").data('autocompleter');
-                if(ac) {
-                    ac.setExtraParam('related', item.data[0]);
-                    ac.cacheFlush();
+    var searchDelay = (function(){
+      var timer = 0;
+      return function(callback, ms){
+        clearTimeout (timer);
+        timer = setTimeout(callback, ms);
+      };
+    })();
+    var ATTENDERS = {
+        sort: 'booking.bookingRef',
+        order: 'asc',
+        load: function() {
+            var params = {};
+            params.q = $('#attender-container .crm-search input').val();
+            params.sort = ATTENDERS.sort;
+            params.order = ATTENDERS.order;
+            $('#attender-container tbody').load("${createLink(action: 'attenders', id: bean.id)}", params, function() {
+                $('#attender-container tbody .crm-attender').hover(function(ev) {
+                    var id = $(this).data('crm-booking');
+                    if(id != undefined) {
+                        $('tr.crm-attender').filter(function() {
+                            var myid = $(this).data("crm-booking");
+                            return myid == id;
+                        }).addClass('selected');
                     }
-                ac = $("input[name='lastName']").data('autocompleter');
-                if(ac) {
-                    ac.setExtraParam('related', item.data[0]);
-                    ac.cacheFlush();
-                }
-                $("input[name='companyId']").val(item.data[0]);
-                $("input[name='contactId']").val('');
-                $("input[name='firstName']").val('');
-                $("input[name='lastName']").val('');
-                $("input[name='address']").val(item.data[5]);
-                $("input[name='telephone']").val(item.data[6]);
-                $("input[name='email']").val(item.data[7]);
-                setCompanyIndicator('');
-            },
-            onNoMatch: function() {
-                var ac = $("input[name='firstName']").data('autocompleter');
-                if(ac) {
-                    ac.setExtraParam('related', '');
-                    ac.cacheFlush();
-                }
-                ac = $("input[name='lastName']").data('autocompleter');
-                if(ac) {
-                    ac.setExtraParam('related', '');
-                    ac.cacheFlush();
-                }
-                $("input[name='companyId']").val('');
-                setCompanyIndicator('icon-leaf');
+                }, function(ev) {
+                    $('tr.crm-attender').removeClass('selected');
+                });
+            });
+        },
+        update: function(property, value) {
+            if(property == 'status') {
+                var $form = $("#attender-change-form");
+                $("input[name='status']", $form).val(value);
+                $form.submit();
             }
-        });
-
-        $("input[name='firstName']").autocomplete("${createLink(controller: 'crmTask', action: 'autocompleteContact', params: [person: true])}", {
-            remoteDataType: 'json',
-            preventDefaultReturn: true,
-            minChars: 1,
-            /*selectFirst: true,*/
-            filter: false,
-            useCache: false,
-            queryParamName: 'firstName',
-            extraParams: {},
-            onItemSelect: function(item) {
-                $("input[name='contactId']").val(item.data[0]);
-                $("input[name='companyId']").val(item.data[1]);
-                $("input[name='companyName']").val(item.data[2]);
-                $("input[name='firstName']").val(item.data[3]);
-                $("input[name='lastName']").val(item.data[4]);
-                $("input[name='address']").val(item.data[5]);
-                $("input[name='telephone']").val(item.data[6]);
-                $("input[name='email']").val(item.data[7]);
-                setPersonIndicator('');
-            },
-            onNoMatch: function() {
-                $("input[name='contactId']").val('');
-                setPersonIndicator('icon-leaf');
-            }
-        });
-
-        $("input[name='lastName']").autocomplete("${createLink(controller: 'crmTask', action: 'autocompleteContact', params: [person: true])}", {
-            remoteDataType: 'json',
-            preventDefaultReturn: true,
-            minChars: 1,
-            /*selectFirst: true,*/
-            filter: false,
-            useCache: false,
-            queryParamName: 'lastName',
-            extraParams: {},
-            onItemSelect: function(item) {
-                $("input[name='contactId']").val(item.data[0]);
-                $("input[name='companyId']").val(item.data[1]);
-                $("input[name='companyName']").val(item.data[2]);
-                $("input[name='firstName']").val(item.data[3]);
-                $("input[name='lastName']").val(item.data[4]);
-                $("input[name='address']").val(item.data[5]);
-                $("input[name='telephone']").val(item.data[6]);
-                $("input[name='email']").val(item.data[7]);
-                setPersonIndicator('');
-            },
-            onNoMatch: function() {
-                $("input[name='contactId']").val('');
-                setPersonIndicator('icon-leaf');
-            }
-        });
-
-        if($("input[name='companyId']").val()) {
-            setCompanyIndicator('icon-share-alt');
-        } else if($("input[name='companyName']").val()) {
-            setCompanyIndicator('icon-leaf');
+            return false;
         }
-        if($("input[name='contactId']").val()) {
-            setPersonIndicator('icon-share-alt');
-        } else if($("input[name='firstName']").val()) {
-            setPersonIndicator('icon-leaf');
-        }
-    }
-
-    function updateAttenders(property, value) {
-        if(property == 'status') {
-            var $form = $("#attender-change-form");
-            $("input[name='status']", $form).val(value);
-            $form.submit();
-        }
-        return false;
-    }
+    };
 
     $(document).ready(function () {
-        $("a.link-edit").click(function (ev) {
-    <% if (crm.hasPermission(permission: 'crmTask:edit', { true })) { %>
-    var $elem = $(this);
-    ev.preventDefault();
-    $("#attender-panel").load("${createLink(controller: 'crmTask', action: 'attender', params: [task: crmTask.id])}&id=" + $elem.data('crm-id'), function(data) {
-                var $panel = $(this);
-                bindPanelEvents($panel);
-                $("#std-actions").slideUp('fast', function () {
-                    $panel.slideDown(function () {
-                        $(":input:visible:first", $panel).focus();
-                    });
-                });
-            });
-            return false;
-    <% } else { %>
-    return true;
-    <% } %>
-    });
 
-    $("a[href='#attender-create']").click(function (ev) {
-        ev.preventDefault();
-    <% if (crm.hasPermission(permission: 'crmTask:edit', { true })) { %>
-    $("#attender-panel").load("${createLink(controller: 'crmTask', action: 'attender', params: [task: crmTask.id])}", function(data) {
-                var $panel = $(this);
-                bindPanelEvents($panel);
-                $("#std-actions").slideUp('fast', function () {
-                    $panel.slideDown(function () {
-                        $(":input:visible:first", $panel).focus();
-                    });
-                });
-            });
-    <% } %>
-    return false;
-    });
+        $('#changeAll').click(function (event) {
+            $(":checkbox[name='attenders']", $(this).closest('form')).prop('checked', $(this).is(':checked'));
+        });
 
-    $("#changeAll").click(function (event) {
-        $(":checkbox[name='attenders']", $(this).closest('form')).prop('checked', $(this).is(':checked'));
+        $('#attender-container .crm-search').click(function(ev) {
+            var $self = $(this);
+            $self.find('label').hide();
+            $self.find('input').removeClass('hide');
+            $self.find('input').focus();
+        });
+
+        $('#attender-container .crm-search input').keyup(function() {
+            searchDelay(function(){
+                ATTENDERS.load();
+            }, 750 );
+        });
+
+        $('#attender-container .crm-search input').keydown(function(event){
+            if(event.keyCode == 13) {
+                event.preventDefault();
+                return false;
+            }
+        });
+
+        $('#attender-container .crm-sort').click(function(ev) {
+            var $self = $(this);
+            var sort = $self.data('crm-sort');
+            if(sort == ATTENDERS.sort) {
+                if(ATTENDERS.order == 'asc') {
+                    ATTENDERS.order = 'desc';
+                } else {
+                    ATTENDERS.order = 'asc';
+                }
+            } else {
+                ATTENDERS.order = 'asc';
+            }
+            ATTENDERS.sort = sort;
+            ATTENDERS.load();
+        });
+
+        ATTENDERS.load();
     });
-});
 </r:script>
 
 <style type="text/css">
@@ -212,126 +90,121 @@ tr.crm-status-attended td {
     color: #009900;
     background-color: #eeffee !important;
 }
+
 tr.crm-status-cancelled td {
     color: #f89406;
     background-color: #eeeeff !important;
 }
+
 tr.crm-status-absent td {
     color: #9d261d;
     background-color: #ffeeee !important;
 }
+
+tr.selected td {
+    background-color: #f9ccff !important;
+}
+
+tr.crm-attender i {
+    margin-right: 5px;
+}
+
+tr.crm-attender i:last-child {
+    margin-right: 0;
+}
+
+.crm-search input {
+    margin-bottom: 0;
+    padding: 1px 4px;
+}
+
+.crm-search input.hide {
+    display: none !important;
+}
 </style>
 
-<g:form name="attender-change-form" action="updateAttenders">
+<div id="attender-container">
+    <g:form name="attender-change-form" action="updateAttenders">
 
-    <g:hiddenField name="task" value="${crmTask?.id}"/>
-    <g:hiddenField name="status" value=""/>
-    <g:hiddenField name="sort" value="${params.sort}"/>
-    <g:hiddenField name="order" value="${params.order}"/>
+        <g:hiddenField name="task" value="${bean.id}"/>
+        <g:hiddenField name="status" value=""/>
 
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th><g:message code="crmContact.name.label" default="Name"/></th>
-            <th><g:message code="crmContact.address.label"/></th>
-            <crm:sortableColumn property="status.orderIndex" fragment="attender"
-                                title="${message(code: 'crmTaskAttender.status.label', default: 'Status')}"/>
-            <th><g:checkBox name="changeAll" title="${message(code: 'crmTaskAttender.button.select.all.label', default: 'Select all')}"/></th>
-        </tr>
-        </thead>
-        <tbody>
-        <g:each in="${list}" var="m">
-            <g:set var="contactInfo" value="${m.contactInformation}"/>
-            <tr class="crm-status-${m.status.param}">
-
-                <td>
-                    <g:if test="${m.contact}">
-                        <g:link mapping="crm-contact-show" id="${m.contact.id}"
-                                class="link-edit" data-crm-id="${m.id}">
-                            ${fieldValue(bean: contactInfo, field: "fullName")}
-                        </g:link>
-                    </g:if>
-                    <g:else>
-                        <a href="#" class="link-edit" data-crm-id="${m.id}">
-                            ${fieldValue(bean: contactInfo, field: "fullName")}
-                        </a>
-                        <i class="icon-leaf"></i>
-                    </g:else>
-                </td>
-
-                <td class="${m.hide ? 'muted' : ''}">
-                    ${contactInfo.address?.encodeAsHTML()}
-                </td>
-                <g:set var="tags" value="${m.getTagValue()}"/>
-                <td title=" ${tags?.join(', ')} ${m.notes}">
-                    <g:fieldValue bean="${m}" field="status"/>
-                    <g:if test="${m.notes}">
-                        <i class="icon-comment pull-right"></i>
-                    </g:if>
-                    <g:if test="${tags}">
-                        <i class="icon-tags pull-right" style="margin-right: 3px;"></i>
-                    </g:if>
-                </td>
-                <td>
-                    <input type="checkbox" name="attenders" value="${m.id}"/>
-                </td>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>
+                    <a href="javascript:void(0);" class="crm-sort" data-crm-id="${bean.id}" data-crm-sort="booking.bookingRef"
+                       data-crm-order="asc">#</a>
+                </th>
+                <th class="crm-search">
+                    <label>
+                        <g:message code="crmContact.name.label" default="Name"/>
+                        <i class="icon-search"></i>
+                    </label>
+                    <input type="text" name="q" maxlength="80" class="hide"/>
+                </th>
+                <th><g:message code="crmContact.company.label"/></th>
+                <th colspan="2">
+                    <a href="javascript:void(0);" class="crm-sort" data-crm-id="${bean.id}"
+                       data-crm-sort="status.orderIndex" data-crm-order="asc">
+                        <g:message code="crmTaskAttender.status.label"/>
+                    </a>
+                </th>
+                <th><g:checkBox name="changeAll"
+                                title="${message(code: 'crmTaskAttender.button.select.all.label', default: 'Select all')}"/></th>
             </tr>
-        </g:each>
-        </tbody>
-    </table>
-</g:form>
-
-<crm:hasPermission permission="crmTask:edit">
-
-    <div id="attender-panel" class="well hide"></div>
-
-</crm:hasPermission>
-
-<div id="std-actions" class="form-actions">
-    <g:form>
-        <g:hiddenField name="id" value="${crmTask?.id}"/>
-
-        <crm:hasPermission permission="crmTask:edit">
-            <a href="#attender-create" role="button" class="btn btn-success" accesskey="n">
-                <i class="icon-user icon-white"></i>
-                <g:message code="crmTask.button.book.label"/>
-            </a>
-        </crm:hasPermission>
-
-        <g:if test="${list}">
-            <div class="btn-group">
-                <button class="btn btn-warning dropdown-toggle" data-toggle="dropdown"
-                        title="${message(code: 'crmTaskAttender.button.bulkchange.help')}">
-                    <g:message code="crmTaskAttender.button.bulkchange.label" default="Change Selected"/>
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <crm:hasPermission permission="crmTask:edit">
-                        <g:each in="${statusList}" var="status">
-                            <li>
-                                <a href="javascript:void(0)"
-                                   onclick="updateAttenders('status', ${status.id})">${status.encodeAsHTML()}</a>
-                            </li>
-                        </g:each>
-                    </crm:hasPermission>
-                </ul>
-            </div>
-
-            <div class="btn-group">
-                <button class="btn btn-info dropdown-toggle" data-toggle="dropdown">
-                    <i class="icon-print icon-white"></i>
-                    <g:message code="crmTaskAttender.button.print.label" default="Print"/>
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li>
-                        <select:link action="export" params="${[namespace:'crmTaskAttender']}"
-                                     selection="${new URI('bean://crmTaskService/list?id=' + crmTask.id)}">
-                            <g:message code="crmTask.print.attenders.label" default="Attender list"/>
-                        </select:link>
-                    </li>
-                </ul>
-            </div>
-        </g:if>
+            </thead>
+            <tbody></tbody>
+        </table>
     </g:form>
+
+    <div id="std-actions" class="form-actions">
+        <g:form>
+            <g:hiddenField name="id" value="${bean.id}"/>
+
+            <crm:hasPermission permission="crmTask:edit">
+                <g:link controller="crmTaskAttender" action="create" id="${bean.id}" class="btn btn-success"
+                        accesskey="n">
+                    <i class="icon-user icon-white"></i>
+                    <g:message code="crmTask.button.book.label"/>
+                </g:link>
+            </crm:hasPermission>
+
+            <g:if test="${count}">
+                <div class="btn-group">
+                    <button class="btn btn-warning dropdown-toggle" data-toggle="dropdown"
+                            title="${message(code: 'crmTaskAttender.button.bulkchange.help')}">
+                        <g:message code="crmTaskAttender.button.bulkchange.label" default="Change Selected"/>
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <crm:hasPermission permission="crmTask:edit">
+                            <g:each in="${statusList}" var="status">
+                                <li>
+                                    <a href="javascript:void(0)"
+                                       onclick="ATTENDERS.update('status', ${status.id})">${status.encodeAsHTML()}</a>
+                                </li>
+                            </g:each>
+                        </crm:hasPermission>
+                    </ul>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+                        <i class="icon-print icon-white"></i>
+                        <g:message code="crmTaskAttender.button.print.label" default="Print"/>
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <select:link action="export" params="${[namespace: 'crmTaskAttender']}"
+                                         selection="${new URI('bean://crmTaskService/list?id=' + bean.id)}">
+                                <g:message code="crmTask.print.attenders.label" default="Attender list"/>
+                            </select:link>
+                        </li>
+                    </ul>
+                </div>
+            </g:if>
+        </g:form>
+    </div>
 </div>

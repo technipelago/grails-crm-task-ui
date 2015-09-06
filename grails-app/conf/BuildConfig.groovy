@@ -45,8 +45,8 @@ grails.project.dependency.resolution = {
         compile ":decorator:1.1"
         compile ":user-tag:0.6"
 
-        compile ":crm-task:2.4.1"
-        compile ":crm-contact:2.4.0"
+        compile ":crm-task:2.4.2-SNAPSHOT"
+        compile ":crm-contact:2.4.1-SNAPSHOT"
         compile ":crm-feature:2.4.1"
         compile ":crm-ui-bootstrap:2.4.0"
     }

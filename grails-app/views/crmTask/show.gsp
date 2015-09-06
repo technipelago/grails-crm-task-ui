@@ -6,9 +6,18 @@
     <g:set var="entityName" value="${message(code: 'crmTask.label', default: 'Task')}"/>
     <title><g:message code="crmTask.show.title" args="[entityName, crmTask]"/></title>
     <r:require modules="datepicker,autocomplete"/>
+    <style type="text/css">
+    .crm-summary h4 {
+        text-overflow: ellipsis;
+    }
+    </style>
 </head>
 
 <body>
+
+<crm:hasPermission permission="crmTask:edit">
+    <g:set var="editPermission" value="${true}"/>
+</crm:hasPermission>
 
 <div class="row-fluid">
 <div class="span9">
@@ -29,10 +38,10 @@
 <ul class="nav nav-tabs">
     <li class="active"><a href="#main" data-toggle="tab"><g:message code="crmTask.tab.main.label"/></a>
     </li>
-    <g:if test="${attenders != null}">
+    <g:if test="${attendersTotal != null}">
         <li><a href="#attender" data-toggle="tab"><g:message
                 code="crmTask.tab.attender.label"/><crm:countIndicator
-                count="${attenders.size()}"/></a>
+                count="${attendersTotal}"/></a>
         </li>
     </g:if>
     <crm:pluginViews location="tabs" var="view">
@@ -221,10 +230,10 @@
 
 </div>
 
-<g:if test="${attenders != null}">
+<g:if test="${attendersTotal != null}">
     <div class="tab-pane" id="attender">
         <g:render template="attenders"
-                  model="${[bean: crmTask, list: attenders, statusList: statusList]}"/>
+                  model="${[bean: crmTask, count: attendersTotal, statusList: statusList]}"/>
     </div>
 </g:if>
 
@@ -240,7 +249,7 @@
 </div>
 
 <div class="span3">
-    <div class="alert alert-info">
+    <div class="alert alert-info crm-summary">
         <g:render template="summary" model="${[bean: crmTask]}"/>
     </div>
 
@@ -249,22 +258,26 @@
     <g:if test="${recentBooked}">
         <div class="well">
             <ul class="nav nav-list">
+
+                <li class="nav-header">
+                    <i class="icon-glass"></i>
+                    <g:message code="crmTaskAttender.statistics.title" default="Statistics"/>
+                </li>
+
+                <g:each in="${attenderStatistics}" var="stat">
+                    <li>${stat[0]} <strong>${stat[1]} st</strong></li>
+                </g:each>
+
                 <li class="nav-header">
                     <i class="icon-thumbs-up"></i>
                     <g:message code="crmTaskAttender.recent.registered.title" default="Recently Registered"/>
                 </li>
                 <g:each in="${recentBooked}" var="a" status="i">
                     <li>
-                        <g:if test="${a.contact}">
-                            <g:link controller="crmContact" action="show" id="${a.contact.id}">
-                                <g:formatDate format="d MMM" date="${a.bookingDate}"/>
-                                ${a.encodeAsHTML()}
-                            </g:link>
-                        </g:if>
-                        <g:else>
+                        <g:link controller="crmTaskAttender" action="show" id="${a.id}">
                             <g:formatDate format="d MMM" date="${a.bookingDate}"/>
                             ${a.encodeAsHTML()}
-                        </g:else>
+                        </g:link>
                     </li>
                 </g:each>
             </ul>

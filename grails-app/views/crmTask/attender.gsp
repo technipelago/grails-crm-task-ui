@@ -78,11 +78,55 @@
                     </div>
                 </div>
 
+                <div class="control-group">
+                    <div class="controls">
+                        <label class="checkbox">
+                            <g:checkBox name="hide" value="true" checked="${bean.hide}"/>
+                            <g:message code="crmTaskAttender.hidden.label" />
+                        </label>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="controls">
+                        <label class="checkbox">
+                            <g:checkBox name="createContact" value="true" checked="${bean.contact != null}"/>
+                            <g:message code="crmTaskAttender.save.contact.label" />
+                        </label>
+                    </div>
+                </div>
+
             </div>
         </div>
 
         <div class="span6">
             <div class="row-fluid">
+
+                <div class="control-group">
+                    <label class="control-label"><g:message code="crmTaskAttender.status.label" /></label>
+
+                    <div class="controls">
+                        <g:select from="${statusList}" name="status.id" optionKey="id" value="${bean.status?.id}"
+                                  class="span11"/>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label"><g:message code="crmTaskAttender.booking.label" /></label>
+
+                    <div class="controls">
+                        <div class="input-append">
+                        <g:select name="booking.id" from="${bookingList}" optionKey="id" optionValue="title"
+                                  value="${bean.bookingId}"
+                                  noSelection="['': message(code: 'crmTaskAttender.no.booking.label')]"/>
+                        <g:if test="${bean.bookingId}">
+                            <g:link controller="crmTaskBooking" action="show" id="${bean.bookingId}" class="add-on">
+                                <i class="icon-glass"></i>
+                            </g:link>
+                        </g:if>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="control-group">
                     <label class="control-label"><g:message code="crmTaskAttender.bookingRef.label" /></label>
@@ -109,7 +153,7 @@
                     <label class="control-label"><g:message code="crmTaskAttender.notes.label" /></label>
 
                     <div class="controls">
-                        <g:textArea name="notes" value="${bean.@notes}" rows="5" class="span11"
+                        <g:textArea name="notes" value="${bean.@notes}" rows="2" class="span11"
                                     placeholder="${message(code: 'crmTaskAttender.notes.help')}"/>
                     </div>
                 </div>
@@ -127,29 +171,11 @@
                 </div>
 
                 <div class="control-group">
-                    <label class="control-label"><g:message code="crmTaskAttender.status.label" /></label>
+                    <label class="control-label"><g:message code="crmTaskAttender.externalRef.label" /></label>
 
                     <div class="controls">
-                        <g:select from="${statusList}" name="status.id" optionKey="id" value="${bean.status?.id}"
-                                  class="span11"/>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <div class="controls">
-                        <label class="checkbox">
-                            <g:checkBox name="createContact" value="true" checked="${bean.contact != null}"/>
-                            <g:message code="crmTaskAttender.save.contact.label" />
-                        </label>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <div class="controls">
-                        <label class="checkbox">
-                            <g:checkBox name="hide" value="true" checked="${bean.hide}"/>
-                            <g:message code="crmTaskAttender.hidden.label" />
-                        </label>
+                        <g:textField name="externalRef" value="${bean.externalRef}" class="span6"
+                                     placeholder="${message(code: 'crmTaskAttender.externalRef.help')}"/>
                     </div>
                 </div>
             </div>
@@ -157,12 +183,16 @@
     </div>
 
     <div class="form-actions">
-        <crm:button action="attender" visual="success" icon="icon-ok icon-white"
-                    label="crmTaskAttender.button.save.label"/>
         <g:if test="${bean.id}">
+            <crm:button action="attender" visual="warning" icon="icon-ok icon-white"
+                        label="crmTaskAttender.button.save.label"/>
             <crm:button visual="danger" action="deleteAttender" label="crmTaskAttender.button.delete.label" icon="icon-trash icon-white"
                         confirm="${message(code: 'crmTaskAttender.button.delete.confirm')}"/>
         </g:if>
+        <g:else>
+            <crm:button action="attender" visual="success" icon="icon-ok icon-white"
+                        label="crmTaskAttender.button.save.label"/>
+        </g:else>
 
         <button id="crm-cancel" class="btn" onclick="return cancelAttender()">
             <i class="icon-remove"></i>
