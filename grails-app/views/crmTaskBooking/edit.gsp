@@ -75,7 +75,7 @@
                             <label class="control-label"><g:message code="crmTaskBooking.comments.label"/></label>
 
                             <div class="controls">
-                                <g:textArea name="comments" value="${crmTaskBooking.comments}" rows="5" class="span11"
+                                <g:textArea name="comments" value="${crmTaskBooking.comments}" rows="6" class="span11"
                                             placeholder="${message(code: 'crmTaskBooking.comments.help', default: '')}"/>
                             </div>
                         </div>

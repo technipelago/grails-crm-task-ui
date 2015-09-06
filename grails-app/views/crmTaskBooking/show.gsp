@@ -80,11 +80,6 @@
                         <dt><g:message code="crmTaskBooking.contact.label"/></dt>
                         <dd><g:fieldValue bean="${crmTaskBooking}" field="contact"/></dd>
                     </g:if>
-
-                    <g:if test="${crmTaskBooking.comments}">
-                        <dt><g:message code="crmTaskBooking.comments.label"/></dt>
-                        <dd><g:decorate encode="HTML" nlbr="true"><g:fieldValue bean="${crmTaskBooking}" field="comments"/></g:decorate></dd>
-                    </g:if>
                 </dl>
             </div>
 
@@ -97,6 +92,15 @@
                 </g:if>
             </div>
         </div>
+
+        <g:if test="${crmTaskBooking.comments}">
+            <div class="row-fluid">
+                <dl>
+                    <dt><g:message code="crmTaskBooking.comments.label"/></dt>
+                    <dd><g:decorate encode="HTML" nlbr="true"><g:fieldValue bean="${crmTaskBooking}" field="comments"/></g:decorate></dd>
+                </dl>
+            </div>
+        </g:if>
 
         <h3><g:message code="crmTaskBooking.attenders.title"/></h3>
 
