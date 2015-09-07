@@ -191,7 +191,7 @@
                         </button>
                         <ul class="dropdown-menu">
                             <li>
-                                <select:link action="export" params="${[namespace: 'crmTaskAttender']}"
+                                <select:link action="export" params="${[ns: 'crmTaskAttender']}"
                                              selection="${new URI('bean://crmTaskService/list?id=' + crmTask.id)}">
                                     <g:message code="crmTask.print.attenders.label" default="Attender list"/>
                                 </select:link>

@@ -197,7 +197,7 @@ tr.crm-attender i:last-child {
                     </button>
                     <ul class="dropdown-menu">
                         <li>
-                            <select:link action="export" params="${[namespace: 'crmTaskAttender']}"
+                            <select:link action="export" params="${[ns: 'crmTaskAttender']}"
                                          selection="${new URI('bean://crmTaskService/list?id=' + bean.id)}">
                                 <g:message code="crmTask.print.attenders.label" default="Attender list"/>
                             </select:link>
