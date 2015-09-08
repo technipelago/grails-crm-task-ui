@@ -190,19 +190,11 @@ tr.crm-attender i:last-child {
                 </div>
 
                 <div class="btn-group">
-                    <button class="btn btn-info dropdown-toggle" data-toggle="dropdown">
+                    <select:link action="export" params="${[ns: 'crmTaskAttender']}" class="btn btn-info"
+                                 selection="${new URI('bean://crmTaskService/list?id=' + bean.id)}">
                         <i class="icon-print icon-white"></i>
                         <g:message code="crmTaskAttender.button.print.label" default="Print"/>
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <select:link action="export" params="${[ns: 'crmTaskAttender']}"
-                                         selection="${new URI('bean://crmTaskService/list?id=' + bean.id)}">
-                                <g:message code="crmTask.print.attenders.label" default="Attender list"/>
-                            </select:link>
-                        </li>
-                    </ul>
+                    </select:link>
                 </div>
             </g:if>
         </g:form>

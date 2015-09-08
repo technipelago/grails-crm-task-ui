@@ -220,6 +220,13 @@
                             <g:message code="crmCalendar.index.label" default="Calendar"/>
                         </g:link>
                     </li>
+
+                    <li>
+                        <select:link action="export"
+                                     selection="${new URI('bean://crmTaskService/list?id=' + crmTask.id)}">
+                            <g:message code="crmTaskAttender.button.print.label" default="Print"/>
+                        </select:link>
+                    </li>
                 </ul>
             </div>
 
