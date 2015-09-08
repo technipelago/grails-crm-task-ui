@@ -8,7 +8,7 @@
                     <g:fieldValue bean="${m.booking}" field="bookingRef"/>
                 </g:if>
                 <g:else>
-                    <i class="icon-glass pull-right"></i>
+                    <i class="icon-glass"></i>
                 </g:else>
             </g:link>
         </td>
