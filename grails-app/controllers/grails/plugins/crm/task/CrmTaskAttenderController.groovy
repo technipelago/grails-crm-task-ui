@@ -312,7 +312,7 @@ class CrmTaskAttenderController {
             crmTaskService.moveAttender(crmTaskAttender, destination, true)
             flash.warning = message(code: 'crmTaskAttender.moved.message', args: [message(code: 'crmTaskAttender.label', default: 'Attender'),
                                                                                   crmTaskAttender.toString(), oldBooking.toString()])
-            redirect action: 'show', id: id
+            redirect controller: 'crmTaskBooking', action: 'show', id: destination.id
         } else {
             def bookingId = oldBooking.id
             return [crmTaskAttender: crmTaskAttender, crmTaskBooking: oldBooking, crmTask: crmTask,
