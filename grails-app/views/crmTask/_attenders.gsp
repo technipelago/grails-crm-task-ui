@@ -154,7 +154,13 @@ tr.crm-attender i:last-child {
                                 title="${message(code: 'crmTaskAttender.button.select.all.label', default: 'Select all')}"/></th>
             </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+            <tr>
+                <td colspan="6">
+                    <g:img dir="images" file="spinner.gif" alt="Loading..."/>
+                </td>
+            </tr>
+            </tbody>
         </table>
     </g:form>
 
