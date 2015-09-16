@@ -104,9 +104,10 @@ class CrmTaskController {
         if (request.post) {
             def filename = message(code: 'crmTask.label', default: 'Task')
             try {
+                def timeout = (grailsApplication.config.crm.task.export.timeout ?: 60) * 1000
                 def topic = params.topic ?: 'export'
                 def result = event(for: ns, topic: topic,
-                        data: params + [user: user, tenant: TenantUtils.tenant, locale: locale, filename: filename]).waitFor(60000)?.value
+                        data: params + [user: user, tenant: TenantUtils.tenant, locale: locale, filename: filename]).waitFor(timeout)?.value
                 if (result?.file) {
                     try {
                         WebUtils.inlineHeaders(response, result.contentType, result.filename ?: ns)
