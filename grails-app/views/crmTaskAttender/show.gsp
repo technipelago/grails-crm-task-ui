@@ -155,6 +155,10 @@
                 <i class="icon-glass"></i>
                 <g:message code="crmTaskBooking.label" default="Booking"/>
             </g:link>
+            <g:link controller="crmTask" action="show" id="${crmTaskAttender.booking.taskId}" fragment="attender" class="btn">
+                <i class="icon-calendar"></i>
+                <g:message code="crmTask.label" default="Activity"/>
+            </g:link>
         </div>
 
     </div>
