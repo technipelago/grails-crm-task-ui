@@ -463,7 +463,7 @@ class CrmTaskController {
             }
         }
         render template: 'attender_list',
-                model: [bean      : crmTask, list: result,
+                model: [bean      : crmTask, list: result, totalCount: result.totalCount,
                         statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId)]
     }
 

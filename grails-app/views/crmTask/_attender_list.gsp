@@ -1,6 +1,8 @@
 <g:each in="${list}" var="m">
     <g:set var="contactInfo" value="${m.contactInformation}"/>
-    <tr class="crm-status-${m.status.param} crm-attender" data-crm-booking="${m.bookingId ?: ''}">
+    <tr class="crm-status-${m.status.param} crm-attender"
+        data-crm-booking="${m.bookingId ?: ''}" data-crm-total="${totalCount}"
+        data-crm-offset="${params.offset ?: 0}" data-crm-max="${params.max ?: 25}">
 
         <td>
             <g:link controller="crmTaskBooking" action="show" id="${m.bookingId}" class="crm-booking">

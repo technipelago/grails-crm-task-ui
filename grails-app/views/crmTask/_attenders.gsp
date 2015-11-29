@@ -9,11 +9,15 @@
     var ATTENDERS = {
         sort: 'booking.bookingRef',
         order: 'asc',
+        offset: 0,
+        max: 25,
         load: function() {
             var params = {};
             params.q = $('#attender-container .crm-search input').val();
             params.sort = ATTENDERS.sort;
             params.order = ATTENDERS.order;
+            params.offset = ATTENDERS.offset;
+            params.max = ATTENDERS.max;
             $('#attender-container tbody').load("${createLink(action: 'attenders', id: bean.id)}", params, function() {
                 $('#attender-container tbody .crm-attender').hover(function(ev) {
                     var id = $(this).data('crm-booking');
@@ -26,6 +30,62 @@
                 }, function(ev) {
                     $('tr.crm-attender').removeClass('selected');
                 });
+                var $firstRow = $('#attender-container tbody .crm-attender').first();
+                if($firstRow) {
+                    var totalCount = $firstRow.data('crm-total');
+                    var offset = $firstRow.data('crm-offset');
+                    var max = $firstRow.data('crm-max');
+                    var pages = Math.ceil(totalCount / max);
+                    var $ul = $('<ul/>');
+
+                    // Prev button.
+                    var $li = $('<li><a href="#">&laquo;</a></li>');
+                    if(offset <= 0) {
+                        $li.addClass('disabled');
+                    } else {
+                        $('a', $li).click(function(ev) {
+                            ev.preventDefault();
+                            $(this).html($('#spinner').clone());
+                            ATTENDERS.offset = ATTENDERS.offset - ATTENDERS.max;
+                            ATTENDERS.load();
+                        });
+                    }
+                    $ul.append($li);
+
+                    for(page = 0; page < pages; page++) {
+                        var $a = $('<a href="#"/>');
+                        $a.text(page + 1);
+                        $a.data('crm-offset', page * ATTENDERS.max);
+                        $li = $('<li/>');
+                        $li.append($a);
+                        $a.click(function(ev) {
+                            ev.preventDefault();
+                            $(this).html($('#spinner').clone());
+                            ATTENDERS.offset = $(this).data('crm-offset');
+                            ATTENDERS.load();
+                        });
+                        if((page * ATTENDERS.max) == ATTENDERS.offset) {
+                            $li.addClass('active');
+                        }
+                        $ul.append($li);
+                    }
+
+                    // Next button.
+                    $li = $('<li><a href="#">&raquo;</a></li>');
+                    if(offset >= ((pages - 1) * ATTENDERS.max)) {
+                        $li.addClass('disabled');
+                    } else {
+                        $('a', $li).click(function(ev) {
+                            ev.preventDefault();
+                            $(this).html($('#spinner').clone());
+                            ATTENDERS.offset = ATTENDERS.offset + ATTENDERS.max;
+                            ATTENDERS.load();
+                        });
+                    }
+                    $ul.append($li);
+
+                    $('#pagination').html($ul);
+                }
             });
         },
         update: function(property, value) {
@@ -164,6 +224,8 @@ tr.crm-attender i:last-child {
         </table>
     </g:form>
 
+    <div id="pagination" class="pagination${count > 500 ? ' pagination-mini' : ''}"></div>
+
     <div id="std-actions" class="form-actions">
         <g:form>
             <g:hiddenField name="id" value="${bean.id}"/>
@@ -205,4 +267,8 @@ tr.crm-attender i:last-child {
             </g:if>
         </g:form>
     </div>
+</div>
+
+<div class="hidden">
+    <g:img dir="images" file="spinner.gif" alt="Loading..." id="spinner"/>
 </div>
