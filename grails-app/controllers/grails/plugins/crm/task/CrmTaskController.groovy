@@ -301,8 +301,12 @@ class CrmTaskController {
                 }
             }
         }
+
+        String attenderSort = grailsApplication.config.crm.task.attenders.sort ?: 'booking.bookingRef'
+
         [crmTask       : crmTask, statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId),
-         attendersTotal: attenders, attenderStatistics: stats, recentBooked: recent, selection: params.getSelectionURI()]
+         attendersTotal: attenders, attenderStatistics: stats, recentBooked: recent, attenderSort: attenderSort,
+         selection: params.getSelectionURI()]
     }
 
     @Transactional
@@ -455,7 +459,7 @@ class CrmTaskController {
             booking {
                 eq('task', crmTask)
             }
-            if(params.q) {
+            if (params.q) {
                 or {
                     ilike('tmp.firstName', '%' + params.q + '%')
                     ilike('tmp.lastName', '%' + params.q + '%')
@@ -463,8 +467,8 @@ class CrmTaskController {
             }
         }
         render template: 'attender_list',
-                model: [bean      : crmTask, list: result, totalCount: result.totalCount,
-                        statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId)]
+                model: [bean       : crmTask, list: result, totalCount: result.totalCount,
+                        statusList : CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId)]
     }
 
     @Transactional
@@ -587,7 +591,7 @@ class CrmTaskController {
             return
         }
 
-        if(status) {
+        if (status) {
             def attenderStatus = CrmTaskAttenderStatus.findByIdAndTenantId(status, tenant)
             if (!attenderStatus) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "No CrmTaskAttenderStatus found with id [$status]")

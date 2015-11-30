@@ -7,7 +7,7 @@
       };
     })();
     var ATTENDERS = {
-        sort: 'booking.bookingRef',
+        sort: '${attenderSort}',
         order: 'asc',
         offset: 0,
         max: 25,
@@ -33,6 +33,10 @@
                 var $firstRow = $('#attender-container tbody .crm-attender').first();
                 if($firstRow) {
                     var totalCount = $firstRow.data('crm-total');
+                    if(!totalCount) {
+                        $('#pagination').empty();
+                        return; // No records found, nothing to paginate.
+                    }
                     var offset = $firstRow.data('crm-offset');
                     var max = $firstRow.data('crm-max');
                     var pages = Math.ceil(totalCount / max);
