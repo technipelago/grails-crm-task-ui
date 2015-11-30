@@ -33,7 +33,7 @@
                 var $firstRow = $('#attender-container tbody .crm-attender').first();
                 if($firstRow) {
                     var totalCount = $firstRow.data('crm-total');
-                    if(!totalCount) {
+                    if(!totalCount || (totalCount <= ATTENDERS.max)) {
                         $('#pagination').empty();
                         return; // No records found, nothing to paginate.
                     }
