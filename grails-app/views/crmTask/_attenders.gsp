@@ -117,6 +117,7 @@
 
         $('#attender-container .crm-search input').keyup(function() {
             searchDelay(function(){
+                ATTENDERS.offset = 0;
                 ATTENDERS.load();
             }, 750 );
         });
