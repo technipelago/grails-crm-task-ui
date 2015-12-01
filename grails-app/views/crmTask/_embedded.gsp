@@ -25,7 +25,8 @@ tr.crm-status-absent td {
     </thead>
     <tbody>
     <g:each in="${list}" var="a">
-        <g:set var="crmTask" value="${a.task}"/>
+        <g:set var="crmTaskBooking" value="${a.booking}"/>
+        <g:set var="crmTask" value="${crmTaskBooking.task}"/>
         <tr class="crm-status-${a.status.param}">
             <td>
                 <g:link controller="crmTaskAttender" action="show" id="${a.id}">
