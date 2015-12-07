@@ -70,9 +70,9 @@ class CrmTaskAttenderController {
         }
 
         def crmTaskBooking
-        if(booking) {
+        if (booking) {
             crmTaskBooking = CrmTaskBooking.get(booking)
-            if(crmTaskBooking?.taskId != crmTask.id) {
+            if (crmTaskBooking?.taskId != crmTask.id) {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST) // TODO this is a little evil.
                 return
             }
@@ -87,7 +87,7 @@ class CrmTaskAttenderController {
                 boolean newBooking = params['booking.id'] == '0'
                 if (newBooking) {
                     crmTaskBooking.bookingRef = params.externalRef ?: params.bookingRef // TODO This is IVA specific!
-                    if(crmTaskBooking.validate()) {
+                    if (crmTaskBooking.validate()) {
                         crmTask.addToBookings(crmTaskBooking)
                     } else {
                         response.sendError(HttpServletResponse.SC_BAD_REQUEST) // TODO this is a little evil.
@@ -96,7 +96,7 @@ class CrmTaskAttenderController {
                 } else {
                     bindData(crmTaskAttender, params, [include: ['booking']])
                     crmTaskBooking = crmTaskAttender.booking
-                    if(crmTaskBooking?.taskId != crmTask.id) {
+                    if (crmTaskBooking?.taskId != crmTask.id) {
                         response.sendError(HttpServletResponse.SC_BAD_REQUEST)
                         return
                     }
@@ -108,13 +108,13 @@ class CrmTaskAttenderController {
                 if (!crmTaskAttender.contact && crmTaskAttender.tmp) {
                     bindData(crmTaskAttender.tmp, params, [include: CONTACT_WHITELIST])
                 }
-                if(newBooking) {
-                    if(crmTaskAttender.bookingDate) {
+                if (newBooking) {
+                    if (crmTaskAttender.bookingDate) {
                         crmTaskBooking.bookingDate = crmTaskAttender.bookingDate
                     }
                     def addr = crmTaskAttender.getContactInformation()?.getAddressInformation()
-                    if(addr) {
-                        if(crmTaskBooking.invoiceAddress == null) {
+                    if (addr) {
+                        if (crmTaskBooking.invoiceAddress == null) {
                             crmTaskBooking.invoiceAddress = new CrmEmbeddedAddress()
                         }
                         addr.copyTo(crmTaskBooking.invoiceAddress)
@@ -272,7 +272,7 @@ class CrmTaskAttenderController {
             flash.error = message(code: 'crmTaskAttender.not.deleted.message', args: [message(code: 'crmTaskAttender.label', default: 'Attender'), id])
         }
 
-        if(CrmTaskBooking.findById(bookingId)) {
+        if (CrmTaskBooking.findById(bookingId)) {
             redirect(controller: 'crmTaskBooking', action: "show", id: bookingId)
         } else {
             redirect(controller: 'crmTask', action: "show", id: crmTask.id, fragment: "attender")
@@ -317,6 +317,48 @@ class CrmTaskAttenderController {
             def bookingId = oldBooking.id
             return [crmTaskAttender: crmTaskAttender, crmTaskBooking: oldBooking, crmTask: crmTask,
                     bookingList    : crmTask.bookings.findAll { it.id != bookingId }]
+        }
+    }
+
+    @Transactional
+    def archive(Long id) {
+        def crmTask = crmTaskService.getTask(id)
+        if (!crmTask) {
+            flash.error = message(code: 'crmTask.not.found.message', args: [message(code: 'crmTask.label', default: 'Task'), params.id])
+            redirect controller: 'crmTask', action: 'index'
+            return
+        }
+
+        def stats = CrmTaskAttender.createCriteria().list() {
+            projections {
+                groupProperty('status')
+                rowCount()
+            }
+            booking {
+                eq('task', crmTask)
+            }
+        }
+
+        if (request.post) {
+            def user = crmSecurityService.getUserInfo(null)
+            def bookings = CrmTaskBooking.findAllByTask(crmTask)
+            for (b in bookings) {
+                crmTask.removeFromBookings(b)
+                b.delete()
+            }
+            def notes = new StringBuilder(params.description ?: '')
+            if (notes.length()) {
+                notes << '\n----\n'
+                notes << "Archived ${g.formatDate(date: new Date(), type: 'date')} by ${user.name}\n".toString()
+            }
+            for(s in stats) {
+                notes << "${s[0]}: ${s[1]}\n".toString()
+            }
+            crmTask.description = notes
+            crmTask.save(flush: true)
+            redirect controller: 'crmTask', action: 'show', id: crmTask.id, fragment: 'attender'
+        } else {
+            return [crmTask: crmTask, attenderStatistics: stats]
         }
     }
 }

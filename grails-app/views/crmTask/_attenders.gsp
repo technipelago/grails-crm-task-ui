@@ -270,6 +270,11 @@ tr.crm-attender i:last-child {
                     </select:link>
                 </div>
             </g:if>
+            <crm:hasPermission permission="crmTaskAttender:archive">
+                <g:link controller="crmTaskAttender" action="archive" id="${crmTask.id}" style="margin-left: 12px; color: #990000;">
+                    <g:message code="crmTaskAttender.archive.label" default="Archive"/>
+                </g:link>
+            </crm:hasPermission>
         </g:form>
     </div>
 </div>
