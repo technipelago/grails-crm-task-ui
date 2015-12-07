@@ -348,15 +348,17 @@ class CrmTaskAttenderController {
             }
             def notes = new StringBuilder(params.description ?: '')
             if (notes.length()) {
-                notes << '\n----\n'
-                notes << "Archived ${g.formatDate(date: new Date(), type: 'date')} by ${user.name}\n".toString()
+                def date = g.formatDate(date: new Date(), type: 'date')
+                notes << '\n--\n'
+                notes << g.message(code: 'crmTaskAttender.archive.log', args: [date, user.name]).toString()
+                notes << '\n'
             }
             for(s in stats) {
-                notes << "${s[0]}: ${s[1]}\n".toString()
+                notes << "- ${s[0]}: ${s[1]}\n".toString()
             }
             crmTask.description = notes
             crmTask.save(flush: true)
-            redirect controller: 'crmTask', action: 'show', id: crmTask.id, fragment: 'attender'
+            redirect controller: 'crmTask', action: 'show', id: crmTask.id
         } else {
             return [crmTask: crmTask, attenderStatistics: stats]
         }

@@ -105,7 +105,7 @@
 
                             <div class="controls">
                                 <g:textArea name="description" value="${crmTask.description}" rows="6" cols="70"
-                                            class="span12"/>
+                                            class="span12" autofocus="autofocus"/>
                             </div>
                         </div>
                     </div>
