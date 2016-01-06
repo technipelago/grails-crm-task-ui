@@ -37,7 +37,7 @@ grails.project.dependency.resolution = {
             export = false
         }
 
-        test(":codenarc:0.22") { export = false }
+        test(":codenarc:0.24.1") { export = false }
         test(":code-coverage:2.0.3-3") { export = false }
 
         compile ":selection-repository:0.9.3"
@@ -49,5 +49,14 @@ grails.project.dependency.resolution = {
         compile ":crm-contact:2.4.1"
         compile ":crm-feature:2.4.1"
         compile ":crm-ui-bootstrap:2.4.1"
+    }
+}
+
+codenarc.reports = {
+    xmlReport('xml') {
+        outputFile = 'target/CodeNarcReport.xml'
+    }
+    htmlReport('html') {
+        outputFile = 'target/CodeNarcReport.html'
     }
 }
