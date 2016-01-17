@@ -32,6 +32,8 @@ import javax.servlet.http.HttpServletResponse
  */
 class CrmTaskAttenderController {
 
+    static allowedMethods = [match: 'POST']
+
     private static final List ATTENDER_WHITELIST = ['notes', 'status', 'hide', 'bookingRef', 'externalRef']
     private static
     final List CONTACT_WHITELIST = CrmAddress.BIND_WHITELIST + ['firstName', 'lastName', 'companyName', 'title']
@@ -352,7 +354,7 @@ class CrmTaskAttenderController {
             }
             def date = g.formatDate(date: new Date(), type: 'date')
             notes << g.message(code: 'crmTaskAttender.archive.log', args: [date, user.name]).toString()
-            for(s in stats) {
+            for (s in stats) {
                 notes << "\n- ${s[0]}: ${s[1]}".toString()
             }
             crmTask.description = notes
@@ -360,6 +362,30 @@ class CrmTaskAttenderController {
             redirect controller: 'crmTask', action: 'show', id: crmTask.id
         } else {
             return [crmTask: crmTask, attenderStatistics: stats]
+        }
+    }
+
+    @Transactional
+    def match(Long id, Long selected) {
+        final CrmTaskAttender crmTaskAttender = CrmTaskAttender.get(id)
+        if (!crmTaskAttender) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND)
+            return
+        }
+        final CrmContact crmContact = crmContactService.getContact(selected)
+        if (!crmTaskAttender) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND)
+            return
+        }
+
+        crmTaskAttender.setContactInformation(crmContact)
+
+        flash.success = message(code: 'crmTaskAttender.updated.message', args: [message(code: 'crmTaskAttender.label', default: 'Attender'), crmTaskAttender.toString()])
+
+        if (params.referer) {
+            redirect(uri: params.referer - request.contextPath)
+        } else {
+            redirect action: 'show', id: id
         }
     }
 }
