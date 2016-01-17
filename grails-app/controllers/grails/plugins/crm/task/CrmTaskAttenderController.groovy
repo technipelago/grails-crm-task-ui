@@ -106,7 +106,7 @@ class CrmTaskAttenderController {
                 def currentUser = crmSecurityService.getUserInfo()
                 bindData(crmTaskAttender, params, [include: ATTENDER_WHITELIST])
                 bindDate(crmTaskAttender, 'bookingDate', params.bookingDate, currentUser.timezone)
-                fixContact(crmTaskAttender, params, params.boolean('createContact'))
+                def createdContacts = fixContact(crmTaskAttender, params, params.boolean('createContact'))
                 if (!crmTaskAttender.contact && crmTaskAttender.tmp) {
                     bindData(crmTaskAttender.tmp, params, [include: CONTACT_WHITELIST])
                 }
@@ -125,6 +125,9 @@ class CrmTaskAttenderController {
                 if (crmTask.save(flush: true) && crmTaskAttender.save()) {
                     if (crmTaskAttender.contact) {
                         rememberDomain(crmTaskAttender.contact)
+                    }
+                    for(created in createdContacts) {
+                        event(for: "crmContact", topic: "created", data: [id: created.id, tenant: created.tenantId, user: currentUser?.username, name: created.toString()])
                     }
                     flash.success = message(code: 'crmTaskAttender.created.message', args: [message(code: 'crmTaskAttender.label', default: 'Attender'), crmTaskAttender.toString()])
                     redirect action: "show", id: crmTaskAttender.id
@@ -163,7 +166,7 @@ class CrmTaskAttenderController {
                 def currentUser = crmSecurityService.getUserInfo()
                 bindData(crmTaskAttender, params, [include: ATTENDER_WHITELIST])
                 bindDate(crmTaskAttender, 'bookingDate', params.bookingDate, currentUser.timezone)
-                fixContact(crmTaskAttender, params, params.boolean('createContact'))
+                def createdContacts = fixContact(crmTaskAttender, params, params.boolean('createContact'))
                 if (!crmTaskAttender.contact && crmTaskAttender.tmp) {
                     bindData(crmTaskAttender.tmp, params, [include: CONTACT_WHITELIST])
                 }
@@ -175,6 +178,9 @@ class CrmTaskAttenderController {
                 if (crmTaskAttender.save()) {
                     if (crmTaskAttender.contact) {
                         rememberDomain(crmTaskAttender.contact)
+                    }
+                    for(created in createdContacts) {
+                        event(for: "crmContact", topic: "created", data: [id: created.id, tenant: created.tenantId, user: currentUser?.username, name: created.toString()])
                     }
                     flash.success = message(code: 'crmTaskAttender.updated.message', args: [message(code: 'crmTaskAttender.label', default: 'Attender'), crmTaskAttender.toString()])
                     redirect action: "show", id: crmTaskAttender.id
@@ -208,8 +214,9 @@ class CrmTaskAttenderController {
         }
     }
 
-    private void fixContact(CrmTaskAttender attender, GrailsParameterMap params, Boolean add) {
+    private List<CrmContact> fixContact(CrmTaskAttender attender, GrailsParameterMap params, Boolean add) {
         def tenant = TenantUtils.tenant
+        def createdContacts = []
         CrmContact contact = params['contactId'] ? CrmContact.findByIdAndTenantId(params.long('contactId'), tenant) : null
         if (contact) {
             attender.contact = contact
@@ -223,7 +230,10 @@ class CrmTaskAttenderController {
                 company = crmContactService.createCompany(name: params.companyName,
                         telephone: params.telephone, email: params.email, address: address,
                         true)
-                params['companyId'] = company.ident()
+                if(! company.hasErrors()) {
+                    params['companyId'] = company.ident()
+                    createdContacts << company
+                }
             }
 
             // A contact name is specified but it's not an existing contact.
@@ -243,6 +253,7 @@ class CrmTaskAttenderController {
                 if (!person.hasErrors()) {
                     attender.contact = person
                     attender.tmp = null
+                    createdContacts << person
                 }
             }
         } else {
@@ -250,6 +261,7 @@ class CrmTaskAttenderController {
             bindData(attender.contactInformation, params,
                     [include: ['firstName', 'lastName', 'companyName', 'companyId', 'title', 'telephone', 'email']])
         }
+        createdContacts
     }
 
     @Transactional
