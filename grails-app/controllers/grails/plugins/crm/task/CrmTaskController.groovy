@@ -210,10 +210,12 @@ class CrmTaskController {
                     bindDate(crmTask, 'startTime', startDate + startTime, user?.timezone)
                     bindDate(crmTask, 'endTime', endDate + endTime, user?.timezone)
 
-                    if (crmTask.hasErrors() || !crmTask.save()) {
+                    if (!crmTask.save()) {
                         render view: 'create', model: [crmTask: crmTask, user: user, referer: params.referer, metadata: metadata]
                         return
                     }
+                    event(for: "crmTask", topic: "created", data: [id: crmTask.id, tenant: crmTask.tenantId, user: user.username, name: crmTask.toString()])
+
                     flash.success = message(code: 'crmTask.created.message', args: [message(code: 'crmTask.label', default: 'Task'), crmTask.toString()])
                     if (params.referer) {
                         redirect(uri: params.referer - request.contextPath)
@@ -367,10 +369,12 @@ class CrmTaskController {
                     bindDate(crmTask, 'startTime', startDate + startTime, user?.timezone)
                     bindDate(crmTask, 'endTime', endDate + endTime, user?.timezone)
 
-                    if (crmTask.hasErrors() || !crmTask.save()) {
+                    if (!crmTask.save()) {
                         render view: 'edit', model: [crmTask: crmTask, user: user, referer: params.referer, metadata: metadata]
                         return
                     }
+
+                    event(for: "crmTask", topic: "updated", data: [id: crmTask.id, tenant: crmTask.tenantId, user: user.username, name: crmTask.toString()])
 
                     flash.success = message(code: 'crmTask.updated.message', args: [message(code: 'crmTask.label', default: 'Task'), crmTask.toString()])
                     if (params.referer) {
