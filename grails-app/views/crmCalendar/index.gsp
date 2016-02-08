@@ -70,14 +70,19 @@
     </div>
 </div>
 
-<div class="form-actions btn-toolbar">
+<div class="form-actions">
     <crm:selectionMenu visual="primary">
         <crm:button type="link" controller="crmTask" action="index" icon="icon-search icon-white" visual="primary"
                     label="crmTask.button.find.label"/>
     </crm:selectionMenu>
-    <crm:button type="link" group="true" controller="crmTask" action="create" visual="success"
+    <crm:button type="link" controller="crmTask" action="create" visual="success"
                 icon="icon-file icon-white"
                 label="crmTask.button.create.label" permission="crmTask:create"/>
+    <crm:hasFeature feature="googleCalendar">
+        <g:link controller="crmGoogleCalendar" action="index" style="margin-left: 10px;" title="${message(code: 'crmGoogleCalendar.index.help', default: 'Attach your Google Calendar')}">
+            <g:img plugin="crm-task-google" dir="images" file="google-calendar-icon.png" alt="Google Calendar"/>
+        </g:link>
+    </crm:hasFeature>
 </div>
 
 </body>
