@@ -16,6 +16,7 @@
 
 package grails.plugins.crm.task
 
+import grails.transaction.Transactional
 import org.springframework.dao.DataIntegrityViolationException
 import javax.servlet.http.HttpServletResponse
 
@@ -58,6 +59,7 @@ class CrmTaskTypeController {
         }
     }
 
+    @Transactional
     def create() {
         def crmTaskType = crmTaskService.createTaskType(params)
         switch (request.method) {
@@ -75,6 +77,7 @@ class CrmTaskTypeController {
         }
     }
 
+    @Transactional
     def edit() {
         switch (request.method) {
             case 'GET':
@@ -118,6 +121,7 @@ class CrmTaskTypeController {
         }
     }
 
+    @Transactional
     def delete() {
         def crmTaskType = domainClass.get(params.id)
         if (!crmTaskType) {
@@ -157,6 +161,7 @@ class CrmTaskTypeController {
         return rval
     }
 
+    @Transactional
     def moveUp(Long id) {
         def target = domainClass.get(id)
         if (target) {
@@ -177,6 +182,7 @@ class CrmTaskTypeController {
         redirect action: 'list'
     }
 
+    @Transactional
     def moveDown(Long id) {
         def target = domainClass.get(id)
         if (target) {

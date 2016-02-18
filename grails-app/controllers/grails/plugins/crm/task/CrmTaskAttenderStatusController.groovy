@@ -16,6 +16,7 @@
 
 package grails.plugins.crm.task
 
+import grails.transaction.Transactional
 import org.springframework.dao.DataIntegrityViolationException
 import javax.servlet.http.HttpServletResponse
 
@@ -58,8 +59,9 @@ class CrmTaskAttenderStatusController {
         }
     }
 
+    @Transactional
     def create() {
-        def crmTaskAttenderStatus = crmTaskService.createTaskType(params)
+        def crmTaskAttenderStatus = crmTaskService.createAttenderStatus(params)
         switch (request.method) {
             case 'GET':
                 return [crmTaskAttenderStatus: crmTaskAttenderStatus]
@@ -75,6 +77,7 @@ class CrmTaskAttenderStatusController {
         }
     }
 
+    @Transactional
     def edit() {
         switch (request.method) {
             case 'GET':
@@ -118,6 +121,7 @@ class CrmTaskAttenderStatusController {
         }
     }
 
+    @Transactional
     def delete() {
         def crmTaskAttenderStatus = domainClass.get(params.id)
         if (!crmTaskAttenderStatus) {
@@ -143,8 +147,8 @@ class CrmTaskAttenderStatusController {
         }
     }
 
-    private boolean isInUse(CrmTaskAttenderStatus type) {
-        def count = CrmTaskAttender.countByStatus(type)
+    private boolean isInUse(CrmTaskAttenderStatus arg) {
+        def count = CrmTaskAttender.countByStatus(arg)
         def rval = false
         if (count) {
             flash.error = message(code: "crmTaskAttenderStatus.delete.error.reference", args:
@@ -157,6 +161,7 @@ class CrmTaskAttenderStatusController {
         return rval
     }
 
+    @Transactional
     def moveUp(Long id) {
         def target = domainClass.get(id)
         if (target) {
@@ -177,6 +182,7 @@ class CrmTaskAttenderStatusController {
         redirect action: 'list'
     }
 
+    @Transactional
     def moveDown(Long id) {
         def target = domainClass.get(id)
         if (target) {
