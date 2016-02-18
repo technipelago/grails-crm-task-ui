@@ -60,7 +60,16 @@
 
                         <g:if test="${crmTask.number}">
                             <dt><g:message code="crmTask.number.label" default="Number"/></dt>
-                            <dd><g:fieldValue bean="${crmTask}" field="number"/></dd>
+                            <dd>
+                                <g:if test="${registrationMapping}">
+                                    <g:link mapping="${registrationMapping}" params="${[number: crmTask.number]}">
+                                        <g:fieldValue bean="${crmTask}" field="number"/>
+                                    </g:link>
+                                </g:if>
+                                <g:else>
+                                    <g:fieldValue bean="${crmTask}" field="number"/>
+                                </g:else>
+                            </dd>
                         </g:if>
 
                         <dt><g:message code="crmTask.name.label" default="Name"/></dt>
