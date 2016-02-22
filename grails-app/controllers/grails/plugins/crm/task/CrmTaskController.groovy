@@ -116,6 +116,16 @@ class CrmTaskController {
                         result.file.delete()
                     }
                     return null // Success
+                } else if(result.redirect) {
+                    if(result.error) {
+                        flash.error = message(code: result.error)
+                    } else if(result.warning) {
+                        flash.warning = message(code: result.warning)
+                    } else if(result.success || result.message) {
+                        flash.success = message(code: (result.success ?: result.message))
+                    }
+                    redirect result.redirect
+                    return
                 } else {
                     flash.warning = message(code: 'crmTask.export.nothing.message', default: 'Nothing was exported')
                 }
