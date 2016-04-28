@@ -6,7 +6,7 @@
     <strong><g:formatDate date="${bean.startTime}" type="date" style="long"/></strong>
 
     <g:if test="${bean.location}">
-        vid <strong>${bean.location}</strong>.
+        <g:message code="crmTask.summary.at" default="at"/> <strong>${bean.location}</strong>.
     </g:if>
 </p>
 
