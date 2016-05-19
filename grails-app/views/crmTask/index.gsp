@@ -76,6 +76,29 @@
                     <f:field property="type" label="crmTask.type.label">
                         <g:textField name="type" value="${cmd.type}" class="span12" autocomplete="off"/>
                     </f:field>
+                    <div class="control-group">
+                        <label class="control-label">
+                            <g:message code="crmTask.complete.label"/>
+                        </label>
+
+                        <div class="controls">
+                            <g:select name="complete" noSelection="['': '']"
+                                      from="${[CrmTask.STATUS_PLANNED, CrmTask.STATUS_ACTIVE, CrmTask.STATUS_COMPLETED]}"
+                                      valueMessagePrefix="crmTask.complete" class="span11" value="${cmd.complete}"/>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label">
+                            <g:message code="crmTask.priority.label"/>
+                        </label>
+
+                        <div class="controls">
+                            <g:select name="priority" noSelection="['': '']"
+                                      from="${[CrmTask.PRIORITY_LOWEST, CrmTask.PRIORITY_LOW, CrmTask.PRIORITY_NORMAL, CrmTask.PRIORITY_HIGH, CrmTask.PRIORITY_HIGHEST]}"
+                                      valueMessagePrefix="crmTask.priority" class="span11" value="${cmd.priority}"/>
+                        </div>
+                    </div>
                     <f:field property="username" label="crmTask.username.label">
                         <g:textField name="username" value="${cmd.username}" class="span12" autocomplete="off"/>
                     </f:field>

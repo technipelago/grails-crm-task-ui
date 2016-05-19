@@ -317,7 +317,7 @@ class CrmTaskController {
         String attenderSort = grailsApplication.config.crm.task.attenders.sort ?: 'booking.bookingRef'
         String registrationMapping = grailsApplication.config.crm.task.registration.mapping ?: null
 
-        [crmTask       : crmTask, statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId),
+        [crmTask       : crmTask, contact: crmTask.contact, statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId),
          attendersTotal: attenders, attenderStatistics: stats, recentBooked: recent, attenderSort: attenderSort,
          selection: params.getSelectionURI(), registrationMapping: registrationMapping]
     }

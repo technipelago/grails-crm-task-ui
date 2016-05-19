@@ -163,28 +163,14 @@
     </r:script>
 
     <style type="text/css">
-    .crm-status-confirmed td,
-    .crm-status-attended td,
-    .crm-status-confirmed h1,
-    .crm-status-attended h1 {
+    .crm-status-confirmed, .crm-status-attended {
         color: #009900;
-        background-color: #eeffee !important;
     }
-    .crm-status-cancelled td,
-    .crm-status-cancelled h1 {
+    .crm-status-cancelled {
         color: #f89406;
-        background-color: #eeeeff !important;
     }
-    .crm-status-absent td,
-    .crm-status-absent h1 {
+    .crm-status-absent {
         color: #9d261d;
-        background-color: #ffeeee !important;
-    }
-    tr.selected td {
-        background-color: #f9ccff !important;
-    }
-    tr.crm-attender i {
-        margin-left: 5px;
     }
     </style>
 </head>
@@ -272,7 +258,9 @@
                             </div>
                         </div>
 
-                        <tmpl:address bean="${address}" disabled="${crmTaskAttender.contact != null}"/>
+                        <g:if test="${address}">
+                            <tmpl:address bean="${address}" disabled="${crmTaskAttender.contact != null}"/>
+                        </g:if>
 
                     </div>
                 </div>

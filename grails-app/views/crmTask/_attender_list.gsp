@@ -35,7 +35,7 @@
                 <i class="icon-comment" title="${m.description}"></i>
             </g:if>
             <g:if test="${tags}">
-                <i class="icon-tags" title="${tags?.join(', ')}"></i>
+                <i class="icon-tags" title="${tags.sort().join(', ')}"></i>
             </g:if>
             <g:unless test="${m.contact}">
                 <i class="icon-leaf"></i>

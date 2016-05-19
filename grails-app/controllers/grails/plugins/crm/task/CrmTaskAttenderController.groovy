@@ -34,7 +34,6 @@ class CrmTaskAttenderController {
 
     static allowedMethods = [match: 'POST']
 
-    private static final List ATTENDER_WHITELIST = ['notes', 'status', 'hide', 'bookingRef', 'externalRef']
     private static
     final List CONTACT_WHITELIST = CrmAddress.BIND_WHITELIST + ['firstName', 'lastName', 'companyName', 'title']
 
@@ -104,7 +103,7 @@ class CrmTaskAttenderController {
                     }
                 }
                 def currentUser = crmSecurityService.getUserInfo()
-                bindData(crmTaskAttender, params, [include: ATTENDER_WHITELIST])
+                bindData(crmTaskAttender, params, [include: CrmTaskAttender.BIND_WHITELIST, exclude: ['bookingDate']])
                 bindDate(crmTaskAttender, 'bookingDate', params.bookingDate, currentUser.timezone)
                 def createdContacts = fixContact(crmTaskAttender, params, params.boolean('createContact'))
                 if (!crmTaskAttender.contact && crmTaskAttender.tmp) {
@@ -126,7 +125,7 @@ class CrmTaskAttenderController {
                     if (crmTaskAttender.contact) {
                         rememberDomain(crmTaskAttender.contact)
                     }
-                    for(created in createdContacts) {
+                    for (created in createdContacts) {
                         event(for: "crmContact", topic: "created", data: [id: created.id, tenant: created.tenantId, user: currentUser?.username, name: created.toString()])
                     }
                     flash.success = message(code: 'crmTaskAttender.created.message', args: [message(code: 'crmTaskAttender.label', default: 'Attender'), crmTaskAttender.toString()])
@@ -164,7 +163,7 @@ class CrmTaskAttenderController {
         if (request.post) {
             try {
                 def currentUser = crmSecurityService.getUserInfo()
-                bindData(crmTaskAttender, params, [include: ATTENDER_WHITELIST])
+                bindData(crmTaskAttender, params, [include: CrmTaskAttender.BIND_WHITELIST, exclude: ['bookingDate']])
                 bindDate(crmTaskAttender, 'bookingDate', params.bookingDate, currentUser.timezone)
                 def createdContacts = fixContact(crmTaskAttender, params, params.boolean('createContact'))
                 if (!crmTaskAttender.contact && crmTaskAttender.tmp) {
@@ -179,7 +178,7 @@ class CrmTaskAttenderController {
                     if (crmTaskAttender.contact) {
                         rememberDomain(crmTaskAttender.contact)
                     }
-                    for(created in createdContacts) {
+                    for (created in createdContacts) {
                         event(for: "crmContact", topic: "created", data: [id: created.id, tenant: created.tenantId, user: currentUser?.username, name: created.toString()])
                     }
                     flash.success = message(code: 'crmTaskAttender.updated.message', args: [message(code: 'crmTaskAttender.label', default: 'Attender'), crmTaskAttender.toString()])
@@ -230,7 +229,7 @@ class CrmTaskAttenderController {
                 company = crmContactService.createCompany(name: params.companyName,
                         telephone: params.telephone, email: params.email, address: address,
                         true)
-                if(! company.hasErrors()) {
+                if (!company.hasErrors()) {
                     params['companyId'] = company.ident()
                     createdContacts << company
                 }
@@ -379,14 +378,19 @@ class CrmTaskAttenderController {
 
     @Transactional
     def match(Long id, Long selected) {
+        final Long tenant = TenantUtils.tenant
         final CrmTaskAttender crmTaskAttender = CrmTaskAttender.get(id)
         if (!crmTaskAttender) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND)
             return
         }
         final CrmContact crmContact = crmContactService.getContact(selected)
-        if (!crmTaskAttender) {
+        if (!crmContact) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND)
+            return
+        }
+        if(crmTaskAttender.booking.task.tenantId != tenant || crmContact.tenantId != tenant) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN)
             return
         }
 
@@ -399,5 +403,29 @@ class CrmTaskAttenderController {
         } else {
             redirect action: 'show', id: id
         }
+    }
+
+    @Transactional
+    def status(Long id, Long task, String status) {
+        final CrmTask crmTask = crmTaskService.getTask(task)
+        if (!crmTask) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND)
+            return
+        }
+        final CrmTaskAttender crmTaskAttender = CrmTaskAttender.get(id)
+        if (!crmTaskAttender) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND)
+            return
+        }
+        if (crmTaskAttender.booking.taskId != crmTask.id) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN)
+            return
+        }
+
+        crmTaskService.setAttenderStatus(crmTaskAttender, status)
+
+        flash.success = message(code: 'crmTaskAttender.updated.message', args: [message(code: 'crmTaskAttender.label', default: 'Attender'), crmTaskAttender.toString()])
+
+        redirect action: 'show', id: id
     }
 }

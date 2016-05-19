@@ -52,7 +52,9 @@
 <div class="row-fluid">
     <div class="span9">
 
-        <header class="page-header">
+        <header class="page-header clearfix">
+            <img src="${resource(dir: 'images', file: 'group-avatar.png')}" class="avatar pull-right"
+                 width="64" height="64"/>
             <crm:user>
                 <h1>
                     ${crmTaskBooking}

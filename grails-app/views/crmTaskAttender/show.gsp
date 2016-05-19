@@ -14,27 +14,47 @@
         });
     </r:script>
     <style type="text/css">
-    .crm-status-confirmed,
-    .crm-status-attended {
+    .crm-status-confirmed .crm-status,
+    .crm-status-attended .crm-status {
         color: #009900;
     }
-
-    .crm-status-cancelled {
+    .crm-status-cancelled .crm-status {
         color: #f89406;
     }
-
-    .crm-status-absent {
+    .crm-status-absent .crm-status {
         color: #9d261d;
+    }
+    .crm-status-confirmed header,
+    .crm-status-attended header {
+        border-bottom: 3px solid #009900;
+    }
+    .crm-status-cancelled header {
+        border-bottom: 3px solid #f89406;
+    }
+    .crm-status-absent header {
+        border-bottom: 3px solid #9d261d;
     }
     </style>
 </head>
 
 <body>
+<div class="crm-status-${crmTaskAttender.status.param}">
+
+<g:set var="contact" value="${crmTaskAttender.contactInformation}"/>
+<g:set var="address" value="${contact.addressInformation}"/>
 
 <div class="row-fluid">
     <div class="span9">
 
-        <header class="page-header crm-status-${crmTaskAttender.status.param}">
+        <header class="page-header clearfix">
+            <g:if test="${contact?.email}">
+                <avatar:gravatar email="${contact.email}" size="64" id="avatar" cssClass="avatar pull-right"
+                                 defaultGravatarUrl="mm"/>
+            </g:if>
+            <g:else>
+                <img src="${resource(plugin: 'crm-contact-ui', dir: 'images', file: 'person-avatar.png')}" class="avatar pull-right"
+                         width="64" height="64"/>
+            </g:else>
             <crm:user>
                 <h1>
                     ${crmTaskAttender}
@@ -42,9 +62,6 @@
                 </h1>
             </crm:user>
         </header>
-
-        <g:set var="contact" value="${crmTaskAttender.contactInformation}"/>
-        <g:set var="address" value="${contact.addressInformation}"/>
 
         <g:form mapping="crm-contact-duplicates">
 
@@ -130,7 +147,7 @@
 
                         <dl>
                             <dt><g:message code="crmTaskAttender.status.label"/></dt>
-                            <dd>${crmTaskAttender.status}</dd>
+                            <dd class="crm-status">${crmTaskAttender.status}</dd>
 
                             <g:if test="${crmTaskAttender.bookingId}">
                                 <dt><g:message code="crmTaskAttender.booking.label"/></dt>
@@ -190,6 +207,15 @@
                                 </a>
                             </li>
                         </g:unless>
+                        <crm:hasPermission permission="crmTask:edit">
+                            <g:each in="${statusList}" var="status">
+                                <li>
+                                    <g:link action="status" params="${[id: crmTaskAttender.id, task: crmTask.id, status: status.param]}">
+                                        ${status}
+                                    </g:link>
+                                </li>
+                            </g:each>
+                        </crm:hasPermission>
                     </ul>
                 </crm:button>
                 <g:link controller="crmTaskBooking" action="show" id="${crmTaskAttender.bookingId}" class="btn">
@@ -210,6 +236,7 @@
         <g:render template="/tags" plugin="crm-tags" model="${[bean: crmTaskAttender]}"/>
     </div>
 
+</div>
 </div>
 
 </body>

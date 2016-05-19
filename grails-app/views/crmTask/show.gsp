@@ -23,11 +23,13 @@
 <div class="span9">
 
 <header class="page-header">
+    <img src="${resource(dir: 'images', file: 'calendar-icon.png')}" class="avatar pull-right"
+         width="64" height="64"/>
     <crm:user>
         <h1>
             ${crmTask.name}
             <crm:favoriteIcon bean="${crmTask}"/>
-            <small>${(crmTask.reference ?: crmTask.location)}</small>
+            <small>${contact ? contact.fullName : (crmTask.reference ?: crmTask.location)}</small>
             ${crmTask.alarm ? raw('<i class="icon-bell"></i>') : ''}
             ${crmTask.complete ? raw('<i class="icon-check"></i>') : ''}
         </h1>
