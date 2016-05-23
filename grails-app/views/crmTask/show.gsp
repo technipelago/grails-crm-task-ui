@@ -226,8 +226,17 @@
                             </g:else>
                         </crm:user>
                     </crm:hasPermission>
+
+                    <crm:hasPlugin name="crm-tm-ui">
+                        <li>
+                            <g:link controller="crmCall" action="show" id="${crmTask.id}">
+                                <g:message code="crmCall.show.label" default="Telemarketing"/>
+                            </g:link>
+                        </li>
+                    </crm:hasPlugin>
+
                     <li>
-                        <g:link controller="crmCalendar" action="index">
+                        <g:link controller="crmCalendar" action="index" params="${[view:'agendaDay', date: crmTask.date.format('yyyy-MM-dd')]}">
                             <g:message code="crmCalendar.index.label" default="Calendar"/>
                         </g:link>
                     </li>

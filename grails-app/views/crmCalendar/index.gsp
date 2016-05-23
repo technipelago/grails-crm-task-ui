@@ -19,6 +19,7 @@
                     '': 'H:mm', // default
                     agenda: 'H:mm{ - H:mm}'
                 },
+                defaultDate: "${params.date ?: new Date().format('yyyy-MM-dd')}",
                 firstDay: <%= metadata.firstDayOfWeek - 1 %>,
                 weekNumbers: true,
                 weekNumberTitle: "${message(code: 'crmCalendar.weekNumber.label', default: 'w.')}",
@@ -29,6 +30,7 @@
                     // days of week. an array of zero-based day of week integers (0=Sunday)
                     // (Monday-Thursday in this example)
                 },
+                defaultView: "${params.view ?: 'month'}",
                 aspectRatio: 2,
                 eventRender: function(event, element) {
                     element.find('.fc-time').hide(); // Hide title.
@@ -44,6 +46,8 @@
                     window.location.href = calEvent.url;
                 }
             });
+
+            //$('#calendar').fullCalendar('gotoDate', '2016-04-01');
 
             $("#tenantForm :checkbox").click(function(ev) {
                 $(this).closest("form").submit();
