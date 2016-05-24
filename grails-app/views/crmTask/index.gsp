@@ -25,6 +25,13 @@
                 selectFirst: true
             });
         });
+
+        $('#crm-shortcuts a').click(function(ev) {
+            ev.preventDefault();
+            var $elem = $(this);
+            $('#fromDate').val($elem.data('crm-from'));
+            $('#toDate').val($elem.data('crm-to'));
+        });
     </r:script>
 </head>
 
@@ -168,9 +175,8 @@
                                    ["crmTask.query.month.prev", '-32d', '-1d'],
                                    ["crmTask.query.month.next", '+1d', '+32d']
                     ]}" var="i">
-                        <li><select:link action="list"
-                                         selection="${URI.create('bean://crmTaskService/list?fromDate=' + i[1] + '&toDate=' + i[2])}">
-                            ${message(code: i[0])}</select:link>
+                        <li>
+                            <a href="#" data-crm-from="${i[1]}" data-crm-to="${i[2]}">${message(code: i[0])}</a>
                         </li>
                     </g:each>
                 </ul>
