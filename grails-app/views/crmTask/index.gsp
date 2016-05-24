@@ -10,10 +10,19 @@
         $(document).ready(function() {
             <crm:datepicker selector="form .date"/>
 
-        $("input[name='type']").autocomplete("${createLink(action: 'autocompleteType')}", {
+            $("input[name='type']").autocomplete("${createLink(action: 'autocompleteType')}", {
                 remoteDataType: 'json',
                 useCache: false,
                 filter: false,
+                minChars: 1,
+                preventDefaultReturn: true,
+                selectFirst: true
+            });
+            $("input[name='location']").autocomplete("${createLink(action: 'autocompleteLocation')}", {
+                remoteDataType: 'json',
+                useCache: false,
+                filter: false,
+                minChars: 1,
                 preventDefaultReturn: true,
                 selectFirst: true
             });
@@ -21,6 +30,7 @@
                 remoteDataType: 'json',
                 useCache: false,
                 filter: false,
+                minChars: 1,
                 preventDefaultReturn: true,
                 selectFirst: true
             });
@@ -50,14 +60,15 @@
                     <f:with bean="cmd">
                         <div class="span4">
                             <div class="row-fluid">
-                                <f:field property="name" label="crmTask.name.label" input-autofocus=""
-                                         input-class="span12"
+
+                                <f:field property="number" label="crmTask.number.label" input-class="span12" input-autofocus=""
+                                         input-placeholder="${message(code: 'crmTaskQueryCommand.number.placeholder', default: '')}"/>
+                                <f:field property="name" label="crmTask.name.label" input-class="span12"
                                          input-placeholder="${message(code: 'crmTaskQueryCommand.name.placeholder', default: '')}"/>
-                                <f:field property="location" label="crmTask.location.label" input-class="span12"
+                                <f:field property="location" label="crmTask.location.label" input-class="span12" input-autocomplete="off"
                                          input-placeholder="${message(code: 'crmTaskQueryCommand.location.placeholder', default: '')}"/>
-                                <f:field property="type" label="crmTask.type.label">
-                                    <g:textField name="type" value="${cmd.type}" class="span12" autocomplete="off"/>
-                                </f:field>
+                                <f:field property="address" label="crmTask.address.label" input-class="span12"
+                                         input-placeholder="${message(code: 'crmTaskQueryCommand.address.placeholder', default: '')}"/>
                             </div>
                         </div>
 
@@ -131,6 +142,9 @@
                                         <g:textField name="attender" value="${cmd.attender}" class="span12"/>
                                     </f:field>
                                 </g:if>
+                                <f:field property="type" label="crmTask.type.label">
+                                    <g:textField name="type" value="${cmd.type}" class="span12" autocomplete="off"/>
+                                </f:field>
                                 <f:field property="tags" label="crmTask.tags.label">
                                     <g:textField name="tags" class="span12" value="${cmd.tags}"
                                                  placeholder="${message(code: 'crmTask.tags.placeholder', default: '')}"/>

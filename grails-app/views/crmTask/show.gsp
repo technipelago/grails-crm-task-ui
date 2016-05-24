@@ -82,6 +82,11 @@
                             <dd><g:fieldValue bean="${crmTask}" field="location"/></dd>
                         </g:if>
 
+                        <g:if test="${crmTask.address != null && ! crmTask.address.isEmpty()}">
+                            <dt><g:message code="crmTask.address.label" default="Address"/></dt>
+                            <dd><g:fieldValue bean="${crmTask}" field="address"/></dd>
+                        </g:if>
+
                     </dl>
                 </div>
 
