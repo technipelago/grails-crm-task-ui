@@ -16,6 +16,7 @@
 
 package grails.plugins.crm.task
 
+import grails.plugins.crm.core.CrmContactInformation
 import grails.plugins.crm.core.DateUtils
 import grails.plugins.crm.core.TenantUtils
 import grails.transaction.Transactional
@@ -40,11 +41,8 @@ class CrmTaskBookingController {
             response.sendError(HttpServletResponse.SC_NOT_FOUND)
             return
         }
-
-        def attenders = booking.attenders.sort {
-            def contact = it.contactInformation
-            "${contact.lastName} ${contact.firstName}".toString()
-        }
+        // TODO make it possible to customize the sort algorithm.
+        def attenders = CrmTaskUiUtils.sortByExternalId(booking.attenders)
         def metadata = [statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId)]
         [crmTaskBooking: booking, crmTask: crmTask, attenders: attenders, metadata: metadata]
     }

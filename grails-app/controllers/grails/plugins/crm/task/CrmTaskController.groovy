@@ -481,8 +481,16 @@ class CrmTaskController {
                 }
             }
         }
+        int totalCount = result.totalCount
+        if(params.sort == 'booking.bookingRef') {
+            result = CrmTaskUiUtils.sortByExternalId(result)
+            if(params.order == 'desc') {
+                result.reverse()
+            }
+        }
+
         render template: 'attender_list',
-                model: [bean       : crmTask, list: result, totalCount: result.totalCount,
+                model: [bean       : crmTask, list: result, totalCount: totalCount,
                         statusList : CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId)]
     }
 
