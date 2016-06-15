@@ -44,8 +44,8 @@ class CrmTaskUiTagLib {
                 eq('task', crmTask)
             }
         }*/
-        def status = [:]
-        def attenders = CrmTaskAttender.createCriteria().list() {
+        Map status = [:]
+        List attenders = CrmTaskAttender.createCriteria().list() {
             projections {
                 property('id')
                 delegate.status {
@@ -56,7 +56,7 @@ class CrmTaskUiTagLib {
                 eq('task', crmTask)
             }
         }
-        def tags = [:]
+        Map tags = [:]
         for (a in attenders) {
             status.put(a[1], status.get(a[1], 0) + 1)
             for (t in CrmTagLink.createCriteria().list() {
@@ -71,6 +71,6 @@ class CrmTaskUiTagLib {
                 tags.put(t, tags.get(t, 0) + 1)
             }
         }
-        out << body([status: status, tags: tags])
+        out << body([status: status, tags: tags, count: attenders.size()])
     }
 }
