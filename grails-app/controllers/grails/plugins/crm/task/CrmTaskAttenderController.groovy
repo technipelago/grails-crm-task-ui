@@ -353,9 +353,18 @@ class CrmTaskAttenderController {
         }
 
         if (request.post) {
+            def tenant = crmTask.tenantId
+            def eventQueue = []
             def user = crmSecurityService.getUserInfo(null)
             def bookings = CrmTaskBooking.findAllByTask(crmTask)
             for (b in bookings) {
+                def attenders = CrmTaskAttender.findAllByBooking(b)
+                for (a in attenders) {
+                    eventQueue << [for: "crmTaskAttender", topic: "deleted", fork: false, data: [id: a.id, tenant: tenant, user: user.username, name: a.toString()]]
+                    b.removeFromAttenders(a)
+                    a.delete()
+                }
+                eventQueue << [for: "crmTaskBooking", topic: "deleted", fork: false, data: [id: b.id, tenant: tenant, user: user.username, name: b.toString()]]
                 crmTask.removeFromBookings(b)
                 b.delete()
             }
@@ -370,6 +379,15 @@ class CrmTaskAttenderController {
             }
             crmTask.description = notes
             crmTask.save(flush: true)
+
+            try {
+                for (ev in eventQueue) {
+                    event(ev)
+                }
+            } catch (Exception e) {
+                log.error("Failed to send events", e)
+            }
+
             redirect controller: 'crmTask', action: 'show', id: crmTask.id
         } else {
             return [crmTask: crmTask, attenderStatistics: stats]
@@ -389,7 +407,7 @@ class CrmTaskAttenderController {
             response.sendError(HttpServletResponse.SC_NOT_FOUND)
             return
         }
-        if(crmTaskAttender.booking.task.tenantId != tenant || crmContact.tenantId != tenant) {
+        if (crmTaskAttender.booking.task.tenantId != tenant || crmContact.tenantId != tenant) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN)
             return
         }
