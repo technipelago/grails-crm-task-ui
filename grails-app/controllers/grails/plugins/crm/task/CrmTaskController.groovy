@@ -319,7 +319,8 @@ class CrmTaskController {
 
         [crmTask       : crmTask, contact: crmTask.contact, statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId),
          attendersTotal: attenders, attenderStatistics: stats, recentBooked: recent, attenderSort: attenderSort,
-         attenderStatus: params.status ?: '', selection: params.getSelectionURI(), registrationMapping: registrationMapping]
+         attenderStatus: params.status ?: '', attenderTag: params.tag ?: '',
+         selection: params.getSelectionURI(), registrationMapping: registrationMapping]
     }
 
     @Transactional
@@ -485,6 +486,30 @@ class CrmTaskController {
                     or {
                         eq('name', params.status)
                         eq('param', params.status)
+                    }
+                }
+            }
+        }
+        final String tag = params.tag
+        if(tag) {
+            def tagged = result.findAll{it.isTagged(tag)}.collect{it.id}
+            result = CrmTaskAttender.createCriteria().list(params) {
+                inList('id', tagged) // <- Now execute the same query again but this time filtered by tags.
+                booking {
+                    eq('task', crmTask)
+                }
+                if (params.q) {
+                    or {
+                        ilike('tmp.firstName', '%' + params.q + '%')
+                        ilike('tmp.lastName', '%' + params.q + '%')
+                    }
+                }
+                if (params.status) {
+                    status {
+                        or {
+                            eq('name', params.status)
+                            eq('param', params.status)
+                        }
                     }
                 }
             }
