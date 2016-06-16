@@ -292,21 +292,23 @@
             <ul class="nav nav-list">
 
                 <li class="nav-header">
-                    <i class="icon-glass"></i>
+                    <i class="icon-user"></i>
                     <g:message code="crmTaskAttender.statistics.title" default="Statistics"/>
                 </li>
 
                 <g:each in="${attenderStatistics}" var="stat">
                     <li class="${params.status == stat[0].name ? 'active' : ''}">
                         <g:link action="show" params="${[id: crmTask.id, status: stat[0].name]}" fragment="attender">
-                            ${stat[0]}: <strong>${stat[1]}</strong>
+                            <i class="${stat[0].icon ?: 'icon-check'}"></i>
+                            <g:message code="crmTaskAttender.statistics.label" default="{0}: {1}" args="${stat}"/>
                         </g:link>
                     </li>
                 </g:each>
 
                 <li class="${params.status ? '' : 'active'}">
                     <g:link action="show" id="${crmTask.id}" fragment="attender">
-                        Totalt: ${attendersTotal}
+                        <i class="icon-user"></i>
+                        <g:message code="crmTaskAttender.statistics.total" default="Total: {0}" args="${[attendersTotal]}"/>
                     </g:link>
                 </li>
 
@@ -317,6 +319,7 @@
                 <g:each in="${recentBooked}" var="a" status="i">
                     <li>
                         <g:link controller="crmTaskAttender" action="show" id="${a.id}">
+                            <i class="${a.status.icon ?: 'icon-check'}"></i>
                             <g:formatDate format="d MMM" date="${a.bookingDate}"/>
                             ${a.encodeAsHTML()}
                         </g:link>
