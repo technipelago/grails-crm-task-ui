@@ -220,7 +220,8 @@
                 </crm:button>
                 <g:link controller="crmTaskBooking" action="show" id="${crmTaskAttender.bookingId}" class="btn">
                     <i class="icon-glass"></i>
-                    <g:message code="crmTaskBooking.label" default="Booking"/>
+                    <g:message code="crmTaskAttender.button.booking.label" default="Booking"
+                               args="${[crmTaskAttender.booking, crmTaskAttender.booking.attenders.size()]}"/>
                 </g:link>
                 <g:link controller="crmTask" action="show" id="${crmTaskAttender.booking.taskId}" fragment="attender"
                         class="btn">
