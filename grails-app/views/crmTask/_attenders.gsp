@@ -7,6 +7,7 @@
       };
     })();
     var ATTENDERS = {
+        status: '${attenderStatus}',
         sort: '${attenderSort}',
         order: 'asc',
         offset: 0,
@@ -14,6 +15,7 @@
         load: function() {
             var params = {};
             params.q = $('#attender-container .crm-search input').val();
+            params.status = ATTENDERS.status;
             params.sort = ATTENDERS.sort;
             params.order = ATTENDERS.order;
             params.offset = ATTENDERS.offset;

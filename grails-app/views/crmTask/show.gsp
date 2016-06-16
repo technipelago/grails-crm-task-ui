@@ -265,7 +265,7 @@
 <g:if test="${attendersTotal != null}">
     <div class="tab-pane" id="attender">
         <g:render template="attenders"
-                  model="${[bean: crmTask, count: attendersTotal, statusList: statusList]}"/>
+                  model="${[bean: crmTask, count: attendersTotal, statusList: statusList, status: params.status]}"/>
     </div>
 </g:if>
 
@@ -297,8 +297,18 @@
                 </li>
 
                 <g:each in="${attenderStatistics}" var="stat">
-                    <li>${stat[0]}: <strong>${stat[1]}</strong></li>
+                    <li class="${params.status == stat[0].name ? 'active' : ''}">
+                        <g:link action="show" params="${[id: crmTask.id, status: stat[0].name]}" fragment="attender">
+                            ${stat[0]}: <strong>${stat[1]}</strong>
+                        </g:link>
+                    </li>
                 </g:each>
+
+                <li class="${params.status ? '' : 'active'}">
+                    <g:link action="show" id="${crmTask.id}" fragment="attender">
+                        Totalt: ${attendersTotal}
+                    </g:link>
+                </li>
 
                 <li class="nav-header">
                     <i class="icon-thumbs-up"></i>

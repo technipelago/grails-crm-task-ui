@@ -48,9 +48,7 @@ class CrmTaskUiTagLib {
         List attenders = CrmTaskAttender.createCriteria().list() {
             projections {
                 property('id')
-                delegate.status {
-                    property('name')
-                }
+                property('status')
             }
             booking {
                 eq('task', crmTask)

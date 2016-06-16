@@ -116,12 +116,12 @@ class CrmTaskController {
                         result.file.delete()
                     }
                     return null // Success
-                } else if(result.redirect) {
-                    if(result.error) {
+                } else if (result.redirect) {
+                    if (result.error) {
                         flash.error = message(code: result.error)
-                    } else if(result.warning) {
+                    } else if (result.warning) {
                         flash.warning = message(code: result.warning)
-                    } else if(result.success || result.message) {
+                    } else if (result.success || result.message) {
                         flash.success = message(code: (result.success ?: result.message))
                     }
                     redirect result.redirect
@@ -319,7 +319,7 @@ class CrmTaskController {
 
         [crmTask       : crmTask, contact: crmTask.contact, statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId),
          attendersTotal: attenders, attenderStatistics: stats, recentBooked: recent, attenderSort: attenderSort,
-         selection: params.getSelectionURI(), registrationMapping: registrationMapping]
+         attenderStatus: params.status ?: '', selection: params.getSelectionURI(), registrationMapping: registrationMapping]
     }
 
     @Transactional
@@ -480,18 +480,26 @@ class CrmTaskController {
                     ilike('tmp.lastName', '%' + params.q + '%')
                 }
             }
+            if (params.status) {
+                status {
+                    or {
+                        eq('name', params.status)
+                        eq('param', params.status)
+                    }
+                }
+            }
         }
         int totalCount = result.totalCount
-        if(params.sort == 'booking.bookingRef') {
+        if (params.sort == 'booking.bookingRef') {
             result = CrmTaskUiUtils.sortByExternalId(result)
-            if(params.order == 'desc') {
+            if (params.order == 'desc') {
                 result.reverse()
             }
         }
 
         render template: 'attender_list',
-                model: [bean       : crmTask, list: result, totalCount: totalCount,
-                        statusList : CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId)]
+                model: [bean      : crmTask, list: result, totalCount: totalCount,
+                        statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId)]
     }
 
     @Transactional
