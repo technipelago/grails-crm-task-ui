@@ -116,7 +116,7 @@ class CrmTaskController {
                         result.file.delete()
                     }
                     return null // Success
-                } else if (result.redirect) {
+                } else if (result?.redirect) {
                     if (result.error) {
                         flash.error = message(code: result.error)
                     } else if (result.warning) {
