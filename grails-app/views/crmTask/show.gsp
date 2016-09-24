@@ -241,14 +241,6 @@
                                         </crm:user>
                                     </crm:hasPermission>
 
-                                    <crm:hasPlugin name="crm-tm-ui">
-                                        <li>
-                                            <g:link controller="crmCall" action="show" id="${crmTask.id}">
-                                                <g:message code="crmCall.show.label" default="Telemarketing"/>
-                                            </g:link>
-                                        </li>
-                                    </crm:hasPlugin>
-
                                     <li>
                                         <g:link controller="crmCalendar" action="index"
                                                 params="${[view: 'agendaDay', date: crmTask.date.format('yyyy-MM-dd')]}">
@@ -264,6 +256,8 @@
                                     </li>
                                 </ul>
                             </div>
+
+                            <crm:navButtons/>
 
                         </div>
 
