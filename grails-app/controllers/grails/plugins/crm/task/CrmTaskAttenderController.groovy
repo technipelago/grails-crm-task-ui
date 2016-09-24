@@ -54,6 +54,25 @@ class CrmTaskAttenderController {
             return
         }
 
+        switch(params.narrow) {
+            case 'task':
+                def attenders = crmTask.getAttenders()
+                if(attenders.size() == 1) {
+                    redirect controller: 'crmTask', action: 'show', id: crmTask.id
+                    return
+                }
+                break
+            case 'booking':
+                def attenders = crmTask.getAttenders()
+                if(attenders.size() == 1) {
+                    redirect controller: 'crmTaskBooking', action: 'show', id: crmTaskBooking.id
+                    return
+                }
+                break
+            default:
+                break
+        }
+
         [crmTaskAttender: crmTaskAttender, crmTaskBooking: crmTaskBooking, crmTask: crmTask,
          statusList     : CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId)]
     }

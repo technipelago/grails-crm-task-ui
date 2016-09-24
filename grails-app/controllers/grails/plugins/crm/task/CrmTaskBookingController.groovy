@@ -41,6 +41,26 @@ class CrmTaskBookingController {
             response.sendError(HttpServletResponse.SC_NOT_FOUND)
             return
         }
+
+        switch(params.narrow) {
+            case 'task':
+                def attenders = crmTask.getAttenders()
+                if(attenders.size() == 1) {
+                    redirect controller: 'crmTask', action: 'show', id: crmTask.id
+                    return
+                }
+                break
+            case 'attender':
+                def attenders = crmTask.getAttenders()
+                if(attenders.size() == 1) {
+                    redirect controller: 'crmTaskAttender', action: 'show', id: attenders.find{it}.id
+                    return
+                }
+                break
+            default:
+                break
+        }
+
         // TODO make it possible to customize the sort algorithm.
         def attenders = CrmTaskUiUtils.sortByExternalId(booking.attenders)
         def metadata = [statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId)]

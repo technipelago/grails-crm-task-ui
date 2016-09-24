@@ -288,12 +288,31 @@ class CrmTaskController {
             return
         }
 
-        def attenders
+        switch(params.narrow) {
+            case 'booking':
+                def attenders = crmTask.getAttenders()
+                if(attenders.size() == 1) {
+                    redirect controller: 'crmTaskBooking', action: 'show', id: attenders.find{it}.id
+                    return
+                }
+                break
+            case 'attender':
+                def attenders = crmTask.getAttenders()
+                if(attenders.size() == 1) {
+                    redirect controller: 'crmTaskAttender', action: 'show', id: attenders.find{it}.id
+                    return
+                }
+                break
+            default:
+                break
+        }
+
+        def attenderCount
         def recent
         def stats
 
         if (grailsApplication.config.crm.task.attenders.enabled) {
-            attenders = CrmTaskAttender.createCriteria().count() {
+            attenderCount = CrmTaskAttender.createCriteria().count() {
                 booking {
                     eq('task', crmTask)
                 }
@@ -318,7 +337,7 @@ class CrmTaskController {
         String registrationMapping = grailsApplication.config.crm.task.registration.mapping ?: null
 
         [crmTask       : crmTask, contact: crmTask.contact, statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId),
-         attendersTotal: attenders, attenderStatistics: stats, recentBooked: recent, attenderSort: attenderSort,
+         attendersTotal: attenderCount, attenderStatistics: stats, recentBooked: recent, attenderSort: attenderSort,
          attenderStatus: params.status ?: '', attenderTag: params.tag ?: '',
          selection: params.getSelectionURI(), registrationMapping: registrationMapping]
     }
