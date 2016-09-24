@@ -29,7 +29,7 @@ tr.crm-status-absent td {
         <g:set var="crmTask" value="${crmTaskBooking.task}"/>
         <tr class="crm-status-${a.status.param}">
             <td>
-                <g:link controller="crmTaskAttender" action="show" id="${a.id}">
+                <g:link controller="crmTaskAttender" action="show" params="${[id: a.id, narrow: 'task']}">
                     <g:formatDate type="date" date="${crmTask.startTime}"/>
                 </g:link>
             </td>
