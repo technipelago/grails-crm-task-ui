@@ -65,21 +65,33 @@
 
 <crm:paginate total="${crmTaskTotal}"/>
 
-<div class="form-actions btn-toolbar">
-    <crm:selectionMenu visual="primary"/>
+<g:form>
 
-    <g:if test="${crmTaskTotal}">
-        <select:link action="export" accesskey="p" selection="${selection}" class="btn btn-info">
-            <i class="icon-print icon-white"></i>
-            <g:message code="crmTask.button.export.label" default="Print/Export"/>
-        </select:link>
-    </g:if>
+    <div class="form-actions btn-toolbar">
+        <input type="hidden" name="offset" value="${params.offset ?: ''}"/>
+        <input type="hidden" name="max" value="${params.max ?: ''}"/>
+        <input type="hidden" name="sort" value="${params.sort ?: ''}"/>
+        <input type="hidden" name="order" value="${params.order ?: ''}"/>
 
-    <div class="btn-group">
-        <crm:button type="link" action="create" visual="success" icon="icon-file icon-white"
-                    label="crmTask.button.create.label" permission="crmTask:create"/>
+        <g:each in="${selection.selectionMap}" var="entry">
+            <input type="hidden" name="${entry.key}" value="${entry.value}"/>
+        </g:each>
+
+        <crm:selectionMenu visual="primary"/>
+
+        <g:if test="${crmTaskTotal}">
+            <select:link action="export" accesskey="p" selection="${selection}" class="btn btn-info">
+                <i class="icon-print icon-white"></i>
+                <g:message code="crmTask.button.export.label" default="Print/Export"/>
+            </select:link>
+        </g:if>
+
+        <div class="btn-group">
+            <crm:button type="link" action="create" visual="success" icon="icon-file icon-white"
+                        label="crmTask.button.create.label" permission="crmTask:create"/>
+        </div>
     </div>
-</div>
+</g:form>
 
 </body>
 </html>
