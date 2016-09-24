@@ -95,7 +95,16 @@
 
                             <g:if test="${contact.companyName}">
                                 <dt><g:message code="crmTaskAttender.company.label"/></dt>
-                                <dd>${contact.companyName}</dd>
+                                <dd>
+                                    <g:if test="${contact.companyId}">
+                                        <g:link mapping="crm-contact-show" id="${contact.companyId}">
+                                            ${contact.companyName}
+                                        </g:link>
+                                    </g:if>
+                                    <g:else>
+                                        ${contact.companyName}
+                                    </g:else>
+                                </dd>
                             </g:if>
 
                             <dt><g:message code="crmTaskAttender.person.label"/></dt>
