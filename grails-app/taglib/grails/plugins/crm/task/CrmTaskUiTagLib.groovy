@@ -28,6 +28,7 @@ class CrmTaskUiTagLib {
     /**
      * Aggregate attender statistics for an event (CrmTask).
      * @attr bean a CrmTask instance to collect statistics for
+     * @attr status only include tags for attenders with this status (parameter).
      * @return the tag body is invoked with a Map with two keys 'status' and 'tags' that contain attender metrics.
      */
     def attenderStatistics = { attrs, body ->
@@ -35,15 +36,6 @@ class CrmTaskUiTagLib {
         if (!crmTask) {
             throwTagError("Tag [attenderStatistics] is missing required attribute [bean]")
         }
-        /*def status = CrmTaskAttender.createCriteria().list() {
-            projections {
-                groupProperty('status')
-                rowCount()
-            }
-            booking {
-                eq('task', crmTask)
-            }
-        }*/
         Map status = [:]
         List attenders = CrmTaskAttender.createCriteria().list() {
             projections {
@@ -54,19 +46,22 @@ class CrmTaskUiTagLib {
                 eq('task', crmTask)
             }
         }
+        def statusFilter = attrs.status ? {it.param == attrs.status} : {true}
         Map tags = [:]
         for (a in attenders) {
             status.put(a[1], status.get(a[1], 0) + 1)
-            for (t in CrmTagLink.createCriteria().list() {
-                projections {
-                    property('value')
+            if(statusFilter(a[1])) {
+                for (t in CrmTagLink.createCriteria().list() {
+                    projections {
+                        property('value')
+                    }
+                    tag {
+                        eq('name', CrmTaskAttender.name)
+                    }
+                    eq('ref', 'crmTaskAttender@' + a[0])
+                }) {
+                    tags.put(t, tags.get(t, 0) + 1)
                 }
-                tag {
-                    eq('name', CrmTaskAttender.name)
-                }
-                eq('ref', 'crmTaskAttender@' + a[0])
-            }) {
-                tags.put(t, tags.get(t, 0) + 1)
             }
         }
         out << body([status: status, tags: tags, count: attenders.size()])
