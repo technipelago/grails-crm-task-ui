@@ -18,13 +18,16 @@
         <crm:sortableColumn property="startTime"
                             title="${message(code: 'crmTask.startTime.label', default: 'Starts')}"/>
 
+        <th><g:message code="crmTask.reference.label" default="Reference"/></th>
+
         <crm:sortableColumn property="name"
                             title="${message(code: 'crmTask.name.label', default: 'Name')}"/>
-        <crm:sortableColumn property="location"
-                            title="${message(code: 'crmTask.location.label', default: 'Location')}"/>
 
         <crm:sortableColumn property="type.orderIndex"
                             title="${message(code: 'crmTask.type.label', default: 'Type')}"/>
+
+        <crm:sortableColumn property="username"
+                            title="${message(code: 'crmTask.username.label', default: 'User')}"/>
 
         <crm:sortableColumn property="complete"
                             title="${message(code: 'crmTask.complete.label', default: 'Status')}"/>
@@ -33,19 +36,39 @@
     </thead>
     <tbody>
     <g:each in="${crmTaskList}" var="crmTask">
+        <g:set var="reference" value="${crmTask.reference}"/>
+        <g:set var="contact" value="${crmTask.contact}"/>
+
         <tr>
             <td class="nowrap">
                 <g:link action="show" id="${crmTask.id}">
                     <g:formatDate type="date" date="${crmTask.startTime}"/>
                 </g:link>
             </td>
+
+            <td>
+                <g:if test="${contact}">
+                    <g:link action="show" id="${crmTask.id}">${contact.fullName}</g:link>
+                </g:if>
+                <g:elseif test="${reference}">
+                    <g:link action="show" id="${crmTask.id}">${reference}</g:link>
+                </g:elseif>
+            </td>
+
             <td>
                 <g:link action="show" id="${crmTask.id}">
                     ${fieldValue(bean: crmTask, field: "name")}
                 </g:link>
             </td>
-            <td>${fieldValue(bean: crmTask, field: "location")}</td>
+
             <td>${fieldValue(bean: crmTask, field: "type")}</td>
+
+            <td>
+                <crm:user username="${crmTask.username}" nouser="${crmTask.username}">
+                    ${name}
+                </crm:user>
+            </td>
+
             <td>${message(code: 'crmTask.complete.' + crmTask.complete + '.label', default: crmTask.complete.toString())}</td>
             <td style="width:36px;">
                 <g:if test="${crmTask.alarms > 0}">
