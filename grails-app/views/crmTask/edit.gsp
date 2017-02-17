@@ -48,6 +48,15 @@
         });
         <% } %>
 
+        $('#alarmDate').closest('.date').datepicker({
+            format: "${metadata.dateFormat.toPattern().toLowerCase()}",
+            weekStart: <%= DateUtils.getFirstDayOfWeek(locale, user.timezone) - 1 %>,
+            language: "${locale.getLanguage()}",
+            calendarWeeks: ${grailsApplication.config.crm.datepicker.calendarWeeks ?: false},
+            todayHighlight: true,
+            autoclose: true
+        });
+
         $('select[name="alarmType"]').change(function(ev) {
             if($(this).val() == '0') {
                 $("#alarmOffset").hide();
@@ -237,23 +246,40 @@
                 </div>
 
                 <div class="span6">
-                    <f:field property="number" input-class="span5"/>
-                    <%--
-                    <f:field property="isRecurring">
-                        <div class="inline input-append">
-                            <g:textField name="dummy" class="span9" readonly=""
-                                         title="Repeterande uppgifter är under utveckling och blir tillgänglig i en framtida version"
-                                         value="${crmTask.isRecurring ? 'Repeats every ' + crmTask.recurInterval : 'Ingen repetition'}"/><span
-                                class="add-on"><i class="icon-repeat"></i></span>
+                    <div class="row-fluid">
+                        <div class="span3">
+                            <div class="row-fluid">
+                                <f:field property="number" input-class="span12"/>
+                            </div>
                         </div>
-                    </f:field>
-                    --%>
+                        <div class="span9">
+                            <g:if test="${grailsApplication.config.crm.task.attenders.enabled && !crmTask.alarmType}">
+                                <div class="row-fluid">
+                                    <div class="control-group">
+                                        <label class="control-label"><g:message code="crmTask.alarmTime.label"/></label>
+
+                                        <div class="controls">
+                                            <span class="input-append date">
+                                                <g:textField name="alarmDate" class="span9" size="12" maxlength="10"
+                                                             value="${formatDate(type: 'date', date: crmTask.alarmTime)}"/><span
+                                                    class="add-on"><i class="icon-th"></i></span>
+                                            </span>
+
+                                            <g:select name="alarmTime" from="${metadata.timeList}"
+                                                      value="${formatDate(format: 'HH:mm', date: crmTask.alarmTime)}"
+                                                      class="span3"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </g:if>
+                        </div>
+                    </div>
 
                     <div class="control-group">
                         <label class="control-label"><g:message code="crmAddress.address1.label"/></label>
 
                         <div class="controls">
-                            <g:textField name="address.address1" value="${crmTask.address?.address1}" class="span8"/>
+                            <g:textField name="address.address1" value="${crmTask.address?.address1}" class="span10"/>
                         </div>
                     </div>
 
@@ -261,7 +287,7 @@
                         <label class="control-label"><g:message code="crmAddress.address2.label"/></label>
 
                         <div class="controls">
-                            <g:textField name="address.address2" value="${crmTask.address?.address2}" class="span8"/>
+                            <g:textField name="address.address2" value="${crmTask.address?.address2}" class="span10"/>
                         </div>
                     </div>
 
@@ -269,7 +295,7 @@
                         <label class="control-label"><g:message code="crmAddress.address3.label"/></label>
 
                         <div class="controls">
-                            <g:textField name="address.address3" value="${crmTask.address?.address3}" class="span8"/>
+                            <g:textField name="address.address3" value="${crmTask.address?.address3}" class="span10"/>
                         </div>
                     </div>
 
@@ -279,7 +305,7 @@
                         <div class="controls">
                             <g:textField name="address.postalCode" value="${crmTask.address?.postalCode}"
                                          class="span3"/>
-                            <g:textField name="address.city" value="${crmTask.address?.city}" class="span5"/>
+                            <g:textField name="address.city" value="${crmTask.address?.city}" class="span7"/>
                         </div>
                     </div>
 

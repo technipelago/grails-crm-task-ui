@@ -156,8 +156,10 @@ class CrmTaskController {
     def create() {
         def startDate = params.remove('startDate') ?: formatDate(type: 'date', date: new Date() + 1)
         def endDate = params.remove('endDate') ?: startDate
+        def alarmDate = params.remove('alarmDate') ?: startDate
         def startTime = params.remove('startTime') ?: '09:00'
         def endTime = params.remove('endTime') ?: '10:00'
+        def alarmTime = params.remove('alarmTime') ?: '08:00'
         def user = crmSecurityService.getUserInfo(params.username)
         if (!params.username) {
             params.username = user?.username
@@ -191,6 +193,12 @@ class CrmTaskController {
                 timeList << hm
             }
         }
+        if (crmTask.alarmTime) {
+            def hm = crmTask.alarmTime.format("HH:mm")
+            if (!timeList.contains(hm)) {
+                timeList << hm
+            }
+        }
         timeList = timeList.sort()
 
         def metadata = [:]
@@ -219,6 +227,7 @@ class CrmTaskController {
                     setReference(crmTask, params.ref)
                     bindDate(crmTask, 'startTime', startDate + startTime, user?.timezone)
                     bindDate(crmTask, 'endTime', endDate + endTime, user?.timezone)
+                    bindDate(crmTask, 'alarmTime', alarmDate + alarmTime, user?.timezone)
 
                     if (!crmTask.save()) {
                         render view: 'create', model: [crmTask: crmTask, user: user, referer: params.referer, metadata: metadata]
@@ -374,6 +383,12 @@ class CrmTaskController {
                 timeList << hm
             }
         }
+        if (crmTask.alarmTime) {
+            def hm = crmTask.alarmTime.format("HH:mm")
+            if (!timeList.contains(hm)) {
+                timeList << hm
+            }
+        }
         timeList = timeList.sort()
 
         def metadata = [:]
@@ -391,14 +406,17 @@ class CrmTaskController {
                 return [crmTask: crmTask, user: user, referer: params.referer, metadata: metadata]
             case 'POST':
                 try {
-                    DataBindingUtils.bindObjectToInstance(crmTask, params, CrmTask.BIND_WHITELIST, ['startTime', 'endTime'], null)
+                    DataBindingUtils.bindObjectToInstance(crmTask, params, CrmTask.BIND_WHITELIST, ['startTime', 'endTime', 'alarmTime'], null)
 
                     def startDate = params.startDate ?: (new Date() + 1).format("yyyy-MM-dd")
                     def endDate = params.endDate ?: startDate
+                    def alarmDate = params.alarmDate ?: startDate
                     def startTime = params.startTime ?: '09:00'
                     def endTime = params.endTime ?: '10:00'
+                    def alarmTime = params.alarmTime ?: '08:00'
                     bindDate(crmTask, 'startTime', startDate + startTime, user?.timezone)
                     bindDate(crmTask, 'endTime', endDate + endTime, user?.timezone)
+                    bindDate(crmTask, 'alarmTime', alarmDate + alarmTime, user?.timezone)
 
                     if (!crmTask.save()) {
                         render view: 'edit', model: [crmTask: crmTask, user: user, referer: params.referer, metadata: metadata]
