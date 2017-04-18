@@ -47,6 +47,14 @@ class CrmTaskUiTagLib {
             }
         }
         def statusFilter = attrs.status ? {it.param == attrs.status} : {true}
+        def valueFilter
+        if(attrs.tags) {
+            if(attrs.tags instanceof Collection) {
+                valueFilter = attrs.tags
+            } else {
+                valueFilter = attrs.tags.toString().split(',').toList()
+            }
+        }
         Map tags = [:]
         for (a in attenders) {
             status.put(a[1], status.get(a[1], 0) + 1)
@@ -57,6 +65,9 @@ class CrmTaskUiTagLib {
                     }
                     tag {
                         eq('name', CrmTaskAttender.name)
+                    }
+                    if(valueFilter) {
+                        inList('value', valueFilter)
                     }
                     eq('ref', 'crmTaskAttender@' + a[0])
                 }) {

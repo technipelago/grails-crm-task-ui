@@ -348,7 +348,8 @@ class CrmTaskController {
         [crmTask       : crmTask, contact: crmTask.contact, statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId),
          attendersTotal: attenderCount, attenderStatistics: stats, recentBooked: recent, attenderSort: attenderSort,
          attenderStatus: params.status ?: '', attenderTag: params.tag ?: '',
-         selection: params.getSelectionURI(), registrationMapping: registrationMapping]
+         selection: params.getSelectionURI(), registrationMapping: registrationMapping,
+         attenderTags: (grailsApplication.config.crm.task.attenders.statistics.tags ?: null)]
     }
 
     @Transactional

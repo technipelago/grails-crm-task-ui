@@ -65,7 +65,7 @@
                                             <dd>
                                                 <g:if test="${registrationMapping}">
                                                     <g:link mapping="${registrationMapping}"
-                                                            params="${[number: crmTask.number]}">
+                                                            params="${[tenant: crmTask.tenantId, id: crmTask.id, number: crmTask.number]}">
                                                         <g:fieldValue bean="${crmTask}" field="number"/>
                                                     </g:link>
                                                 </g:if>
@@ -300,7 +300,7 @@
                         <g:message code="crmTaskAttender.statistics.title" default="Statistics"/>
                     </li>
 
-                    <crm:attenderStatistics bean="${crmTask}">
+                    <crm:attenderStatistics bean="${crmTask}" tags="${attenderTags}">
                         <g:each in="${status.keySet().sort { it.name }}" var="key">
                             <li class="${params.status == key.name ? 'active' : ''}">
                                 <g:link action="show" fragment="attender"
@@ -311,16 +311,18 @@
                                 </g:link>
                             </li>
                         </g:each>
-                        <g:if test="${params.tag}">
-                            <li class="active">
-                                <g:link action="show" fragment="attender"
-                                        params="${[id: crmTask.id, tag: params.tag]}">
-                                    <i class="icon-tag"></i>
-                                    <g:message code="crmTaskAttender.statistics.label" default="{0}: {1}"
-                                               args="${[params.tag, tags[params.tag]]}"/>
-                                </g:link>
-                            </li>
-                        </g:if>
+                        <g:each in="${attenderTags}" var="t">
+                            <g:if test="${tags[t] != null}">
+                                <li class="${params.tag == t ? 'active' : ''}">
+                                    <g:link action="show" fragment="attender"
+                                            params="${[id: crmTask.id, tag: t]}">
+                                        <i class="icon-tag"></i>
+                                        <g:message code="crmTaskAttender.statistics.label" default="{0}: {1}"
+                                                   args="${[t, tags[t]]}"/>
+                                    </g:link>
+                                </li>
+                            </g:if>
+                        </g:each>
                         <li class="${params.status ? '' : (params.tag ? '' : 'active')}">
                             <g:link action="show" id="${crmTask.id}" fragment="attender">
                                 <i class="icon-user"></i>
