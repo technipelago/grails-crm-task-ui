@@ -26,11 +26,24 @@ final class CrmTaskUiUtils {
     private CrmTaskUiUtils() {
     }
 
-    private static final Comparator<CrmTaskAttender> ATTENDER_COMPARATOR = new Comparator<CrmTaskAttender>() {
+    private static final Comparator<CrmTaskAttender> ATTENDER_STATUS_COMPARATOR = new Comparator<CrmTaskAttender>() {
+        @Override
+        int compare(CrmTaskAttender o1, CrmTaskAttender o2) {
+            int param1 = o1.status?.orderIndex ?: 0
+            int param2 = o2.status?.orderIndex ?: 0
+            int i = param1.compareTo(param2)
+            if (i != 0) {
+                return i
+            }
+            ATTENDER_NAME_COMPARATOR.compare(o1, o2)
+        }
+    }
+
+    private static final Comparator<CrmTaskAttender> ATTENDER_NAME_COMPARATOR = new Comparator<CrmTaskAttender>() {
         @Override
         int compare(CrmTaskAttender o1, CrmTaskAttender o2) {
             if (o1.booking.bookingRef != null) {
-                if(o2.booking?.bookingRef) {
+                if (o2.booking?.bookingRef) {
                     int i = o1.booking.bookingRef.compareTo(o2.booking.bookingRef)
                     if (i != 0) {
                         return i
@@ -40,7 +53,7 @@ final class CrmTaskUiUtils {
                 }
             }
             if (o1.externalRef != null) {
-                if(o2.externalRef != null) {
+                if (o2.externalRef != null) {
                     int i = o1.externalRef.compareTo(o2.externalRef)
                     if (i != 0) {
                         return i
@@ -52,7 +65,7 @@ final class CrmTaskUiUtils {
             CrmContactInformation contact1 = o1.contactInformation
             CrmContactInformation contact2 = o2.contactInformation
             if (contact1.lastName != null) {
-                if(contact2?.lastName) {
+                if (contact2?.lastName) {
                     int i = contact1.lastName.compareTo(contact2.lastName)
                     if (i != 0) {
                         return i
@@ -62,7 +75,7 @@ final class CrmTaskUiUtils {
                 }
             }
             if (contact1.firstName != null) {
-                if(contact2?.firstName) {
+                if (contact2?.firstName) {
                     int i = contact1.firstName.compareTo(contact2.firstName)
                     if (i != 0) {
                         return i
@@ -75,7 +88,11 @@ final class CrmTaskUiUtils {
         }
     }
 
+    public static List<CrmTaskAttender> sortByStatus(Collection<CrmTaskAttender> list) {
+        list.sort(false, ATTENDER_STATUS_COMPARATOR)
+    }
+
     public static List<CrmTaskAttender> sortByExternalId(Collection<CrmTaskAttender> list) {
-        list.sort(false, ATTENDER_COMPARATOR)
+        list.sort(false, ATTENDER_NAME_COMPARATOR)
     }
 }

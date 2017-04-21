@@ -16,16 +16,18 @@
 
 package grails.plugins.crm.task
 
+import grails.converters.JSON
 import grails.plugins.crm.contact.CrmContact
 import grails.plugins.crm.core.DateUtils
+import grails.plugins.crm.core.SearchUtils
 import grails.plugins.crm.core.TenantUtils
+import grails.plugins.crm.core.WebUtils
+import grails.plugins.crm.tags.CrmTagLink
 import grails.transaction.Transactional
+import org.apache.commons.lang.StringUtils
 import org.codehaus.groovy.grails.web.binding.DataBindingUtils
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
 import org.springframework.dao.DataIntegrityViolationException
-import grails.converters.JSON
-import grails.plugins.crm.core.WebUtils
-import grails.plugins.crm.core.SearchUtils
 import org.springframework.web.servlet.support.RequestContextUtils
 
 import javax.servlet.http.HttpServletResponse
@@ -297,18 +299,18 @@ class CrmTaskController {
             return
         }
 
-        switch(params.narrow) {
+        switch (params.narrow) {
             case 'booking':
                 def attenders = crmTask.getAttenders()
-                if(attenders.size() == 1) {
-                    redirect controller: 'crmTaskBooking', action: 'show', id: attenders.find{it}.id
+                if (attenders.size() == 1) {
+                    redirect controller: 'crmTaskBooking', action: 'show', id: attenders.find { it }.id
                     return
                 }
                 break
             case 'attender':
                 def attenders = crmTask.getAttenders()
-                if(attenders.size() == 1) {
-                    redirect controller: 'crmTaskAttender', action: 'show', id: attenders.find{it}.id
+                if (attenders.size() == 1) {
+                    redirect controller: 'crmTaskAttender', action: 'show', id: attenders.find { it }.id
                     return
                 }
                 break
@@ -348,8 +350,8 @@ class CrmTaskController {
         [crmTask       : crmTask, contact: crmTask.contact, statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId),
          attendersTotal: attenderCount, attenderStatistics: stats, recentBooked: recent, attenderSort: attenderSort,
          attenderStatus: params.status ?: '', attenderTag: params.tag ?: '',
-         selection: params.getSelectionURI(), registrationMapping: registrationMapping,
-         attenderTags: (grailsApplication.config.crm.task.attenders.statistics.tags ?: null)]
+         selection     : params.getSelectionURI(), registrationMapping: registrationMapping,
+         attenderTags  : (grailsApplication.config.crm.task.attenders.statistics.tags ?: null)]
     }
 
     @Transactional
@@ -504,12 +506,26 @@ class CrmTaskController {
     }
 
     def attenders(Long id) {
+        def tenant = TenantUtils.tenant
         final CrmTask crmTask = CrmTask.get(id)
-        if (crmTask?.tenantId != TenantUtils.tenant) {
+        if (crmTask?.tenantId != tenant) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND)
             return
         }
-        List<CrmTaskAttender> result = CrmTaskAttender.createCriteria().list(params) {
+
+        String sort = params.remove('sort') ?: 'status.orderIndex'
+        String order = params.remove('order') ?: 'asc'
+        int offset = Math.max(params.int('offset') ?: 0, 0)
+        int max = Math.min(params.int('max') ?: 25, 100)
+        params.remove('offset')
+        params.remove('max')
+
+        def bag = [] as Set
+
+        List<Long> result = CrmTaskAttender.createCriteria().list() {
+            projections {
+                property('id')
+            }
             booking {
                 eq('task', crmTask)
             }
@@ -528,19 +544,20 @@ class CrmTaskController {
                 }
             }
         }
-        final String tag = params.tag
-        if(tag) {
-            def tagged = result.findAll{it.isTagged(tag)}.collect{it.id}
-            result = CrmTaskAttender.createCriteria().list(params) {
-                inList('id', tagged) // <- Now execute the same query again but this time filtered by tags.
+        if (result) {
+            bag.addAll(result)
+        }
+
+        if (params.q) {
+            result = CrmTaskAttender.createCriteria().list() {
+                projections {
+                    property('id')
+                }
                 booking {
                     eq('task', crmTask)
                 }
-                if (params.q) {
-                    or {
-                        ilike('tmp.firstName', '%' + params.q + '%')
-                        ilike('tmp.lastName', '%' + params.q + '%')
-                    }
+                contact {
+                    ilike('name', '%' + params.q + '%')
                 }
                 if (params.status) {
                     status {
@@ -551,17 +568,54 @@ class CrmTaskController {
                     }
                 }
             }
-        }
-        int totalCount = result.totalCount
-        if (params.sort == 'booking.bookingRef') {
-            result = CrmTaskUiUtils.sortByExternalId(result)
-            if (params.order == 'desc') {
-                result.reverse()
+            if (result) {
+                bag.addAll(result)
             }
         }
 
+        def tagValue = params.tag
+        if (tagValue) {
+            result = CrmTagLink.createCriteria().list() {
+                projections {
+                    property('ref')
+                }
+                tag {
+                    eq('tenantId', tenant)
+                    eq('name', CrmTaskAttender.class.name)
+                }
+                eq('value', tagValue)
+            }.collect { StringUtils.substringAfter(it, '@') }.collect { Long.valueOf(it) }
+            bag.retainAll(result)
+        }
+
+        List<CrmTaskAttender> finalResult = CrmTaskAttender.createCriteria().list() {
+            inList('id', bag)
+        }
+        if (sort == 'booking.bookingRef') {
+            finalResult = CrmTaskUiUtils.sortByExternalId(finalResult)
+            if (order == 'desc') {
+                finalResult.reverse()
+            }
+        } else if (sort == 'status.orderIndex') {
+            finalResult = CrmTaskUiUtils.sortByStatus(finalResult)
+            if (order == 'desc') {
+                finalResult.reverse()
+            }
+        }
+        int totalCount = finalResult.size()
+        if (finalResult) {
+            if (totalCount < max) {
+                offset = 0
+            }
+            int end = offset + max
+            if (end > totalCount) {
+                end = totalCount
+            }
+
+            finalResult = finalResult[(offset)..(end - 1)]
+        }
         render template: 'attender_list',
-                model: [bean      : crmTask, list: result, totalCount: totalCount,
+                model: [bean      : crmTask, list: finalResult, totalCount: totalCount,
                         statusList: CrmTaskAttenderStatus.findAllByTenantId(crmTask.tenantId)]
     }
 
