@@ -589,7 +589,7 @@ class CrmTaskController {
         }
 
         List<CrmTaskAttender> finalResult = CrmTaskAttender.createCriteria().list() {
-            inList('id', bag)
+            inList('id', bag ?: [0L])
         }
         if (sort == 'booking.bookingRef') {
             finalResult = CrmTaskUiUtils.sortByExternalId(finalResult)
