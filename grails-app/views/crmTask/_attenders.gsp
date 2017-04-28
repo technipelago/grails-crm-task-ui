@@ -248,23 +248,23 @@ tr.crm-attender i:last-child {
             </crm:hasPermission>
 
             <g:if test="${count}">
-                <div class="btn-group">
-                    <button class="btn btn-warning dropdown-toggle" data-toggle="dropdown"
-                            title="${message(code: 'crmTaskAttender.button.bulkchange.help')}">
-                        <g:message code="crmTaskAttender.button.bulkchange.label" default="Change Selected"/>
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <crm:hasPermission permission="crmTask:edit">
-                            <g:each in="${statusList}" var="status">
-                                <li>
-                                    <a href="javascript:void(0)"
-                                       onclick="ATTENDERS.update('status', ${status.id})">${status.encodeAsHTML()}</a>
-                                </li>
-                            </g:each>
-                        </crm:hasPermission>
-                    </ul>
-                </div>
+                <crm:hasPermission permission="crmTask:edit">
+                    <div class="btn-group">
+                        <button class="btn btn-warning dropdown-toggle" data-toggle="dropdown"
+                                title="${message(code: 'crmTaskAttender.button.bulkchange.help')}">
+                            <g:message code="crmTaskAttender.button.bulkchange.label" default="Change Selected"/>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                                <g:each in="${statusList}" var="status">
+                                    <li>
+                                        <a href="javascript:void(0)"
+                                           onclick="ATTENDERS.update('status', ${status.id})">${status.encodeAsHTML()}</a>
+                                    </li>
+                                </g:each>
+                        </ul>
+                    </div>
+                </crm:hasPermission>
 
                 <div class="btn-group">
                     <select:link action="export" params="${[ns: 'crmTaskAttender']}" class="btn btn-info"
