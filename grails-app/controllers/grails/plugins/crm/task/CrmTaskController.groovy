@@ -328,10 +328,15 @@ class CrmTaskController {
                     eq('task', crmTask)
                 }
             }
-            recent = CrmTaskAttender.createCriteria().list([max: 5, sort: 'bookingDate', order: 'desc']) {
+            recent = CrmTaskAttender.createCriteria().list() {
                 booking {
                     eq('task', crmTask)
+                    order 'bookingDate', 'desc'
                 }
+                status {
+                    ne('param', 'created')
+                }
+                maxResults 5
             }
             stats = CrmTaskAttender.createCriteria().list() {
                 projections {
