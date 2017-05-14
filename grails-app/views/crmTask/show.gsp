@@ -15,6 +15,10 @@
 
 <body>
 
+<%
+    Closure dateFunction = grailsApplication.config.crm.task.attenders.statistic.date ?: { a -> a.bookingDate }
+%>
+
 <crm:hasPermission permission="crmTask:edit">
     <g:set var="editPermission" value="${true}"/>
 </crm:hasPermission>
@@ -340,7 +344,7 @@
                         <li>
                             <g:link controller="crmTaskAttender" action="show" id="${a.id}">
                                 <i class="${a.status.icon ?: 'icon-check'}"></i>
-                                <g:formatDate format="d MMM" date="${a.bookingDate}"/>
+                                <g:formatDate format="d MMM" date="${dateFunction(a)}"/>
                                 ${a.encodeAsHTML()}
                             </g:link>
                         </li>
