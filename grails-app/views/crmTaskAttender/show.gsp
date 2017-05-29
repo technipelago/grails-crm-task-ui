@@ -63,6 +63,18 @@
             </crm:user>
         </header>
 
+        <div class="tabbable">
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="#main" data-toggle="tab"><g:message code="crmTaskAttender.tab.main.label"/></a>
+                </li>
+                <crm:pluginViews location="tabs" var="view">
+                    <crm:pluginTab id="${view.id}" label="${view.label}" count="${view.model?.totalCount}"/>
+                </crm:pluginViews>
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane active" id="main">
+
         <g:form mapping="crm-contact-duplicates">
 
             <input type="hidden" name="referer" value="${request.forwardURI}"/>
@@ -240,6 +252,17 @@
             </div>
 
         </g:form>
+
+        </div>
+
+        <crm:pluginViews location="tabs" var="view">
+            <div class="tab-pane tab-${view.id}" id="${view.id}">
+                <g:render template="${view.template}" model="${view.model}" plugin="${view.plugin}"/>
+            </div>
+        </crm:pluginViews>
+
+        </div>
+        </div>
     </div>
 
     <div class="span3">
