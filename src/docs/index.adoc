@@ -96,6 +96,7 @@ image::calendar-month.png[Month Calendar, role="thumb"]
 
 == Changes
 
+2.4.4:: Several small improvements to attender management
 2.4.3:: Attender contact information can now be easily replaced with an existing contact (requires crm-contact-ui 2.4.3)
 2.4.2:: Much improved attender management! Leverages refactored domain hierarchy in crm-core version 2.4.2
 2.4.1:: Tagging support for task attenders and fixed compatibility issue with crm-notes plugin
