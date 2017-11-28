@@ -72,9 +72,14 @@
                     $("input[name='contactId']").val('');
                     $("input[name='firstName']").val('');
                     $("input[name='lastName']").val('');
-                    $("input[name='address']").val(item.data[5]);
-                    $("input[name='telephone']").val(item.data[6]);
-                    $("input[name='email']").val(item.data[7]);
+                    $("input[name='telephone']").val(item.data[5]);
+                    $("input[name='email']").val(item.data[6]);
+                    $("input[name='address1']").val(item.data[7]);
+                    $("input[name='address2']").val(item.data[8]);
+                    $("input[name='address3']").val(item.data[9]);
+                    $("input[name='postalCode']").val(item.data[10]);
+                    $("input[name='city']").val(item.data[11]);
+                    $("input[name='country']").val(item.data[12]);
                     setCompanyIndicator('');
                 },
                 onNoMatch: function() {
@@ -108,9 +113,14 @@
                     $("input[name='companyName']").val(item.data[2]);
                     $("input[name='firstName']").val(item.data[3]);
                     $("input[name='lastName']").val(item.data[4]);
-                    $("input[name='address']").val(item.data[5]);
-                    $("input[name='telephone']").val(item.data[6]);
-                    $("input[name='email']").val(item.data[7]);
+                    $("input[name='telephone']").val(item.data[5]);
+                    $("input[name='email']").val(item.data[6]);
+                    $("input[name='address1']").val(item.data[7]);
+                    $("input[name='address2']").val(item.data[8]);
+                    $("input[name='address3']").val(item.data[9]);
+                    $("input[name='postalCode']").val(item.data[10]);
+                    $("input[name='city']").val(item.data[11]);
+                    $("input[name='country']").val(item.data[12]);
                     setPersonIndicator('');
                 },
                 onNoMatch: function() {
@@ -134,9 +144,14 @@
                     $("input[name='companyName']").val(item.data[2]);
                     $("input[name='firstName']").val(item.data[3]);
                     $("input[name='lastName']").val(item.data[4]);
-                    $("input[name='address']").val(item.data[5]);
-                    $("input[name='telephone']").val(item.data[6]);
-                    $("input[name='email']").val(item.data[7]);
+                    $("input[name='telephone']").val(item.data[5]);
+                    $("input[name='email']").val(item.data[6]);
+                    $("input[name='address1']").val(item.data[7]);
+                    $("input[name='address2']").val(item.data[8]);
+                    $("input[name='address3']").val(item.data[9]);
+                    $("input[name='postalCode']").val(item.data[10]);
+                    $("input[name='city']").val(item.data[11]);
+                    $("input[name='country']").val(item.data[12]);
                     setPersonIndicator('');
                 },
                 onNoMatch: function() {

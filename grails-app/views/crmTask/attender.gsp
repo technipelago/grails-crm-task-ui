@@ -28,7 +28,7 @@
 
                     <div class="controls">
                         <g:textField name="companyName" value="${contact.companyName}" class="span11"
-                                     placeholder="${message(code: 'crmTaskAttender.company.help')}" autocomplete="off"/>
+                                     placeholder="${message(code: 'crmTaskAttender.company.help')}" autocomplete="off" autocorrect="off" spellcheck="false"/>
                         <input type="hidden" name="companyId" value="${contact?.companyId}"/>
                     </div>
                 </div>
@@ -37,8 +37,8 @@
                     <label id="crm-person-label" class="control-label"><g:message code="crmTaskAttender.person.label" /><span></span></label>
 
                     <div class="controls">
-                        <g:textField name="firstName" value="${contact.firstName}" class="span5" placeholder="${message(code: 'crmContact.firstName.help')}"/>
-                        <g:textField name="lastName" value="${contact.lastName}" class="span6" placeholder="${message(code: 'crmContact.lastName.help')}"/>
+                        <g:textField name="firstName" value="${contact.firstName}" class="span5" placeholder="${message(code: 'crmContact.firstName.help')}" autocomplete="off" autocorrect="off" spellcheck="false"/>
+                        <g:textField name="lastName" value="${contact.lastName}" class="span6" placeholder="${message(code: 'crmContact.lastName.help')}" autocomplete="off" autocorrect="off" spellcheck="false"/>
                         <input type="hidden" name="contactId" value="${bean.contactId}"/>
                     </div>
                 </div>
