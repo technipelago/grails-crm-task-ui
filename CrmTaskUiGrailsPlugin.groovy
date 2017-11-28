@@ -16,7 +16,7 @@
 
 class CrmTaskUiGrailsPlugin {
     def groupId = ""
-    def version = "2.4.4"
+    def version = "2.4.5-SNAPSHOT"
     def grailsVersion = "2.4 > *"
     def dependsOn = [:]
     def loadAfter = ['crmTask']
