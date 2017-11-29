@@ -30,7 +30,7 @@
             </td>
 
             <td>
-                <crm:user username="${bean.username}" nouser="${bean.username}">${name.encodeAsHTML()}</crm:user>
+                <crm:user username="${crmTask.username}" nouser="${crmTask.username}">${name.encodeAsHTML()}</crm:user>
             </td>
             <td style="width:36px;">
                 <g:if test="${crmTask.alarms > 0}">
