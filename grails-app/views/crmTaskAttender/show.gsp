@@ -47,20 +47,12 @@
     <div class="span9">
 
         <header class="page-header clearfix">
-            <g:if test="${contact?.email}">
-                <avatar:gravatar email="${contact.email}" size="64" id="avatar" cssClass="avatar pull-right"
-                                 defaultGravatarUrl="mm"/>
-            </g:if>
-            <g:else>
-                <img src="${resource(plugin: 'crm-contact-ui', dir: 'images', file: 'person-avatar.png')}" class="avatar pull-right"
-                         width="64" height="64"/>
-            </g:else>
-            <crm:user>
-                <h1>
-                    ${crmTaskAttender}
-                    <small>${crmTask}</small>
-                </h1>
-            </crm:user>
+            <img src="${resource(plugin: 'crm-contact-ui', dir: 'images', file: 'person-avatar.png')}" class="avatar pull-right"
+                     width="64" height="64"/>
+            <h1>
+                ${crmTaskAttender}
+                <small>${crmTask}</small>
+            </h1>
         </header>
 
         <div class="tabbable">
