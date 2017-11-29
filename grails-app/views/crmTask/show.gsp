@@ -114,6 +114,12 @@
                                             <dd class="nowrap"><g:fieldValue bean="${crmTask}"
                                                                              field="displayDate"/></dd>
                                         </g:if>
+                                        <g:if test="${crmTask.scope}">
+                                            <dt><g:message code="crmTask.scope.label"
+                                                           default="Scope"/></dt>
+                                            <dd><g:fieldValue bean="${crmTask}"
+                                                              field="scope"/></dd>
+                                        </g:if>
                                         <g:if test="${crmTask.isRecurring}">
                                             <dt><g:message code="crmTask.isRecurring.label" default="Repeats"/></dt>
                                             <dd>Repeats every ${crmTask.recurInterval}</dd>
@@ -152,11 +158,6 @@
                                 <dt><g:message code="crmTask.priority.label" default="Priority"/></dt>
                                 <dd>${message(code: 'crmTask.priority.' + crmTask.priority + '.label', default: crmTask.priority.toString())}</dd>
 
-                                <g:if test="${crmTask.ref}">
-                                    <dt><g:message code="crmTask.reference.label" default="Reference"/></dt>
-                                    <dd><crm:referenceLink reference="${crmTask.reference}"/></dd>
-                                </g:if>
-
                                 <g:if test="${crmTask.username}">
                                     <dt><g:message code="crmTask.username.label" default="Responsible"/></dt>
                                     <dd>
@@ -164,6 +165,11 @@
                                             ${name}
                                         </crm:user>
                                     </dd>
+                                </g:if>
+
+                                <g:if test="${crmTask.ref}">
+                                    <dt><g:message code="crmTask.reference.label" default="Reference"/></dt>
+                                    <dd><crm:referenceLink reference="${crmTask.reference}"/></dd>
                                 </g:if>
 
                             </dl>
