@@ -803,7 +803,7 @@ class CrmTaskController {
         def result = crmContactService.list(params, [max: 100]).collect {
             def contact = it.primaryContact ?: it.parent
             def address = it.address
-            [it.fullName, it.id, contact?.id, contact?.toString(), it.firstName, it.lastName, it.preferredPhone, it.email, address.address1, address.address2, address.address3, address.postalCode, address.city, address.region, address.country]
+            [it.fullName, it.id, contact?.id, contact?.toString(), it.firstName, it.lastName, it.preferredPhone, it.email, address?.address1, address?.address2, address?.address3, address?.postalCode, address?.city, address?.region, address?.country]
         }
         WebUtils.noCache(response)
         render result as JSON
