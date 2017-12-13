@@ -120,14 +120,29 @@
 
                 <div class="span4">
                     <div class="row-fluid">
-                        <f:field property="name" input-autofocus="" input-class="span11"/>
+                        <f:field property="type">
+                            <g:select name="type.id" from="${metadata.typeList}" optionKey="id"
+                                      value="${crmTask.type?.id}" class="span11" autofocus=""/>
+                        </f:field>
 
-                        <f:field property="location" input-class="span11"/>
+                        <f:field property="complete">
+                            <g:select name="complete"
+                                      from="${[CrmTask.STATUS_PLANNED, CrmTask.STATUS_ACTIVE, CrmTask.STATUS_COMPLETED]}"
+                                      valueMessagePrefix="crmTask.complete" class="span11"
+                                      value="${crmTask.complete}"/>
+                        </f:field>
 
-                        <f:field property="scope" input-class="span11"/>
+                        <f:field property="priority">
+                            <g:select name="priority"
+                                      from="${[CrmTask.PRIORITY_LOWEST, CrmTask.PRIORITY_LOW, CrmTask.PRIORITY_NORMAL, CrmTask.PRIORITY_HIGH, CrmTask.PRIORITY_HIGHEST]}"
+                                      valueMessagePrefix="crmTask.priority" class="span11"
+                                      value="${crmTask.priority}"/>
+                        </f:field>
 
-                        <f:field property="displayDate" input-class="span11"/>
-
+                        <f:field property="username">
+                            <g:select name="username" from="${metadata.userList}" optionKey="username" optionValue="name"
+                                      value="${crmTask.username}" class="span11"/>
+                        </f:field>
                     </div>
                 </div>
 
@@ -138,14 +153,14 @@
 
                             <div class="controls">
                                 <span class="input-append date">
-                                    <g:textField name="startDate" class="span8" size="10"
+                                    <g:textField name="startDate" class="span9" size="10"
                                                  value="${formatDate(type: 'date', date: crmTask.startTime)}"/><span
                                         class="add-on"><i class="icon-th"></i></span>
                                 </span>
 
                                 <g:select name="startTime" from="${metadata.timeList}"
                                           value="${formatDate(format: 'HH:mm', date: crmTask.startTime)}"
-                                          class="span4"/>
+                                          class="span3"/>
                             </div>
                         </div>
 
@@ -154,14 +169,14 @@
 
                             <div class="controls">
                                 <span class="input-append date">
-                                    <g:textField name="endDate" class="span8" size="10"
+                                    <g:textField name="endDate" class="span9" size="10"
                                                  value="${formatDate(type: 'date', date: crmTask.endTime)}"/><span
                                         class="add-on"><i class="icon-th"></i></span>
                                 </span>
 
                                 <g:select name="endTime" from="${metadata.timeList}"
                                           value="${formatDate(format: 'HH:mm', date: crmTask.endTime)}"
-                                          class="span4"/>
+                                          class="span3"/>
                             </div>
                         </div>
 
@@ -208,29 +223,14 @@
 
                 <div class="span4">
                     <div class="row-fluid">
-                        <f:field property="type">
-                            <g:select name="type.id" from="${metadata.typeList}" optionKey="id"
-                                      value="${crmTask.type?.id}" class="span11"/>
-                        </f:field>
+                        <f:field property="name" input-class="span11"/>
 
-                        <f:field property="complete">
-                            <g:select name="complete"
-                                      from="${[CrmTask.STATUS_PLANNED, CrmTask.STATUS_ACTIVE, CrmTask.STATUS_COMPLETED]}"
-                                      valueMessagePrefix="crmTask.complete" class="span11"
-                                      value="${crmTask.complete}"/>
-                        </f:field>
+                        <f:field property="location" input-class="span11"/>
 
-                        <f:field property="priority">
-                            <g:select name="priority"
-                                      from="${[CrmTask.PRIORITY_LOWEST, CrmTask.PRIORITY_LOW, CrmTask.PRIORITY_NORMAL, CrmTask.PRIORITY_HIGH, CrmTask.PRIORITY_HIGHEST]}"
-                                      valueMessagePrefix="crmTask.priority" class="span11"
-                                      value="${crmTask.priority}"/>
-                        </f:field>
+                        <f:field property="scope" input-class="span11"/>
 
-                        <f:field property="username">
-                            <g:select name="username" from="${metadata.userList}" optionKey="username" optionValue="name"
-                                      value="${crmTask.username}" class="span11"/>
-                        </f:field>
+                        <f:field property="displayDate" input-class="span11"/>
+
                     </div>
                 </div>
 

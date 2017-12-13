@@ -219,23 +219,36 @@ class CrmTaskController {
                     redirect(mapping: 'crmTask.welcome')
                     return
                 }
+                def attender
+                if(params.attender) {
+                    def crmContact = crmCoreService.getReference(params.attender)
+                    if(crmContact instanceof CrmContact) {
+                        attender = crmContact
+                    }
+                }
                 setReference(crmTask, params.ref)
                 bindDate(crmTask, 'startTime', startDate + ' ' + startTime, user?.timezone)
                 bindDate(crmTask, 'endTime', endDate + ' ' + endTime, user?.timezone)
                 crmTask.clearErrors()
-                return [crmTask: crmTask, user: user, referer: params.referer, metadata: metadata]
+                return [crmTask: crmTask, user: user, referer: params.referer, attender: attender, metadata: metadata]
             case 'POST':
+                def attender = params.attender ? crmContactService.getContact(params.long('attender')) : null
                 try {
                     setReference(crmTask, params.ref)
                     bindDate(crmTask, 'startTime', startDate + startTime, user?.timezone)
                     bindDate(crmTask, 'endTime', endDate + endTime, user?.timezone)
                     bindDate(crmTask, 'alarmTime', alarmDate + alarmTime, user?.timezone)
 
-                    if (!crmTask.save()) {
-                        render view: 'create', model: [crmTask: crmTask, user: user, referer: params.referer, metadata: metadata]
+                    if (crmTask.save()) {
+                        if(attender) {
+                            crmTaskService.addAttender(crmTask, attender)
+                            crmTask.save(flush: true)
+                        }
+                        event(for: "crmTask", topic: "created", data: [id: crmTask.id, tenant: crmTask.tenantId, user: user.username, name: crmTask.toString()])
+                    } else {
+                        render view: 'create', model: [crmTask: crmTask, user: user, referer: params.referer, attender: attender, metadata: metadata]
                         return
                     }
-                    event(for: "crmTask", topic: "created", data: [id: crmTask.id, tenant: crmTask.tenantId, user: user.username, name: crmTask.toString()])
 
                     flash.success = message(code: 'crmTask.created.message', args: [message(code: 'crmTask.label', default: 'Task'), crmTask.toString()])
                     if (params.referer) {
@@ -246,7 +259,7 @@ class CrmTaskController {
                 } catch (Exception e) {
                     log.error("error", e)
                     flash.error = e.message
-                    render view: 'create', model: [crmTask: crmTask, user: user, referer: params.referer, metadata: metadata]
+                    render view: 'create', model: [crmTask: crmTask, user: user, referer: params.referer, attender: attender, metadata: metadata]
                 }
                 break
         }
