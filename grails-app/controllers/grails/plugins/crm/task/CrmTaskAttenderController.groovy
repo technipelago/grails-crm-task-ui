@@ -379,11 +379,11 @@ class CrmTaskAttenderController {
             for (b in bookings) {
                 def attenders = CrmTaskAttender.findAllByBooking(b)
                 for (a in attenders) {
-                    eventQueue << [for: "crmTaskAttender", topic: "deleted", fork: false, data: [id: a.id, tenant: tenant, user: user.username, name: a.toString()]]
+                    eventQueue << [for: "crmTaskAttender", topic: "deleted", params: [fork: false], data: [id: a.id, tenant: tenant, user: user.username, name: a.toString()]]
                     b.removeFromAttenders(a)
                     a.delete()
                 }
-                eventQueue << [for: "crmTaskBooking", topic: "deleted", fork: false, data: [id: b.id, tenant: tenant, user: user.username, name: b.toString()]]
+                eventQueue << [for: "crmTaskBooking", topic: "deleted", params: [fork: false], data: [id: b.id, tenant: tenant, user: user.username, name: b.toString()]]
                 crmTask.removeFromBookings(b)
                 b.delete()
             }
@@ -399,12 +399,14 @@ class CrmTaskAttenderController {
             crmTask.description = notes
             crmTask.save(flush: true)
 
+            int i = 0
             try {
                 for (ev in eventQueue) {
                     event(ev)
+                    i++
                 }
             } catch (Exception e) {
-                log.error("Failed to send events", e)
+                log.error("Failed to send events (stopped after $i events)", e)
             }
 
             redirect controller: 'crmTask', action: 'show', id: crmTask.id
