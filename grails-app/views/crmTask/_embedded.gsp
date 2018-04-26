@@ -38,7 +38,7 @@ tr.crm-status-absent td {
             </td>
 
             <td>
-                <g:link controller="crmTaskAttender" action="show" id="${a.id}">
+                <g:link controller="crmTaskAttender" action="show" params="${[id: a.id, narrow: 'task']}">
                     ${fieldValue(bean: crmTask, field: "name")}
                 </g:link>
             </td>
@@ -52,7 +52,9 @@ tr.crm-status-absent td {
             </td>
 
             <td>
-                ${fieldValue(bean: a, field: "status")}
+                <g:link controller="crmTaskAttender" action="show" id="${a.id}">
+                    ${fieldValue(bean: a, field: "status")}
+                </g:link>
             </td>
 
             <td>${StringUtils.abbreviate(((a.notes ?: crmTaskBooking.comments) ?: crmTask.description) ?: '', 40)}</td>
@@ -62,13 +64,30 @@ tr.crm-status-absent td {
 </table>
 
 <g:if test="${createParams}">
-    <div class="form-actions btn-toolbar">
-        <crm:button type="link" group="true" controller="crmTask" action="create" visual="success"
-                    icon="icon-file icon-white"
-                    label="crmTask.button.create.label"
-                    title="crmTask.button.create.help"
-                    permission="crmTask:create"
-                    params="${createParams + [referer: request.forwardURI]}">
-        </crm:button>
+    <div class="form-actions">
+        <crm:hasPermission permission="crmTask:create">
+            <div class="btn-group">
+                <crm:button type="link" group="true" controller="crmTask" action="create" visual="success"
+                            icon="icon-file icon-white"
+                            label="crmTask.button.create.label"
+                            title="crmTask.button.create.help"
+                            params="${createParams + [referer: request.forwardURI]}">
+                    <g:if test="${typeList}">
+                        <button class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <g:each in="${typeList}" var="type">
+                                <li>
+                                    <g:link controller="crmTask" action="create" params="${createParams + ['type.id': type.id, referer: request.forwardURI]}">
+                                        ${type}
+                                    </g:link>
+                                </li>
+                            </g:each>
+                        </ul>
+                    </g:if>
+                </crm:button>
+            </div>
+        </crm:hasPermission>
     </div>
 </g:if>

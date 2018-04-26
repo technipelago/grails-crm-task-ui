@@ -48,9 +48,31 @@
     </tbody>
 </table>
 
-<div class="form-actions btn-toolbar">
-    <crm:button type="link" group="true" controller="crmTask" action="create" params="${[ref: reference]}"
-                visual="success"
-                icon="icon-file icon-white"
-                label="crmTask.button.create.label" permission="crmTask:create"/>
-</div>
+<g:if test="${createParams}">
+    <div class="form-actions">
+        <crm:hasPermission permission="crmTask:create">
+            <div class="btn-group">
+                <crm:button type="link" group="true" controller="crmTask" action="create" visual="success"
+                            icon="icon-file icon-white"
+                            label="crmTask.button.create.label"
+                            title="crmTask.button.create.help"
+                            params="${createParams + [referer: request.forwardURI]}">
+                    <g:if test="${typeList}">
+                        <button class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <g:each in="${typeList}" var="type">
+                                <li>
+                                    <g:link controller="crmTask" action="create" params="${createParams + ['type.id': type.id, referer: request.forwardURI]}">
+                                        ${type}
+                                    </g:link>
+                                </li>
+                            </g:each>
+                        </ul>
+                    </g:if>
+                </crm:button>
+            </div>
+        </crm:hasPermission>
+    </div>
+</g:if>
