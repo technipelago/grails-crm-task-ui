@@ -91,9 +91,9 @@
                                     </dd>
                                 </g:if>
 
-                                <g:if test="${crmTask.ref}">
+                                <g:if test="${reference != null && reference != contact}">
                                     <dt><g:message code="crmTask.reference.label" default="Reference"/></dt>
-                                    <dd><crm:referenceLink reference="${crmTask.reference}"/></dd>
+                                    <dd><crm:referenceLink reference="${reference}"/></dd>
                                 </g:if>
 
                             </dl>

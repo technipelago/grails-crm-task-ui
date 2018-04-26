@@ -111,7 +111,7 @@
                                 </dd>
                             </g:if>
 
-                            <dt><g:message code="crmTaskAttender.person.label"/></dt>
+                            <dt><g:message code="crmTask.contact.label"/></dt>
                             <dd>
                                 <g:if test="${contact instanceof grails.plugins.crm.contact.CrmContact}">
                                     <g:link mapping="crm-contact-show" id="${contact.id}">
