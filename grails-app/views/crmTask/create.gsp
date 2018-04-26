@@ -205,7 +205,7 @@
                                     </div>
 
                                     <div class="controls">
-                                        <g:select from="${[0, 5, 10, 15, 30, 60, 120, 180, 240]}" name="alarmOffset"
+                                        <g:select from="${[0, 5, 10, 15, 30, 60, 120, 180, 240, 1440, 2880, 10080]}" name="alarmOffset"
                                                   value="${crmTask.alarmOffset}"
                                                   valueMessagePrefix="crmTask.alarmOffset"
                                                   class="span9 ${crmTask.alarmType ? '' : 'hide'}"/>
