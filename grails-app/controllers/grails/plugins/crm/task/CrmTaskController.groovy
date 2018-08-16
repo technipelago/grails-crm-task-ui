@@ -552,6 +552,7 @@ class CrmTaskController {
                 or {
                     ilike('tmp.firstName', '%' + params.q + '%')
                     ilike('tmp.lastName', '%' + params.q + '%')
+                    ilike('externalRef', '%' + params.q + '%')
                 }
             }
             if (params.status) {
