@@ -265,6 +265,117 @@ class CrmTaskController {
         }
     }
 
+    @Transactional
+    def quick() {
+        def startDate = params.remove('startDate') ?: formatDate(type: 'date', date: new Date() + 1)
+        def endDate = params.remove('endDate') ?: startDate
+        def alarmDate = params.remove('alarmDate') ?: startDate
+        def startTime = params.remove('startTime') ?: '09:00'
+        def endTime = params.remove('endTime') ?: '10:00'
+        def alarmTime = params.remove('alarmTime') ?: '08:00'
+        def user = crmSecurityService.getUserInfo(params.username)
+        if (!params.username) {
+            params.username = user?.username
+        }
+        if (params.priority == null) {
+            params.priority = CrmTask.PRIORITY_NORMAL
+        }
+        if (params.complete == null) {
+            params.complete = CrmTask.STATUS_PLANNED
+        }
+        if (params.busy == null) {
+            params.busy = 'true'
+        }
+        def crmTask = crmTaskService.createTask(params)
+        def typeList = crmTaskService.listTaskTypes()
+        def userList = crmSecurityService.getTenantUsers()
+        def timeList = (0..23).inject([]) { list, h ->
+            4.times {
+                list << String.format("%02d:%02d", h, it * 15)
+            }; list
+        }
+        if (crmTask.startTime) {
+            def hm = crmTask.startTime.format("HH:mm")
+            if (!timeList.contains(hm)) {
+                timeList << hm
+            }
+        }
+        if (crmTask.endTime) {
+            def hm = crmTask.endTime.format("HH:mm")
+            if (!timeList.contains(hm)) {
+                timeList << hm
+            }
+        }
+        if (crmTask.alarmTime) {
+            def hm = crmTask.alarmTime.format("HH:mm")
+            if (!timeList.contains(hm)) {
+                timeList << hm
+            }
+        }
+        timeList = timeList.sort()
+
+        def metadata = [:]
+        metadata.locale = RequestContextUtils.getLocale(request)
+        metadata.dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, metadata.locale)
+        metadata.typeList = typeList
+        metadata.userList = userList
+        metadata.timeList = timeList
+        metadata.alarmTypes = CrmTask.constraints.alarmType.inList.collect { t ->
+            [value: t, label: message(code: 'crmTask.alarmType.' + t, default: '')]
+        }.findAll { it.label }
+
+        switch (request.method) {
+            case 'GET':
+                if (!checkPrerequisites()) {
+                    redirect(mapping: 'crmTask.welcome')
+                    return
+                }
+                def attender
+                if(params.attender) {
+                    def crmContact = crmCoreService.getReference(params.attender)
+                    if(crmContact instanceof CrmContact) {
+                        attender = crmContact
+                    }
+                }
+                setReference(crmTask, params.ref)
+                bindDate(crmTask, 'startTime', startDate + ' ' + startTime, user?.timezone)
+                bindDate(crmTask, 'endTime', endDate + ' ' + endTime, user?.timezone)
+                crmTask.clearErrors()
+                return [crmTask: crmTask, user: user, referer: params.referer, attender: attender, metadata: metadata]
+            case 'POST':
+                def attender = params.attender ? crmContactService.getContact(params.long('attender')) : null
+                try {
+                    setReference(crmTask, params.ref)
+                    bindDate(crmTask, 'startTime', startDate + startTime, user?.timezone)
+                    bindDate(crmTask, 'endTime', endDate + endTime, user?.timezone)
+                    bindDate(crmTask, 'alarmTime', alarmDate + alarmTime, user?.timezone)
+
+                    if (crmTask.save()) {
+                        if(attender) {
+                            crmTaskService.addAttender(crmTask, attender)
+                            crmTask.save(flush: true)
+                        }
+                        event(for: "crmTask", topic: "created", data: [id: crmTask.id, tenant: crmTask.tenantId, user: user.username, name: crmTask.toString()])
+                    } else {
+                        render view: 'create', model: [crmTask: crmTask, user: user, referer: params.referer, attender: attender, metadata: metadata]
+                        return
+                    }
+
+                    flash.success = message(code: 'crmTask.created.message', args: [message(code: 'crmTask.label', default: 'Task'), crmTask.toString()])
+                    if (params.referer) {
+                        redirect(uri: params.referer - request.contextPath)
+                    } else {
+                        redirect action: 'show', id: crmTask.id
+                    }
+                } catch (Exception e) {
+                    log.error("error", e)
+                    flash.error = e.message
+                    render view: 'quick', model: [crmTask: crmTask, user: user, referer: params.referer, attender: attender, metadata: metadata]
+                }
+                break
+        }
+    }
+
     private void setReference(object, ref) {
         if (ref) {
             def reference = crmCoreService.getReference(ref)

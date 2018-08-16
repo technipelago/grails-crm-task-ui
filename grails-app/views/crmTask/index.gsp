@@ -161,7 +161,7 @@
                         <crm:button action="list" icon="icon-search icon-white" visual="primary"
                                     label="crmTask.button.search.label"/>
                     </crm:selectionMenu>
-                    <crm:button type="link" group="true" action="create" visual="success" icon="icon-file icon-white"
+                    <crm:button type="link" group="true" mapping="crm-task-create" visual="success" icon="icon-file icon-white"
                                 label="crmTask.button.create.label" permission="crmTask:create"/>
                     <g:link action="clearQuery" class="btn btn-link"><g:message code="crmTask.button.query.clear.label"
                                                                                 default="Reset fields"/></g:link>

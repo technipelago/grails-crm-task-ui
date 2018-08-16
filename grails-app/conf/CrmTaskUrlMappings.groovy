@@ -18,5 +18,13 @@ class CrmTaskUrlMappings {
     static mappings = {
         "/task/$action/$id"(controller: "crmTask")
         "/attender/$action/$id"(controller: "crmTaskAttender")
+        name 'crm-task-create': "/task/create" {
+            controller = 'crmTask'
+            action = 'create'
+        }
+        name 'crm-task-quick': "/task/quick" {
+            controller = 'crmTask'
+            action = 'quick'
+        }
     }
 }

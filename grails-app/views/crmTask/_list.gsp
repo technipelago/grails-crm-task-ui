@@ -52,7 +52,7 @@
     <div class="form-actions">
         <crm:hasPermission permission="crmTask:create">
             <div class="btn-group">
-                <crm:button type="link" group="true" controller="crmTask" action="create" visual="success"
+                <crm:button type="link" group="true" mapping="crm-task-create" visual="success"
                             icon="icon-file icon-white"
                             label="crmTask.button.create.label"
                             title="crmTask.button.create.help"
@@ -64,7 +64,7 @@
                         <ul class="dropdown-menu">
                             <g:each in="${typeList}" var="type">
                                 <li>
-                                    <g:link controller="crmTask" action="create" params="${createParams + ['type.id': type.id, referer: request.forwardURI]}">
+                                    <g:link mapping="crm-task-quick" params="${createParams + ['type.id': type.id, referer: request.forwardURI]}">
                                         ${type}
                                     </g:link>
                                 </li>
