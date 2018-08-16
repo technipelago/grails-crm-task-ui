@@ -74,7 +74,7 @@
 
         $('select[name="alarmType"]').change(function(ev) {
             if($(this).val() == '0') {
-                $("#alarmOffset").val('');
+                $("#alarmOffset").val('0');
                 $("#alarmOffset").hide();
                 $("#alarmOffsetLabel").hide();
             } else {
