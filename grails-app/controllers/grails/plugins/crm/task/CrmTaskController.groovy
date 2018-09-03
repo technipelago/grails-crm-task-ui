@@ -664,6 +664,9 @@ class CrmTaskController {
                     ilike('tmp.firstName', '%' + params.q + '%')
                     ilike('tmp.lastName', '%' + params.q + '%')
                     ilike('externalRef', '%' + params.q + '%')
+                    booking {
+                        ilike('bookingRef', '%' + params.q + '%')
+                    }
                 }
             }
             if (params.status) {
