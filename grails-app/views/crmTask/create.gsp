@@ -7,6 +7,29 @@
     <title><g:message code="crmTask.create.title" args="[entityName]"/></title>
     <r:require modules="datepicker,autocomplete,aligndates"/>
     <r:script>
+    var CRM = {
+        setTimeNow: function($elem) {
+            var dateField = $elem.data('date');
+            var timeField = $elem.data('time');
+            var date = CRM.formatDate(new Date());
+            var time = CRM.formatTime(CRM.roundTimeQuarterHour(new Date()));
+            $("input[name='" + dateField + "']").val(date);
+            $("select[name='" + timeField + "']").val(time);
+        },
+        roundTimeQuarterHour: function(dateTime) {
+            dateTime.setMilliseconds(Math.round(dateTime.getMilliseconds() / 1000) * 1000);
+            dateTime.setSeconds(Math.round(dateTime.getSeconds() / 60) * 60);
+            dateTime.setMinutes(Math.round(dateTime.getMinutes() / 15) * 15);
+            return dateTime;
+        },
+        formatDate: function(date) {
+            return date.toLocaleDateString();
+        },
+        formatTime: function(date) {
+            return date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', second: undefined});
+        }
+    };
+
     $(document).ready(function() {
 
         $('#startDate').closest('.date').datepicker({
@@ -88,8 +111,18 @@
                 });
             }
         });
+
+        $(".crm-set-now").click(function(ev) {
+            ev.preventDefault();
+            CRM.setTimeNow($(this));
+        });
     });
     </r:script>
+    <style type="text/css">
+    .crm-set-now {
+        margin-left: 3px;
+    }
+    </style>
 </head>
 
 <body>
@@ -169,7 +202,7 @@
 
                                     <div class="controls">
                                         <span class="input-append date">
-                                            <g:textField name="startDate" class="span9" size="10"
+                                            <g:textField name="startDate" class="span9" size="12" maxlength="10"
                                                          value="${formatDate(type: 'date', date: crmTask.startTime)}"/><span
                                                 class="add-on"><i class="icon-th"></i></span>
                                         </span>
@@ -177,6 +210,7 @@
                                         <g:select name="startTime" from="${metadata.timeList}"
                                                   value="${formatDate(format: 'HH:mm', date: crmTask.startTime)}"
                                                   class="span3"/>
+                                        <a href="#" class="crm-set-now" data-date="startDate" data-time="startTime"><i class="icon-time"></i></a>
                                     </div>
                                 </div>
 
@@ -185,7 +219,7 @@
 
                                     <div class="controls">
                                         <span class="input-append date">
-                                            <g:textField name="endDate" class="span9" size="10"
+                                            <g:textField name="endDate" class="span9" size="12" maxlength="10"
                                                          value="${formatDate(type: 'date', date: crmTask.endTime)}"/><span
                                                 class="add-on"><i class="icon-th"></i></span>
                                         </span>
@@ -193,6 +227,7 @@
                                         <g:select name="endTime" from="${metadata.timeList}"
                                                   value="${formatDate(format: 'HH:mm', date: crmTask.endTime)}"
                                                   class="span3"/>
+                                        <a href="#" class="crm-set-now" data-date="endDate" data-time="endTime"><i class="icon-time"></i></a>
                                     </div>
                                 </div>
 

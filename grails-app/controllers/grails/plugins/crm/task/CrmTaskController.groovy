@@ -159,9 +159,9 @@ class CrmTaskController {
         def startDate = params.remove('startDate') ?: formatDate(type: 'date', date: new Date() + 1)
         def endDate = params.remove('endDate') ?: startDate
         def alarmDate = params.remove('alarmDate') ?: startDate
-        def startTime = params.remove('startTime') ?: '09:00'
-        def endTime = params.remove('endTime') ?: '10:00'
-        def alarmTime = params.remove('alarmTime') ?: '08:00'
+        def startTime = params.remove('startTime') ?: crmTaskService.getDefaultStartTime()
+        def endTime = params.remove('endTime') ?: crmTaskService.getDefaultEndTime()
+        def alarmTime = params.remove('alarmTime') ?: crmTaskService.getDefaultAlarmTime()
         def user = crmSecurityService.getUserInfo(params.username)
         if (!params.username) {
             params.username = user?.username
@@ -270,9 +270,9 @@ class CrmTaskController {
         def startDate = params.remove('startDate') ?: formatDate(type: 'date', date: new Date() + 1)
         def endDate = params.remove('endDate') ?: startDate
         def alarmDate = params.remove('alarmDate') ?: startDate
-        def startTime = params.remove('startTime') ?: '09:00'
-        def endTime = params.remove('endTime') ?: '10:00'
-        def alarmTime = params.remove('alarmTime') ?: '08:00'
+        def startTime = params.remove('startTime') ?: crmTaskService.getDefaultStartTime()
+        def endTime = params.remove('endTime') ?: crmTaskService.getDefaultEndTime()
+        def alarmTime = params.remove('alarmTime') ?: crmTaskService.getDefaultAlarmTime()
         def user = crmSecurityService.getUserInfo(params.username)
         if (!params.username) {
             params.username = user?.username
@@ -544,9 +544,9 @@ class CrmTaskController {
                     def startDate = params.startDate ?: (new Date() + 1).format("yyyy-MM-dd")
                     def endDate = params.endDate ?: startDate
                     def alarmDate = params.alarmDate ?: startDate
-                    def startTime = params.startTime ?: '09:00'
-                    def endTime = params.endTime ?: '10:00'
-                    def alarmTime = params.alarmTime ?: '08:00'
+                    def startTime = params.startTime ?: crmTaskService.getDefaultStartTime()
+                    def endTime = params.endTime ?: crmTaskService.getDefaultEndTime()
+                    def alarmTime = params.alarmTime ?: crmTaskService.getDefaultAlarmTime()
                     bindDate(crmTask, 'startTime', startDate + startTime, user?.timezone)
                     bindDate(crmTask, 'endTime', endDate + endTime, user?.timezone)
                     bindDate(crmTask, 'alarmTime', alarmDate + alarmTime, user?.timezone)
