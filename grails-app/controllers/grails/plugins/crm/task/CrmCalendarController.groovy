@@ -110,10 +110,14 @@ class CrmCalendarController {
                 if (event.tenantId != currentTenant) {
                     linkParams.tenant = event.tenantId
                 }
+                def contactName = event.contact?.name ?: ''
+                if(contactName) {
+                    contactName = ' - ' + contactName
+                }
                 eventList << [
                         id: event.id,
                         tenant: event.tenantId,
-                        title: event.name + (event.completed ? ' ✓' : ''),
+                        title: event.name + contactName + (event.completed ? ' ✓' : ''),
                         description: StringUtils.abbreviate(event.description, 200),
                         url: g.createLink(controller: 'crmTask', action: 'show', params: linkParams),
                         color: crmCalendarService.getEventColor(event),
