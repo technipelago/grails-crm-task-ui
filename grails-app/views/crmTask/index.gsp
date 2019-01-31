@@ -180,7 +180,9 @@
                         <g:message code="crmTask.query.date.title" default="Shortcuts"/>
                     </li>
                     <g:each in="${[["crmTask.query.date.current", '+0d', '+0d'],
+                                   ["crmTask.query.date.future", '+0d', ''],
                                    ["crmTask.query.date.prev", '-1d', '-1d'],
+                                   ["crmTask.query.date.history", '', '-1d'],
                                    ["crmTask.query.date.next", '+1d', '+1d'],
                                    ["crmTask.query.week.current", '-5d', '+5d'],
                                    ["crmTask.query.week.prev", '-7d', '-1d'],
