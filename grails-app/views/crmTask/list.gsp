@@ -15,6 +15,9 @@
 <table class="table table-striped">
     <thead>
     <tr>
+        <crm:sortableColumn property="number"
+                            title="${message(code: 'crmTask.number.label', default: 'Number')}"/>
+
         <crm:sortableColumn property="startTime"
                             title="${message(code: 'crmTask.startTime.label', default: 'Starts')}"/>
 
@@ -40,6 +43,8 @@
         <g:set var="contact" value="${crmTask.contact}"/>
 
         <tr>
+            <td>${fieldValue(bean: crmTask, field: "number")}</td>
+
             <td class="nowrap">
                 <g:link action="show" id="${crmTask.id}">
                     <g:formatDate type="date" date="${crmTask.startTime}"/>
@@ -70,6 +75,7 @@
             </td>
 
             <td>${message(code: 'crmTask.complete.' + crmTask.complete + '.label', default: crmTask.complete.toString())}</td>
+
             <td style="width:36px;">
                 <g:if test="${crmTask.alarms > 0}">
                     <i class="icon-volume-up" title="${message(code: 'crmTask.alarm.sent.message')}"></i>
