@@ -15,9 +15,6 @@
 <table class="table table-striped">
     <thead>
     <tr>
-        <crm:sortableColumn property="number"
-                            title="${message(code: 'crmTask.number.label', default: 'Number')}"/>
-
         <crm:sortableColumn property="startTime"
                             title="${message(code: 'crmTask.startTime.label', default: 'Starts')}"/>
 
@@ -34,7 +31,9 @@
 
         <crm:sortableColumn property="complete"
                             title="${message(code: 'crmTask.complete.label', default: 'Status')}"/>
-        <th></th>
+
+        <crm:sortableColumn property="number"
+                            title="${message(code: 'crmTask.number.label', default: 'Number')}"/>
     </tr>
     </thead>
     <tbody>
@@ -43,8 +42,6 @@
         <g:set var="contact" value="${crmTask.contact}"/>
 
         <tr>
-            <td>${fieldValue(bean: crmTask, field: "number")}</td>
-
             <td class="nowrap">
                 <g:link action="show" id="${crmTask.id}">
                     <g:formatDate type="date" date="${crmTask.startTime}"/>
@@ -76,17 +73,7 @@
 
             <td>${message(code: 'crmTask.complete.' + crmTask.complete + '.label', default: crmTask.complete.toString())}</td>
 
-            <td style="width:36px;">
-                <g:if test="${crmTask.alarms > 0}">
-                    <i class="icon-volume-up" title="${message(code: 'crmTask.alarm.sent.message')}"></i>
-                </g:if>
-                <g:elseif test="${crmTask.alarm}">
-                    <i class="icon-bell" title="${message(code: 'crmTask.alarm.pending.message')}"></i>
-                </g:elseif>
-                <g:if test="${crmTask.completed}">
-                    <i class="icon-check" title="${message(code: 'crmTask.complete.100.label')}"></i>
-                </g:if>
-            </td>
+            <td>${fieldValue(bean: crmTask, field: "number")}</td>
         </tr>
     </g:each>
     </tbody>
