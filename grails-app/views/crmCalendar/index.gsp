@@ -52,6 +52,9 @@
             $("#tenantForm :checkbox").click(function(ev) {
                 $(this).closest("form").submit();
             });
+            $("#typeForm :checkbox").click(function(ev) {
+                $(this).closest("form").submit();
+            });
         });
     </r:script>
 </head>
@@ -64,11 +67,19 @@
     </div>
 
     <div class="span2">
+        <h4><g:message code="crmCalendar.types.label" default="Types"/></h4>
+        <g:form name="typeForm">
+            <g:each in="${metadata.types}" var="t">
+                <label class="checkbox"><g:checkBox name="types" value="${t.id}"
+                                                    checked="${types.contains(t.id)}"/> ${t.name}</label>
+            </g:each>
+        </g:form>
+
         <h4><g:message code="crmCalendar.tenants.label" default="Show tenants"/></h4>
         <g:form name="tenantForm">
             <crm:eachTenant var="t">
                 <label class="checkbox"><g:checkBox name="calendars" value="${t.id}"
-                                                    checked="${calendars.contains(t.id)}"/> ${t.name.encodeAsHTML()}</label>
+                                                    checked="${calendars.contains(t.id)}"/> ${t.name}</label>
             </crm:eachTenant>
         </g:form>
     </div>

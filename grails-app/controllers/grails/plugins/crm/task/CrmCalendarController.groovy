@@ -16,6 +16,7 @@
 
 package grails.plugins.crm.task
 
+import grails.plugins.crm.core.WebUtils
 import org.joda.time.DateTimeZone
 import org.joda.time.Instant
 import org.joda.time.DateTime
@@ -34,6 +35,7 @@ import javax.servlet.http.HttpServletResponse
 class CrmCalendarController {
 
     def crmCalendarService
+    def crmTaskService
     def crmSecurityService
 
     def index() {
@@ -44,9 +46,19 @@ class CrmCalendarController {
         }
         def user = crmSecurityService.getUserInfo(null)
         def locale = RCU.getLocale(request)
-        def metadata = [locale: locale, lang: locale.language]
+        def types = crmTaskService.listTaskTypes()
+        def metadata = [locale: locale, lang: locale.language, types: types]
+        def selectedTypes = getSelectedTypes(params)
+        if(selectedTypes == null) {
+            selectedTypes = WebUtils.getTenantData(request, 'crmTaskTypes') ?: types*.id
+        }
+        WebUtils.setTenantData(request, 'crmTaskTypes', selectedTypes)
         metadata.firstDayOfWeek = DateUtils.getFirstDayOfWeek(locale, user.timezone)
-        return [calendars: checked, metadata: metadata]
+        return [calendars: checked, metadata: metadata, types: selectedTypes]
+    }
+
+    private List<Long> getSelectedTypes(params) {
+        params.types ? params.list('types').collect {Long.valueOf(it)} : null
     }
 
     private List<Long> getCalendarTenants(params) {
@@ -74,8 +86,15 @@ class CrmCalendarController {
             response.sendError(HttpServletResponse.SC_FORBIDDEN)
             return
         }
+        def selectedTypes = WebUtils.getTenantData(request, 'crmTaskTypes')
+
         def events = CrmTask.withCriteria {
             inList('tenantId', checked)
+            if(selectedTypes) {
+                type {
+                    inList('id', selectedTypes)
+                }
+            }
             eq('hidden', false)
             if (params.username) {
                 eq('username', params.username)
