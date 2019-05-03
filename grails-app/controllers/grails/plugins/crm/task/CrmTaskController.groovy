@@ -582,11 +582,26 @@ class CrmTaskController {
             return
         }
 
+        if (crmTask.bookings) {
+            flash.error = message(code: 'crmTask.delete.bookings.message', args: [crmTask.bookings.size()], default: 'You must first remove all {0} attenders')
+            redirect action: 'edit', id: params.id
+            return
+        }
+
+        def subtasks = crmTaskService.getSubTasks(crmTask)
+        if (subtasks) {
+            flash.error = message(code: 'crmTask.delete.subtasks.message', args: [subtasks.size()], default: 'You must first remove all {0} sub-tasks')
+            redirect action: 'edit', id: params.id
+            return
+        }
+
         try {
             def tombstone = crmTaskService.deleteTask(crmTask)
             flash.warning = message(code: 'crmTask.deleted.message', args: [message(code: 'crmTask.label', default: 'Task'), tombstone])
             if (params.referer) {
                 redirect(uri: params.referer - request.contextPath)
+            } else if(crmTask.sourceTaskId) {
+                redirect action: 'show', id: crmTask.sourceTaskId
             } else {
                 redirect action: 'index'
             }

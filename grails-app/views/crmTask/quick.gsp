@@ -151,6 +151,7 @@
         <g:hiddenField name="ref" value="${crmTask.ref}"/>
         <g:hiddenField name="referer" id="hiddenReferer" value="${referer}"/>
         <g:hiddenField name="attender" id="hiddenAttender" value="${attender?.id}"/>
+        <g:hiddenField name="sourceTask.id" id="sourceTask" value="${crmTask.sourceTaskId}"/>
 
         <input type="hidden" name="busy" value="true"/>
 

@@ -96,6 +96,15 @@
                                     <dd><crm:referenceLink reference="${reference}"/></dd>
                                 </g:if>
 
+                                <g:if test="${crmTask.sourceTask}">
+                                    <dt><g:message code="crmTask.sourceTask.label" default="Parent"/></dt>
+                                    <dd>
+                                        <g:link action="show" id="${crmTask.sourceTask.id}">
+                                            ${crmTask.sourceTask.name}
+                                        </g:link>
+                                    </dd>
+                                </g:if>
+
                             </dl>
                         </div>
 
