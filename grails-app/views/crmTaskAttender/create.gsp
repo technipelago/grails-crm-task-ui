@@ -366,10 +366,19 @@
                         </div>
 
                         <div class="control-group">
+                            <label class="control-label"><g:message code="crmTaskAttender.food.label" /></label>
+
+                            <div class="controls">
+                                <g:textArea name="food" value="${crmTaskAttender.food}" rows="2" class="span11"
+                                            placeholder="${message(code: 'crmTaskAttender.food.help')}"/>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
                             <label class="control-label"><g:message code="crmTaskAttender.notes.label" /></label>
 
                             <div class="controls">
-                                <g:textArea name="notes" value="${crmTaskAttender.description}" rows="6" class="span11"
+                                <g:textArea name="notes" value="${crmTaskAttender.description}" rows="4" class="span11"
                                             placeholder="${message(code: 'crmTaskAttender.notes.help')}"/>
                             </div>
                         </div>

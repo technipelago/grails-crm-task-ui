@@ -57,8 +57,14 @@
 
         <div class="tabbable">
             <ul class="nav nav-tabs">
-                <li class="active"><a href="#main" data-toggle="tab"><g:message code="crmTaskAttender.tab.main.label"/></a>
+                <li class="active">
+                    <a href="#main" data-toggle="tab"><g:message code="crmTaskAttender.tab.main.label"/></a>
                 </li>
+                <g:if test="${crmTaskAttender.bio}">
+                    <li>
+                        <a href="#desc" data-toggle="tab"><g:message code="crmTaskAttender.tab.desc.label"/></a>
+                    </li>
+                </g:if>
                 <crm:pluginViews location="tabs" var="view">
                     <crm:pluginTab id="${view.id}" label="${view.label}" count="${view.model?.totalCount}"/>
                 </crm:pluginViews>
@@ -142,6 +148,11 @@
                             <g:if test="${contact.email}">
                                 <dt><g:message code="crmTaskAttender.email.label"/></dt>
                                 <dd>${contact.email}</dd>
+                            </g:if>
+
+                            <g:if test="${crmTaskAttender.food}">
+                                <dt><g:message code="crmTaskAttender.food.label"/></dt>
+                                <dd>${crmTaskAttender.food}</dd>
                             </g:if>
 
                             <g:if test="${crmTaskAttender.hide}">
@@ -246,6 +257,14 @@
         </g:form>
 
         </div>
+
+        <g:if test="${crmTaskAttender.bio}">
+            <div class="tab-pane" id="desc">
+                <p>
+                    <g:decorate encode="HTML" nlbr="true">${crmTaskAttender.bio}</g:decorate>
+                </p>
+            </div>
+        </g:if>
 
         <crm:pluginViews location="tabs" var="view">
             <div class="tab-pane tab-${view.id}" id="${view.id}">

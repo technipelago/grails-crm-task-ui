@@ -220,6 +220,22 @@
             <input type="hidden" name="booking" value="${crmTaskAttender.bookingId}"/>
             <input type="hidden" name="task" value="${crmTaskAttender.booking.taskId}"/>
 
+            <div class="tabbable">
+            <ul class="nav nav-tabs">
+                <li class="active">
+                    <a href="#main" data-toggle="tab"><g:message code="crmTaskAttender.tab.main.label"/></a>
+                </li>
+                <li>
+                    <a href="#desc" data-toggle="tab"><g:message code="crmTaskAttender.tab.desc.label"/></a>
+                </li>
+            <crm:pluginViews location="tabs" var="view">
+                <crm:pluginTab id="${view.id}" label="${view.label}" count="${view.model?.totalCount}"/>
+            </crm:pluginViews>
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane active" id="main">
+
             <div class="row-fluid">
 
                 <div class="span6">
@@ -332,10 +348,19 @@
                         </div>
 
                         <div class="control-group">
+                            <label class="control-label"><g:message code="crmTaskAttender.food.label" /></label>
+
+                            <div class="controls">
+                                <g:textArea name="food" value="${crmTaskAttender.food}" rows="2" class="span11"
+                                            placeholder="${message(code: 'crmTaskAttender.food.help')}"/>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
                             <label class="control-label"><g:message code="crmTaskAttender.notes.label" /></label>
 
                             <div class="controls">
-                                <g:textArea name="notes" value="${crmTaskAttender.description}" rows="8" class="span11"
+                                <g:textArea name="notes" value="${crmTaskAttender.description}" rows="7" class="span11"
                                             placeholder="${message(code: 'crmTaskAttender.notes.help')}"/>
                             </div>
                         </div>
@@ -359,6 +384,23 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            </div>
+
+            <div class="tab-pane" id="desc">
+                <div class="row-fluid">
+                    <div class="control-group">
+                        <label class="control-label"><g:message code="crmTaskAttender.bio.label" /></label>
+
+                        <div class="controls">
+                            <g:textArea name="bio" value="${crmTaskAttender.bio}" rows="12" cols="70"
+                                        class="span11"/>
+                        </div>
+                        </div>
+                </div>
+            </div>
+
+            </div>
             </div>
 
             <div class="form-actions">
