@@ -268,9 +268,11 @@
                                 </f:field>
 
                                 <f:field property="description">
-                                    <g:textArea name="description" value="${crmTask.description}" rows="12" cols="70"
+                                    <g:textArea name="description" value="${crmTask.description}" rows="8" cols="70"
                                                 class="span11"/>
                                 </f:field>
+
+                                <f:field property="location" input-class="span11"/>
 
                             </div>
                         </div>
