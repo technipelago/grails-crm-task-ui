@@ -1,3 +1,4 @@
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <g:each in="${list}" var="m">
     <g:set var="contactInfo" value="${m.contactInformation}"/>
     <tr class="crm-status-${m.status.param} crm-attender"
@@ -29,13 +30,16 @@
             <g:fieldValue bean="${m}" field="status"/>
         </td>
 
-        <g:set var="tags" value="${m.getTagValue()}"/>
-        <td style="width: 68px;text-align:right;">
+        <g:set var="tags" value="${m.getTagValue().sort()}"/>
+        <td style="width: 92px;text-align:right;">
+            <g:if test="${m.food}">
+                <i class="icon-warning-sign" title="${StringUtils.abbreviate(m.food, 100)}"></i>
+            </g:if>
             <g:if test="${m.description}">
-                <i class="icon-comment" title="${m.description}"></i>
+                <i class="icon-comment" title="${StringUtils.abbreviate(m.description, 100)}"></i>
             </g:if>
             <g:if test="${tags}">
-                <i class="icon-tags" title="${tags.sort().join(', ')}"></i>
+                <i class="icon-tags" title="${tags.join(', ')}"></i>
             </g:if>
             <g:unless test="${m.contact}">
                 <i class="icon-leaf"></i>

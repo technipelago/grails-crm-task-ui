@@ -1,4 +1,4 @@
-<%@ page import="org.apache.shiro.SecurityUtils; grails.plugins.crm.task.CrmTask" %>
+<%@ page import="org.apache.commons.lang.StringUtils; org.apache.shiro.SecurityUtils; grails.plugins.crm.task.CrmTask" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -120,6 +120,7 @@
                     <th><g:message code="crmContact.name.label" default="Name"/></th>
                     <th><g:message code="crmTaskAttender.address.label"/></th>
                     <th><g:message code="crmTaskAttender.status.label"/></th>
+                    <th></th>
                     <th><g:checkBox name="changeAll"
                                     title="${message(code: 'crmTaskAttender.button.select.all.label', default: 'Select all')}"/></th>
                 </tr>
@@ -139,20 +140,26 @@
                             ${contactInfo.address?.encodeAsHTML()}
                         </td>
 
-                        <g:set var="tags" value="${m.getTagValue()}"/>
                         <td>
-                            <g:unless test="${m.contact}">
-                                <i class="icon-leaf pull-right"></i>
-                            </g:unless>
-                            <g:if test="${tags}">
-                                <i class="icon-tags pull-right" title="${tags?.join(', ')}"></i>
-                            </g:if>
-                            <g:if test="${m.@notes}">
-                                <i class="icon-comment pull-right" title="${m.@notes}"></i>
-                            </g:if>
-
                             <g:fieldValue bean="${m}" field="status"/>
                         </td>
+
+                        <g:set var="tags" value="${m.getTagValue().sort()}"/>
+                        <td style="width: 92px;text-align:right;">
+                            <g:if test="${m.food}">
+                                <i class="icon-warning-sign" title="${StringUtils.abbreviate(m.food, 100)}"></i>
+                            </g:if>
+                            <g:if test="${m.description}">
+                                <i class="icon-comment" title="${StringUtils.abbreviate(m.description, 100)}"></i>
+                            </g:if>
+                            <g:if test="${tags}">
+                                <i class="icon-tags" title="${tags.join(', ')}"></i>
+                            </g:if>
+                            <g:unless test="${m.contact}">
+                                <i class="icon-leaf"></i>
+                            </g:unless>
+                        </td>
+
                         <td>
                             <input type="checkbox" name="attenders" value="${m.id}"/>
                         </td>
