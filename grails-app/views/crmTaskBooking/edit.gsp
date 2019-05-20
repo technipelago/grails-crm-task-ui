@@ -87,6 +87,15 @@
                         <label><g:message code="crmTaskBooking.invoiceAddress.label"/></label>
 
                         <div class="control-group">
+                            <label class="control-label"><g:message code="crmTaskBooking.invoiceAddress.addressee.label"/></label>
+
+                            <div class="controls">
+                                <g:textField name="invoiceAddress.addressee" value="${crmTaskBooking.invoiceAddress?.addressee}"
+                                             class="span11"/>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
                             <label class="control-label"><g:message code="crmAddress.address1.label"/></label>
 
                             <div class="controls">
