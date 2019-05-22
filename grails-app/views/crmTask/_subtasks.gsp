@@ -15,7 +15,7 @@
         <tr>
             <td>
                 <g:link controller="crmTask" action="show" params="${[id: crmTask.id]}">
-                    <g:formatDate type="date" date="${crmTask.startTime}"/>
+                    <g:formatDate type="datetime" date="${crmTask.startTime}"/>
                 </g:link>
             </td>
 
