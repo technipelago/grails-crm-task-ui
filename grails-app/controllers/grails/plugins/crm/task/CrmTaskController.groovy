@@ -178,11 +178,10 @@ class CrmTaskController {
         def crmTask = crmTaskService.createTask(params)
         def typeList = crmTaskService.listTaskTypes()
         def userList = crmSecurityService.getTenantUsers()
-        def timeList = (0..23).inject([]) { list, h ->
-            4.times {
-                list << String.format("%02d:%02d", h, it * 15)
-            }; list
-        }
+        def startHour = grailsApplication.config.crm.task.firstHour ?: 0
+        def endHour = grailsApplication.config.crm.task.lastHour ?: 23
+        def slots = grailsApplication.config.crm.task.hourSlots ?: 4
+        def timeList = getTimeList(startHour, endHour, slots)
         if (crmTask.startTime) {
             def hm = crmTask.startTime.format("HH:mm")
             if (!timeList.contains(hm)) {
@@ -289,11 +288,10 @@ class CrmTaskController {
         def crmTask = crmTaskService.createTask(params)
         def typeList = crmTaskService.listTaskTypes()
         def userList = crmSecurityService.getTenantUsers()
-        def timeList = (0..23).inject([]) { list, h ->
-            4.times {
-                list << String.format("%02d:%02d", h, it * 15)
-            }; list
-        }
+        def startHour = grailsApplication.config.crm.task.firstHour ?: 0
+        def endHour = grailsApplication.config.crm.task.lastHour ?: 23
+        def slots = grailsApplication.config.crm.task.hourSlots ?: 4
+        def timeList = getTimeList(startHour, endHour, slots)
         if (crmTask.startTime) {
             def hm = crmTask.startTime.format("HH:mm")
             if (!timeList.contains(hm)) {
@@ -374,6 +372,16 @@ class CrmTaskController {
                 }
                 break
         }
+    }
+
+    private List<String> getTimeList(int startHour, int endHour, int slotsPerHour) {
+        int minutes = (60 / slotsPerHour).intValue()
+        List<String> timeList = ((startHour)..(endHour)).inject([]) { list, h ->
+            (slotsPerHour).times {
+                list << String.format("%02d:%02d", h, it * minutes)
+            }; list
+        }
+        return timeList
     }
 
     private void setReference(object, ref) {
@@ -499,11 +507,10 @@ class CrmTaskController {
         }
         def typeList = crmTaskService.listTaskTypes()
         def userList = crmSecurityService.getTenantUsers()
-        def timeList = (0..23).inject([]) { list, h ->
-            4.times {
-                list << String.format("%02d:%02d", h, it * 15)
-            }; list
-        }
+        def startHour = grailsApplication.config.crm.task.firstHour ?: 0
+        def endHour = grailsApplication.config.crm.task.lastHour ?: 23
+        def slots = grailsApplication.config.crm.task.hourSlots ?: 4
+        def timeList = getTimeList(startHour, endHour, slots)
         if (crmTask.startTime) {
             def hm = crmTask.startTime.format("HH:mm")
             if (!timeList.contains(hm)) {
