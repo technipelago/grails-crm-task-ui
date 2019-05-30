@@ -103,6 +103,14 @@
                 $form.submit();
             }
             return false;
+        },
+        delete: function() {
+            if(confirm("${message(code: 'crmTask.button.delete.confirm.message')}")) {
+                var $form = $("#attender-change-form");
+                $("input[name='delete']", $form).val('true');
+                $form.submit();
+            }
+            return false;
         }
     };
 
@@ -197,6 +205,7 @@ tr.crm-attender i:last-child {
 
         <g:hiddenField name="task" value="${bean.id}"/>
         <g:hiddenField name="status" value=""/>
+        <g:hiddenField name="delete" value=""/>
 
         <table class="table table-striped">
             <thead>
@@ -240,11 +249,25 @@ tr.crm-attender i:last-child {
             <g:hiddenField name="id" value="${bean.id}"/>
 
             <crm:hasPermission permission="crmTask:edit">
-                <g:link controller="crmTaskAttender" action="create" id="${bean.id}" class="btn btn-success"
-                        accesskey="n">
-                    <i class="icon-user icon-white"></i>
-                    <g:message code="crmTask.button.book.label"/>
-                </g:link>
+
+                <crm:button type="link" group="true" controller="crmTaskAttender" action="create" id="${bean.id}" visual="success"
+                            icon="icon-user icon-white" label="crmTask.button.book.label" accesskey="n">
+
+                    <g:if test="${bean.sourceTask}">
+                        <button class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+                            <span class="caret"></span>
+                        </button>
+
+                        <ul class="dropdown-menu">
+                            <li>
+                                <g:link controller="crmTask" action="subTask" id="${crmTask.id}">
+                                    <g:message code="crmTask.button.subTask.label"/>
+                                </g:link>
+                            </li>
+                        </ul>
+                    </g:if>
+
+                </crm:button>
             </crm:hasPermission>
 
             <g:if test="${count}">
@@ -256,14 +279,22 @@ tr.crm-attender i:last-child {
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
-                                <g:each in="${statusList}" var="status">
-                                    <li>
-                                        <a href="javascript:void(0)"
-                                           onclick="ATTENDERS.update('status', ${status.id})">${status.encodeAsHTML()}</a>
-                                    </li>
-                                </g:each>
+                            <g:each in="${statusList}" var="status">
+                                <li>
+                                    <a href="javascript:void(0)"
+                                       onclick="ATTENDERS.update('status', ${status.id})">${status.encodeAsHTML()}</a>
+                                </li>
+                            </g:each>
                         </ul>
                     </div>
+
+                    <g:if test="${bean.sourceTask}">
+                        <crm:button type="url" href="javascript:void(0)" onclick="ATTENDERS.delete()"
+                                    visual="danger" icon="icon-trash icon-white" label="crmTask.button.delete.label"
+                                    permission="crmTask:delete"
+                        />
+                    </g:if>
+
                 </crm:hasPermission>
 
                 <div class="btn-group">
@@ -274,6 +305,17 @@ tr.crm-attender i:last-child {
                     </select:link>
                 </div>
             </g:if>
+
+            <g:if test="${count}">
+                <div class="btn-group">
+                    <select:link action="export" params="${[ns: 'crmTaskAttender']}" class="btn btn-info"
+                                 selection="${new URI('bean://crmTaskService/list?id=' + bean.id)}">
+                        <i class="icon-print icon-white"></i>
+                        <g:message code="crmTaskAttender.button.print.label" default="Print"/>
+                    </select:link>
+                </div>
+            </g:if>
+
             <crm:hasPermission permission="crmTaskAttender:archive">
                 <g:link controller="crmTaskAttender" action="archive" id="${crmTask.id}" style="margin-left: 12px; color: #990000;">
                     <g:message code="crmTaskAttender.archive.label" default="Archive"/>

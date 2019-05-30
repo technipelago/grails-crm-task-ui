@@ -657,6 +657,56 @@ class CrmTaskController {
         redirect action: 'show', id: crmTask.id
     }
 
+    @Transactional
+    def subTask(Long id) {
+        def tenant = TenantUtils.tenant
+        final CrmTask crmTask = CrmTask.get(id)
+        if (crmTask?.tenantId != tenant) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND)
+            return
+        }
+        def mainTask = crmTask.sourceTask
+        if(!mainTask) {
+            flash.error = message(code: 'crmTask.not.subTask.message', args: [message(code: 'crmTask.label', default: 'Task'), id])
+            redirect action: 'show', id: crmTask.id
+            return
+        }
+
+        def allAttenders = mainTask.attenders
+        def attenders = crmTask.attenders
+        def model = [crmTask: crmTask, mainTask: mainTask, allAttenders: allAttenders, attenders: attenders]
+
+        if(request.post) {
+            def user = crmSecurityService.getUserInfo(null)
+            def status = crmTaskService.getAttenderStatus('confirmed')
+            def selected = params.list('selected')
+
+            for(selectedId in selected) {
+                def a = CrmTaskAttender.get(selectedId)
+                if(a != null && a.booking.taskId == mainTask.id) {
+                    if(attenders.find{it.virtualId == a.virtualId}) {
+                        log.debug("$a already exists on $crmTask")
+                    } else {
+                        crmTaskService.addAttender(crmTask, a.contactInformation, status)
+                    }
+                } else {
+                    log.warn("$selectedId is not a valid attender id for $mainTask")
+                }
+            }
+
+            if (crmTask.save()) {
+                event(for: "crmTask", topic: "updated", data: [id: crmTask.id, tenant: crmTask.tenantId, user: user.username, name: crmTask.toString()])
+                flash.success = "Attendees updated"
+            } else {
+                flash.error = crmTask.errors.allErrors.toString()
+            }
+
+            redirect action: 'show', id: crmTask.id, fragment: 'attender'
+        }
+
+        return model
+    }
+
     def attenders(Long id) {
         def tenant = TenantUtils.tenant
         final CrmTask crmTask = CrmTask.get(id)
@@ -887,7 +937,7 @@ class CrmTaskController {
     }
 
     @Transactional
-    def updateAttenders(Long task, Long status) {
+    def updateAttenders(Long task, Long status, String delete) {
         def tenant = TenantUtils.tenant
         def crmTask = CrmTask.findByIdAndTenantId(task, tenant)
         if (!crmTask) {
@@ -895,13 +945,13 @@ class CrmTaskController {
             return
         }
 
+        List<Long> attenders = params.list('attenders')
         if (status) {
             def attenderStatus = CrmTaskAttenderStatus.findByIdAndTenantId(status, tenant)
             if (!attenderStatus) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "No CrmTaskAttenderStatus found with id [$status]")
                 return
             }
-            List<Long> attenders = params.list('attenders')
             for (a in attenders) {
                 CrmTaskAttender attender = CrmTaskAttender.get(a)
                 if (attender != null && attender.booking.taskId == task) {
@@ -911,6 +961,18 @@ class CrmTaskController {
                 }
             }
             flash.success = "Status uppdaterades för ${attenders.size()} st deltagare".toString()
+        } else if(delete == "true") {
+            List<CrmTaskAttender> deleted = []
+            for (a in attenders) {
+                CrmTaskAttender attender = CrmTaskAttender.get(a)
+                if (attender != null && attender.booking.taskId == task) {
+                    crmTaskService.deleteAttender(attender)
+                    deleted << attender
+                } else {
+                    log.error("No CrmTaskAttender found with id [$a] in tenant [$tenant]")
+                }
+            }
+            flash.warning = "${deleted.size()} st deltagare borttagna"
         }
 
         def linkParams = [id: crmTask.id]
