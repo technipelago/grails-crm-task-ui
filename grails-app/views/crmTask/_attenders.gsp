@@ -306,16 +306,6 @@ tr.crm-attender i:last-child {
                 </div>
             </g:if>
 
-            <g:if test="${count}">
-                <div class="btn-group">
-                    <select:link action="export" params="${[ns: 'crmTaskAttender']}" class="btn btn-info"
-                                 selection="${new URI('bean://crmTaskService/list?id=' + bean.id)}">
-                        <i class="icon-print icon-white"></i>
-                        <g:message code="crmTaskAttender.button.print.label" default="Print"/>
-                    </select:link>
-                </div>
-            </g:if>
-
             <crm:hasPermission permission="crmTaskAttender:archive">
                 <g:link controller="crmTaskAttender" action="archive" id="${crmTask.id}" style="margin-left: 12px; color: #990000;">
                     <g:message code="crmTaskAttender.archive.label" default="Archive"/>
