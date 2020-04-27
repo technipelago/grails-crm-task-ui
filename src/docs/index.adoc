@@ -96,6 +96,7 @@ image::calendar-month.png[Month Calendar, role="thumb"]
 
 == Changes
 
+2.5.0:: Add attender food preferences and biography fields
 2.4.5:: When adding an existing contact to a task, address info was not copied correct. This is now fixed.
 2.4.4:: Several small improvements to attender management
 2.4.3:: Attender contact information can now be easily replaced with an existing contact (requires crm-contact-ui 2.4.3)
