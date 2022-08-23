@@ -35,7 +35,7 @@ final class CrmTaskUiUtils {
             if (i != 0) {
                 return i
             }
-            ATTENDER_NAME_COMPARATOR.compare(o1, o2)
+            return ATTENDER_NAME_COMPARATOR.compare(o1, o2)
         }
     }
 
@@ -43,7 +43,7 @@ final class CrmTaskUiUtils {
         @Override
         int compare(CrmTaskAttender o1, CrmTaskAttender o2) {
             if (o1.booking.bookingRef != null) {
-                if (o2.booking?.bookingRef) {
+                if (o2.booking?.bookingRef != null) {
                     int i = o1.booking.bookingRef.compareTo(o2.booking.bookingRef)
                     if (i != 0) {
                         return i
@@ -65,7 +65,7 @@ final class CrmTaskUiUtils {
             CrmContactInformation contact1 = o1.contactInformation
             CrmContactInformation contact2 = o2.contactInformation
             if (contact1.lastName != null) {
-                if (contact2?.lastName) {
+                if (contact2?.lastName != null) {
                     int i = contact1.lastName.compareTo(contact2.lastName)
                     if (i != 0) {
                         return i
@@ -75,7 +75,7 @@ final class CrmTaskUiUtils {
                 }
             }
             if (contact1.firstName != null) {
-                if (contact2?.firstName) {
+                if (contact2?.firstName != null) {
                     int i = contact1.firstName.compareTo(contact2.firstName)
                     if (i != 0) {
                         return i
