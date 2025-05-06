@@ -37,13 +37,13 @@ grails.project.dependency.resolution = {
             export = false
         }
 
-        test(":codenarc:0.25.2") { export = false }
-        test(":code-coverage:2.0.3-3") { export = false }
+        //test(":codenarc:0.25.2") { export = false }
+        //test(":code-coverage:2.0.3-3") { export = false }
 
         compile ":selection-repository:0.9.3"
-        compile ":recent-domain:0.6.0"
-        compile ":decorator:1.1"
-        compile ":user-tag:1.0"
+        compile ":recent-domain:0.6.1"
+        compile ":decorator:1.1.1"
+        compile ":user-tag:1.0.1"
 
         compile ":crm-task:2.5.0"
         compile ":crm-contact:2.4.5"
@@ -51,7 +51,7 @@ grails.project.dependency.resolution = {
         compile ":crm-ui-bootstrap:2.4.4"
     }
 }
-
+/*
 codenarc.reports = {
     xmlReport('xml') {
         outputFile = 'target/CodeNarcReport.xml'
@@ -60,3 +60,4 @@ codenarc.reports = {
         outputFile = 'target/CodeNarcReport.html'
     }
 }
+*/

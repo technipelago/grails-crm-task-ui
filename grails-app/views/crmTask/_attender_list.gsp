@@ -30,7 +30,7 @@
             <g:fieldValue bean="${m}" field="status"/>
         </td>
 
-        <g:set var="tags" value="${m.getTagValue().sort()}"/>
+        <g:set var="tags" value="${m.getTagValue()?.sort()}"/>
         <td style="width: 92px;text-align:right;">
             <g:if test="${m.food}">
                 <i class="icon-warning-sign" title="${StringUtils.abbreviate(m.food, 100)}"></i>
